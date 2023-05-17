@@ -73,6 +73,17 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("hookUnlockAnim", false)) {
+			Class<?> KeyguardUnlockAnimationController = findClassIfExists("com.android.systemui.keyguard.KeyguardUnlockAnimationController", lpparam.classLoader);
+			if (KeyguardUnlockAnimationController != null) {
+				tryHookAllMethods(KeyguardUnlockAnimationController, "canPerformInWindowLauncherAnimations", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(false);
+					}
+				});
+			}
+		}
 	}
 
 	@Override
