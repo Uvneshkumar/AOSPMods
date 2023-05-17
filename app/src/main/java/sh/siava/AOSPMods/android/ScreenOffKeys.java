@@ -23,8 +23,8 @@ import java.util.Calendar;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.AOSPMods;
-import sh.siava.AOSPMods.utils.SystemUtils;
 import sh.siava.AOSPMods.XposedModPack;
+import sh.siava.AOSPMods.utils.SystemUtils;
 
 @SuppressWarnings("RedundantThrows")
 public class ScreenOffKeys extends XposedModPack {
@@ -137,7 +137,14 @@ public class ScreenOffKeys extends XposedModPack {
 						SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
 
 						param.setResult(null);
-						callMethod(SystemUtils.PowerManager(), "goToSleep", SystemClock.uptimeMillis());
+						if (Xprefs.getBoolean("rootForSleep", false)) {
+							try {
+								Runtime.getRuntime().exec("su -c input keyevent 223").waitFor();
+							} catch (Throwable ignored) {
+							}
+						} else {
+							callMethod(SystemUtils.PowerManager(), "goToSleep", SystemClock.uptimeMillis());
+						}
 					} catch (Throwable T) {
 						T.printStackTrace();
 					}

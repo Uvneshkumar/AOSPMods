@@ -4,6 +4,7 @@ import static com.topjohnwu.superuser.Shell.cmd;
 import static de.robv.android.xposed.XposedBridge.log;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.getStaticObjectField;
+import static sh.siava.AOSPMods.XPrefs.Xprefs;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
@@ -180,11 +181,18 @@ public class SystemUtils {
 	}
 
 	public static void Sleep() {
-		if (instance == null) return;
+		if (Xprefs.getBoolean("rootForSleep", false)) {
+			try {
+				Runtime.getRuntime().exec("su -c input keyevent 223").waitFor();
+			} catch (Throwable ignored) {
+			}
+		} else {
+			if (instance == null) return;
 
-		try {
-			callMethod(instance.mPowerManager, "goToSleep", SystemClock.uptimeMillis());
-		} catch (Throwable ignored) {
+			try {
+				callMethod(instance.mPowerManager, "goToSleep", SystemClock.uptimeMillis());
+			} catch (Throwable ignored) {
+			}
 		}
 	}
 
