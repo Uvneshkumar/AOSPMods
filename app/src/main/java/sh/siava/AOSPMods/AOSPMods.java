@@ -49,6 +49,7 @@ import sh.siava.AOSPMods.systemui.QSTileGrid;
 import sh.siava.AOSPMods.systemui.ScreenGestures;
 import sh.siava.AOSPMods.systemui.ScreenshotMuter;
 import sh.siava.AOSPMods.systemui.StatusbarMods;
+import sh.siava.AOSPMods.systemui.SystemUIListener;
 import sh.siava.AOSPMods.systemui.ThreeButtonNavMods;
 import sh.siava.AOSPMods.systemui.UDFPSManager;
 import sh.siava.AOSPMods.systemui.VolumeTile;
@@ -116,6 +117,7 @@ public class AOSPMods implements IXposedHookLoadPackage {
 
 		modPacks.add(AllAppsListener.class);
 		modPacks.add(PixelLauncherListener.class);
+		modPacks.add(SystemUIListener.class);
 		//endregion
 	}
 
