@@ -9,6 +9,8 @@ import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.view.GestureDetector;
@@ -39,9 +41,12 @@ public class QSQuickPullDown extends XposedModPack {
 	private static float statusbarPortion = 0.25f; // now set to 25% of the screen. it can be anything between 0 to 100%
 	private Object NotificationPanelViewController;
 	private String QSExpandMethodName;
+
 	public QSQuickPullDown(Context context) {
 		super(context);
 	}
+
+	final boolean[] hasVibrated = {false};
 
 	@Override
 	public void updatePrefs(String... Key) {
@@ -88,6 +93,16 @@ public class QSQuickPullDown extends XposedModPack {
 									: x < region;
 
 							if (pullDownApproved) {
+								if (XPrefs.Xprefs.getBoolean("enableQSQuickVibration", false) && !hasVibrated[0]) {
+									SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
+									hasVibrated[0] = true;
+									new Handler(Looper.myLooper()).postDelayed(new Runnable() {
+										@Override
+										public void run() {
+											hasVibrated[0] = false;
+										}
+									}, 500);
+								}
 								callMethod(param.thisObject, "expandWithQs");
 							}
 						}
@@ -126,6 +141,16 @@ public class QSQuickPullDown extends XposedModPack {
 										: x < region;
 
 								if (pullDownApproved) {
+									if (XPrefs.Xprefs.getBoolean("enableQSQuickVibration", false) && !hasVibrated[0]) {
+										SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
+										hasVibrated[0] = true;
+										new Handler(Looper.myLooper()).postDelayed(new Runnable() {
+											@Override
+											public void run() {
+												hasVibrated[0] = false;
+											}
+										}, 500);
+									}
 									callMethod(param.thisObject, "expandWithQs");
 								}
 							}
@@ -177,6 +202,16 @@ public class QSQuickPullDown extends XposedModPack {
 									: x < region;
 
 							if (pullDownApproved) {
+								if (XPrefs.Xprefs.getBoolean("enableQSQuickVibration", false) && !hasVibrated[0]) {
+									SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
+									hasVibrated[0] = true;
+									new Handler(Looper.myLooper()).postDelayed(new Runnable() {
+										@Override
+										public void run() {
+											hasVibrated[0] = false;
+										}
+									}, 500);
+								}
 								callMethod(NotificationPanelViewController, QSExpandMethodName);
 								return true;
 							}
