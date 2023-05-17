@@ -9,6 +9,8 @@ import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
 
 import android.content.Context;
+import android.os.VibrationAttributes;
+import android.os.VibrationEffect;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
@@ -19,7 +21,9 @@ import java.util.Arrays;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.AOSPMods;
+import sh.siava.AOSPMods.XPrefs;
 import sh.siava.AOSPMods.XposedModPack;
+import sh.siava.AOSPMods.utils.SystemUtils;
 
 @SuppressWarnings("RedundantThrows")
 public class QSQuickPullDown extends XposedModPack {
@@ -63,6 +67,10 @@ public class QSQuickPullDown extends XposedModPack {
 						@Override
 						protected void beforeHookedMethod(MethodHookParam param1) throws Throwable {
 							MotionEvent event = (MotionEvent) param1.args[0];
+							if (event.getAction() == MotionEvent.ACTION_DOWN) {
+								if (XPrefs.Xprefs.getBoolean("enableStatusBarVibration", false))
+									SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
+							}
 							if (!oneFingerPulldownEnabled) return;
 
 							int mBarState = (int) getObjectField(param.thisObject, "mBarState");
@@ -96,6 +104,10 @@ public class QSQuickPullDown extends XposedModPack {
 						@Override
 						protected void beforeHookedMethod(MethodHookParam param1) throws Throwable {
 							MotionEvent event = (MotionEvent) param1.args[1];
+							if (event.getAction() == MotionEvent.ACTION_DOWN) {
+								if (XPrefs.Xprefs.getBoolean("enableStatusBarVibration", false))
+									SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
+							}
 							if (!oneFingerPulldownEnabled) return;
 
 							if (!(boolean) getObjectField(param.thisObject, "mPulsing")
@@ -189,12 +201,16 @@ public class QSQuickPullDown extends XposedModPack {
 				XC_MethodHook statusbarTouchHook = new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						if (!oneFingerPulldownEnabled) return;
-
 						MotionEvent event =
 								param.args[0] instanceof MotionEvent
 										? (MotionEvent) param.args[0]
 										: (MotionEvent) param.args[1];
+
+						if (event.getAction() == MotionEvent.ACTION_DOWN) {
+							if (XPrefs.Xprefs.getBoolean("enableStatusBarVibration", false))
+								SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
+						}
+						if (!oneFingerPulldownEnabled) return;
 
 						gestureDetector.onTouchEvent(event);
 
