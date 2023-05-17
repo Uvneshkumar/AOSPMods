@@ -27,6 +27,7 @@ import sh.siava.AOSPMods.android.StatusbarSize;
 import sh.siava.AOSPMods.launcher.AOSPModsIconUpdater;
 import sh.siava.AOSPMods.launcher.ClearAllButtonMod;
 import sh.siava.AOSPMods.launcher.CustomNavGestures;
+import sh.siava.AOSPMods.launcher.PixelLauncherListener;
 import sh.siava.AOSPMods.launcher.TaskbarActivator;
 import sh.siava.AOSPMods.systemui.AOSPSettingsLauncher;
 import sh.siava.AOSPMods.systemui.BatteryStyleManager;
@@ -114,6 +115,7 @@ public class AOSPMods implements IXposedHookLoadPackage {
 		modPacks.add(HotSpotController.class);
 
 		modPacks.add(AllAppsListener.class);
+		modPacks.add(PixelLauncherListener.class);
 		//endregion
 	}
 
