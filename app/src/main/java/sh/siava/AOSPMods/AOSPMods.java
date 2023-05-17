@@ -15,6 +15,7 @@ import java.util.Calendar;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import sh.siava.AOSPMods.allApps.AllAppsListener;
 import sh.siava.AOSPMods.allApps.OverScrollDisabler;
 import sh.siava.AOSPMods.android.BrightnessRange;
 import sh.siava.AOSPMods.android.HotSpotController;
@@ -100,7 +101,7 @@ public class AOSPMods implements IXposedHookLoadPackage {
 		modPacks.add(FingerprintWhileDozing.class); 
 		modPacks.add(StatusbarSize.class); 
 		modPacks.add(ScreenRotation.class); 
-		modPacks.add(CallVibrator.class); 
+		modPacks.add(CallVibrator.class);
 		modPacks.add(FlashLightLevel.class);
 		modPacks.add(CustomNavGestures.class);
 		modPacks.add(PhoneWindowManager.class);
@@ -111,6 +112,8 @@ public class AOSPMods implements IXposedHookLoadPackage {
 		modPacks.add(AOSPModsIconUpdater.class);
 		modPacks.add(VolumeTile.class);
 		modPacks.add(HotSpotController.class);
+
+		modPacks.add(AllAppsListener.class);
 		//endregion
 	}
 
