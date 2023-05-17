@@ -6,6 +6,7 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 import android.content.Context;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
+import android.view.MotionEvent;
 import android.view.View;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -50,6 +51,19 @@ public class PixelLauncherListener extends XposedModPack {
 							}
 						} else {
 							hasVibrated[0] = false;
+						}
+					}
+				});
+			}
+		}
+		if (XPrefs.Xprefs.getBoolean("enableLauncherStatusVibration", false)) {
+			Class<?> StatusBarTouchController = findClassIfExists("com.android.launcher3.uioverrides.touchcontrollers.StatusBarTouchController", lpparam.classLoader);
+			if (StatusBarTouchController != null) {
+				tryHookAllMethods(StatusBarTouchController, "dispatchTouchEvent", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						if (((MotionEvent) (param.args[0])).getActionMasked() == MotionEvent.ACTION_DOWN) {
+							SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
 						}
 					}
 				});
