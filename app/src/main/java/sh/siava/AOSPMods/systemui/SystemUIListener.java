@@ -1,10 +1,12 @@
 package sh.siava.AOSPMods.systemui;
 
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
+import static de.robv.android.xposed.XposedHelpers.setIntField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.MotionEvent;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -80,6 +82,29 @@ public class SystemUIListener extends XposedModPack {
 					@Override
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						param.setResult(false);
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("whiteLockClock", false)) {
+			Class<?> AnimatableClockView = findClassIfExists("com.android.systemui.shared.clocks.AnimatableClockView", lpparam.classLoader);
+			if (AnimatableClockView != null) {
+				tryHookAllMethods(AnimatableClockView, "animateAppearOnLockscreen", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
+					}
+				});
+				tryHookAllMethods(AnimatableClockView, "animateFoldAppear", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
+					}
+				});
+				tryHookAllMethods(AnimatableClockView, "animateDoze", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
 					}
 				});
 			}
