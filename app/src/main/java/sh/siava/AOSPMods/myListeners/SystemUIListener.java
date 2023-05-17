@@ -1,4 +1,4 @@
-package sh.siava.AOSPMods.systemui;
+package sh.siava.AOSPMods.myListeners;
 
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
