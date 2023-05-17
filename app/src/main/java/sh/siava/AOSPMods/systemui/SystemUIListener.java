@@ -1,6 +1,8 @@
 package sh.siava.AOSPMods.systemui;
 
+import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
+import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
@@ -8,6 +10,7 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.MotionEvent;
+import android.view.View;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
@@ -105,6 +108,18 @@ public class SystemUIListener extends XposedModPack {
 					@Override
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("hideLockScreenStatusBar", false)) {
+			Class<?> KeyguardStatusBarView = findClassIfExists("com.android.systemui.statusbar.phone.KeyguardStatusBarView", lpparam.classLoader);
+			if (KeyguardStatusBarView != null) {
+				tryHookAllMethods(KeyguardStatusBarView, "loadDimens", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View mSystemIconsContainer = (View) getObjectField(param.thisObject, "mSystemIconsContainer");
+						callMethod(mSystemIconsContainer, "setVisibility", View.INVISIBLE);
 					}
 				});
 			}
