@@ -315,7 +315,9 @@ public class SystemUtils {
 	}
 
 	private boolean cantInitCamera() {
-		if(mCameraManager != null) return false;
+		if (Xprefs.getBoolean("disableCameraService", false)) return true;
+
+		if (mCameraManager != null) return false;
 
 		try {
 			HandlerThread thread = new HandlerThread("", THREAD_PRIORITY_BACKGROUND);
