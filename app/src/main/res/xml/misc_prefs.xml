@@ -1,6 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
+    <sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="My Settings">
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="rootForSleep"
+            android:title="Enable Root Method for DT2S" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="enablePixelVibration"
+            android:title="Enable Pixel Launcher Vibration" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="enableStatusBarVibration"
+            android:title="Enable Status Bar Vibration" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="enableLauncherStatusVibration"
+            android:title="Enable Launcher Status Bar Vibration" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="enableQSQuickVibration"
+            android:title="Enable QS Quick Pull Down Vibration" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="disableLocationPrivacyIndicator"
+            android:title="Disable Location Privacy Indicator" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="disableLockScreenBounce"
+            android:title="Disable Lock Screen Bounce" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="disableCameraService"
+            android:title="Disable Camera and Torch Service" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="disableBluetoothIcon"
+            android:title="Disable Bluetooth icon in Status Bar" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="disableBatteryTime"
+            android:title="Disable Battery Time in Status Bar" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="hookUnlockAnim"
+            android:title="Hook Unlock Animation" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="whiteLockClock"
+            android:title="White Lock Clock" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="hideLockScreenStatusBar"
+            android:title="Hide Lock Screen Status Bar" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="forceSmallClock"
+            android:title="Force Small Clock (A12)" />
+    </sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
     <sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/general_section">
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
