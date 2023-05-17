@@ -9,7 +9,6 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.view.MotionEvent;
 import android.view.View;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -44,14 +43,14 @@ public class SystemUIListener extends XposedModPack {
 			}
 		}
 		if (Xprefs.getBoolean("disableLockScreenBounce", false)) {
-			Class<?> DragDownHelper = findClassIfExists("com.android.systemui.statusbar.DragDownHelper", lpparam.classLoader);
-			if (DragDownHelper != null) {
-				tryHookAllMethods(DragDownHelper, "onInterceptTouchEvent", new XC_MethodHook() {
+			Class<?> NotificationPanelViewController = findClassIfExists("com.android.systemui.shade.NotificationPanelViewController", lpparam.classLoader);
+			if (NotificationPanelViewController != null) {
+				tryHookAllMethods(NotificationPanelViewController, "startUnlockHintAnimation", new XC_MethodHook() {
 					@Override
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-						if (((MotionEvent) (param.args[0])).getActionMasked() == MotionEvent.ACTION_UP) {
-							param.setResult(true);
-						}
+						callMethod(param.thisObject, "onUnlockHintStarted");
+						callMethod(param.thisObject, "onUnlockHintFinished");
+						param.setResult(null);
 					}
 				});
 			}
