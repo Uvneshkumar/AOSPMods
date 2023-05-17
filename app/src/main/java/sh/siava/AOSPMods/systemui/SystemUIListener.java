@@ -124,6 +124,17 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("forceSmallClock", false)) {
+			Class<?> KeyguardClockSwitch = findClassIfExists("com.android.keyguard.KeyguardClockSwitch", lpparam.classLoader);
+			if (KeyguardClockSwitch != null) {
+				tryHookAllMethods(KeyguardClockSwitch, "animateClockChange", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.args[0] = false;
+					}
+				});
+			}
+		}
 	}
 
 	@Override
