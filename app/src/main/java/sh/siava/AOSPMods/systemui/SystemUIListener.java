@@ -62,6 +62,17 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("disableBatteryTime", false)) {
+			Class<?> BatteryControllerImpl = findClassIfExists("com.android.systemui.statusbar.policy.BatteryControllerImpl", lpparam.classLoader);
+			if (BatteryControllerImpl != null) {
+				tryHookAllMethods(BatteryControllerImpl, "generateTimeRemainingString", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(null);
+					}
+				});
+			}
+		}
 	}
 
 	@Override
