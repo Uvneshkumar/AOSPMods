@@ -134,6 +134,19 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("hideLockIcon", false)) {
+			Class<?> LockIconViewController = findClassIfExists("com.android.keyguard.LockIconViewController", lpparam.classLoader);
+			if (LockIconViewController != null) {
+				tryHookAllMethods(LockIconViewController, "updateVisibility", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						View mSystemIconsContainer = (View) getObjectField(param.thisObject, "mView");
+						callMethod(mSystemIconsContainer, "setVisibility", View.INVISIBLE);
+						param.setResult(null);
+					}
+				});
+			}
+		}
 	}
 
 	@Override

@@ -12,6 +12,10 @@
             android:title="Long press Power Button to kill System UI" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
+            android:key="hideLockIcon"
+            android:title="Hide Lock Icon in Lock Screen" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
             android:key="rootForSleep"
             android:title="Enable Root Method for DT2S" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
