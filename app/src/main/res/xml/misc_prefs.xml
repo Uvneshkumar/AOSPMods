@@ -7,6 +7,10 @@
             android:key="disableAllOtherMods"
             android:title="Disable All Other Mods" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:key="killSystemUi"
+            android:title="Long press Power Button to kill System UI" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="rootForSleep"
             android:title="Enable Root Method for DT2S" />
