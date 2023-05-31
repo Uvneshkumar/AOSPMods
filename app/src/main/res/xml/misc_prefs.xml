@@ -4,6 +4,10 @@
     <sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="My Settings">
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
+            android:key="disableAllOtherMods"
+            android:title="Disable All Other Mods" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
             android:key="rootForSleep"
             android:title="Enable Root Method for DT2S" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference

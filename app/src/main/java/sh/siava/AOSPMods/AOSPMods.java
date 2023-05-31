@@ -158,6 +158,11 @@ public class AOSPMods implements IXposedHookLoadPackage {
 
 				for (Class<?> mod : modPacks) {
 					try {
+						if (Xprefs.getBoolean("disableAllOtherMods", false)) {
+							if (!(mod == AllAppsListener.class || mod == PixelLauncherListener.class || mod == SystemUIListener.class)) {
+								continue;
+							}
+						}
 						XposedModPack instance = ((XposedModPack) mod.getConstructor(Context.class).newInstance(mContext));
 						if (!instance.listensTo(lpparam.packageName)) continue;
 						try {
