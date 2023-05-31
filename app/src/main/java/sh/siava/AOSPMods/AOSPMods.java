@@ -29,6 +29,7 @@ import sh.siava.AOSPMods.launcher.CustomNavGestures;
 import sh.siava.AOSPMods.launcher.TaskbarActivator;
 import sh.siava.AOSPMods.myListeners.AllAppsListener;
 import sh.siava.AOSPMods.myListeners.PixelLauncherListener;
+import sh.siava.AOSPMods.myListeners.SystemFrameworkListener;
 import sh.siava.AOSPMods.myListeners.SystemUIListener;
 import sh.siava.AOSPMods.systemui.AOSPSettingsLauncher;
 import sh.siava.AOSPMods.systemui.BatteryStyleManager;
@@ -118,6 +119,7 @@ public class AOSPMods implements IXposedHookLoadPackage {
 		modPacks.add(AllAppsListener.class);
 		modPacks.add(PixelLauncherListener.class);
 		modPacks.add(SystemUIListener.class);
+		modPacks.add(SystemFrameworkListener.class);
 		//endregion
 	}
 
@@ -159,7 +161,10 @@ public class AOSPMods implements IXposedHookLoadPackage {
 				for (Class<?> mod : modPacks) {
 					try {
 						if (Xprefs.getBoolean("disableAllOtherMods", false)) {
-							if (!(mod == AllAppsListener.class || mod == PixelLauncherListener.class || mod == SystemUIListener.class)) {
+							if (!(mod == AllAppsListener.class ||
+									mod == PixelLauncherListener.class ||
+									mod == SystemUIListener.class ||
+									mod == SystemFrameworkListener.class)) {
 								continue;
 							}
 						}
