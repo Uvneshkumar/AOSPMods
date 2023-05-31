@@ -9,6 +9,7 @@ import static sh.siava.AOSPMods.XPrefs.Xprefs;
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.DownloadManager;
+import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -53,6 +54,7 @@ public class SystemUtils {
 	VibratorManager mVibrationManager;
 	AudioManager mAudioManager;
 	PowerManager mPowerManager;
+	KeyguardManager mKeyguardManager;
 	ConnectivityManager mConnectivityManager;
 	TelephonyManager mTelephonyManager;
 	AlarmManager mAlarmManager;
@@ -139,6 +141,13 @@ public class SystemUtils {
 	public static PowerManager PowerManager() {
 		if (instance == null) return null;
 		return instance.mPowerManager;
+	}
+
+	@Nullable
+	@Contract(pure = true)
+	public static KeyguardManager KeyguardManager() {
+		if (instance == null) return null;
+		return instance.mKeyguardManager;
 	}
 
 	@Nullable
@@ -231,6 +240,16 @@ public class SystemUtils {
 		} catch (Throwable t) {
 			if (BuildConfig.DEBUG) {
 				log("AOSPMods Error getting power manager");
+				t.printStackTrace();
+			}
+		}
+
+		//Power
+		try {
+			mKeyguardManager = (KeyguardManager) mContext.getSystemService(Context.KEYGUARD_SERVICE);
+		} catch (Throwable t) {
+			if (BuildConfig.DEBUG) {
+				log("AOSPMods Error getting keyguard manager");
 				t.printStackTrace();
 			}
 		}
