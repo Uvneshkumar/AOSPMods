@@ -16,6 +16,15 @@ import android.os.VibrationEffect;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.AOSPMods;
@@ -38,6 +47,72 @@ public class SystemUIListener extends XposedModPack {
 	private final StringFormatter stringFormatter = new StringFormatter();
 	private Object QSFV;
 	private final StringFormatter.formattedStringCallback refreshCallback = this::setQSFooterText;
+
+	// Seems like an executor, but doesn't act! perfect thing
+	ExecutorService notExecutor = new ExecutorService() {
+		@Override
+		public void shutdown() {
+		}
+
+		@Override
+		public List<Runnable> shutdownNow() {
+			return null;
+		}
+
+		@Override
+		public boolean isShutdown() {
+			return false;
+		}
+
+		@Override
+		public boolean isTerminated() {
+			return false;
+		}
+
+		@Override
+		public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+			return false;
+		}
+
+		@Override
+		public <T> Future<T> submit(Callable<T> task) {
+			return null;
+		}
+
+		@Override
+		public <T> Future<T> submit(Runnable task, T result) {
+			return null;
+		}
+
+		@Override
+		public Future<?> submit(Runnable task) {
+			return null;
+		}
+
+		@Override
+		public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException {
+			return null;
+		}
+
+		@Override
+		public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException {
+			return null;
+		}
+
+		@Override
+		public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws ExecutionException, InterruptedException {
+			return null;
+		}
+
+		@Override
+		public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws ExecutionException, InterruptedException, TimeoutException {
+			return null;
+		}
+
+		@Override
+		public void execute(Runnable command) {
+		}
+	};
 
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -188,6 +263,17 @@ public class SystemUIListener extends XposedModPack {
 								setQSFooterText();
 							}
 						});
+			}
+		}
+		if (Xprefs.getBoolean("disableScreenshotSound", false)) {
+			Class<?> ScreenshotControllerClass = findClassIfExists("com.android.systemui.screenshot.ScreenshotController", lpparam.classLoader);
+			if (ScreenshotControllerClass != null) {
+				tryHookAllConstructors(ScreenshotControllerClass, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						setObjectField(param.thisObject, "mBgExecutor", notExecutor);
+					}
+				});
 			}
 		}
 	}
