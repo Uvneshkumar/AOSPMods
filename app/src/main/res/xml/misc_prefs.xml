@@ -114,6 +114,10 @@
             android:defaultValue="false"
             android:key="dt2sLockScreen"
             android:title="DT2S Lock Screen" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="holdVolumeToSkipMusic"
+            android:title="Long Press Volume Buttons to Skip Music" />
     </sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
     <sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/general_section">
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference

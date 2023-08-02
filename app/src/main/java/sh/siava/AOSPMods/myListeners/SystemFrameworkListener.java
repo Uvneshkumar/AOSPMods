@@ -4,10 +4,19 @@ import static de.robv.android.xposed.XposedBridge.hookMethod;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.findMethodExactIfExists;
+import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
+import android.content.Intent;
+import android.media.AudioManager;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.os.VibrationAttributes;
+import android.os.VibrationEffect;
+import android.view.KeyEvent;
+import android.view.ViewConfiguration;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -39,6 +48,8 @@ public class SystemFrameworkListener extends XposedModPack {
 	}
 
 	public final int PERMISSION = 4;
+
+	private boolean isVolDown = false;
 
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -112,6 +123,52 @@ public class SystemFrameworkListener extends XposedModPack {
 						}
 					}
 				});
+			}
+		}
+		if (Xprefs.getBoolean("holdVolumeToSkipMusic", false)) {
+			Class<?> PhoneWindowManager = findClassIfExists("com.android.server.policy.PhoneWindowManager", lpparam.classLoader);
+			if (PhoneWindowManager != null) {
+				Method interceptKeyBeforeQueueing = findMethodExactIfExists(PhoneWindowManager, "interceptKeyBeforeQueueing", KeyEvent.class, int.class);
+				if (interceptKeyBeforeQueueing != null) {
+					Runnable mVolumeLongPress = () -> {
+						try {
+							Intent keyIntent = new Intent(Intent.ACTION_MEDIA_BUTTON, null);
+							KeyEvent keyEvent = new KeyEvent(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), KeyEvent.ACTION_DOWN, (isVolDown) ? KeyEvent.KEYCODE_MEDIA_PREVIOUS : KeyEvent.KEYCODE_MEDIA_NEXT, 0);
+							keyIntent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
+							SystemUtils.AudioManager().dispatchMediaKeyEvent(keyEvent);
+							keyEvent = KeyEvent.changeAction(keyEvent, KeyEvent.ACTION_UP);
+							keyIntent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
+							SystemUtils.AudioManager().dispatchMediaKeyEvent(keyEvent);
+							SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
+						} catch (Throwable ignored) {
+						}
+					};
+					hookMethod(interceptKeyBeforeQueueing, new XC_MethodHook() {
+						@Override
+						protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+							try {
+								Handler mHandler = (Handler) getObjectField(param.thisObject, "mHandler");
+								KeyEvent e = (KeyEvent) param.args[0];
+								int Keycode = e.getKeyCode();
+								switch (e.getAction()) {
+									case KeyEvent.ACTION_UP:
+										if (mHandler.hasCallbacks(mVolumeLongPress)) {
+											SystemUtils.AudioManager().adjustStreamVolume(AudioManager.STREAM_MUSIC, Keycode == KeyEvent.KEYCODE_VOLUME_DOWN ? AudioManager.ADJUST_LOWER : AudioManager.ADJUST_RAISE, 0);
+											mHandler.removeCallbacks(mVolumeLongPress);
+										}
+										return;
+									case KeyEvent.ACTION_DOWN:
+										if (!SystemUtils.PowerManager().isInteractive() && (Keycode == KeyEvent.KEYCODE_VOLUME_DOWN || Keycode == KeyEvent.KEYCODE_VOLUME_UP) && SystemUtils.AudioManager().isMusicActive()) {
+											isVolDown = (Keycode == KeyEvent.KEYCODE_VOLUME_DOWN);
+											mHandler.postDelayed(mVolumeLongPress, ViewConfiguration.getLongPressTimeout());
+											param.setResult(0);
+										}
+								}
+							} catch (Throwable ignored) {
+							}
+						}
+					});
+				}
 			}
 		}
 	}
