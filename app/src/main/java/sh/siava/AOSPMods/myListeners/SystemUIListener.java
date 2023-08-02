@@ -2,6 +2,7 @@ package sh.siava.AOSPMods.myListeners;
 
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
+import static de.robv.android.xposed.XposedHelpers.getBooleanField;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
@@ -336,6 +337,23 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("dt2sLockScreen", false)) {
+			Class<?> NotificationShadeWindowViewControllerClass = findClassIfExists("com.android.systemui.shade.NotificationShadeWindowViewController", lpparam.classLoader);
+			if (NotificationShadeWindowViewControllerClass != null) {
+				tryHookAllConstructors(NotificationShadeWindowViewControllerClass, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						new Thread(() -> {
+							try {
+								Thread.sleep(5000); // for some reason lsposed doesn't find methods in the class. so we'll hook to constructor and wait a bit!
+							} catch (Exception ignored) {
+							}
+							setHooks(param);
+						}).start();
+					}
+				});
+			}
+		}
 	}
 
 	private void setQSFooterText() {
@@ -373,6 +391,41 @@ public class SystemUIListener extends XposedModPack {
 		};
 		tryHookAllMethods(TouchHanlderClass, "onTouch", touchHook); // 13 QPR2
 		tryHookAllMethods(TouchHanlderClass, "handleTouchEvent", touchHook); // A13 R18
+	}
+
+	private void setHooks(XC_MethodHook.MethodHookParam param) {
+		try {
+			Object mPulsingWakeupGestureHandler = getObjectField(param.thisObject, "mPulsingWakeupGestureHandler"); // A13 R18
+			Object mStatusBarKeyguardViewManager = getObjectField(param.thisObject, "mStatusBarKeyguardViewManager");
+			Object mStatusBarStateController = getObjectField(param.thisObject, "mStatusBarStateController");
+			// detect DTS on lockscreen
+			tryHookAllMethods(mPulsingWakeupGestureHandler.getClass(), "onTouchEvent", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param1) throws Throwable {
+					try {
+						if (keyguardNotShowing(mStatusBarKeyguardViewManager)) {
+							return;
+						}
+						MotionEvent ev = (MotionEvent) param1.args[0];
+						int action = ev.getActionMasked();
+						if (action == MotionEvent.ACTION_UP) {
+							if ((Xprefs.getBoolean("dt2sLockScreen", false)) && !((boolean) callMethod(mStatusBarStateController, "isDozing")))
+								SystemUtils.Sleep();
+						}
+					} catch (Throwable ignored) {
+					}
+				}
+			});
+		} catch (Throwable ignored) {
+		}
+	}
+
+	private boolean keyguardNotShowing(Object mStatusBarKeyguardViewManager) {
+		try {
+			return !((boolean) callMethod(mStatusBarKeyguardViewManager, "isShowing"));
+		} catch (Throwable ignored) {
+			return !getBooleanField(mStatusBarKeyguardViewManager, "mLastShowing");
+		}
 	}
 
 	@Override
