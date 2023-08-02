@@ -360,11 +360,14 @@ public class SystemUIListener extends XposedModPack {
 			protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 				if (!(Xprefs.getBoolean("dt2sStatusBar", false))) return;
 				// double tap to sleep, statusbar only
-				if (!(boolean) getObjectField(NotificationPanelViewController, "mPulsing")
-						&& !(boolean) getObjectField(NotificationPanelViewController, "mDozing")
-						&& (int) getObjectField(NotificationPanelViewController, "mBarState") == SHADE
-						&& (boolean) callMethod(NotificationPanelViewController, "isFullyCollapsed")) {
-					mLockscreenDoubleTapToSleep.onTouchEvent((MotionEvent) param.args[param.args.length - 1]);
+				try {
+					if (!(boolean) getObjectField(NotificationPanelViewController, "mPulsing")
+							&& !(boolean) getObjectField(NotificationPanelViewController, "mDozing")
+							&& (int) getObjectField(NotificationPanelViewController, "mBarState") == SHADE
+							&& (boolean) callMethod(NotificationPanelViewController, "isFullyCollapsed")) {
+						mLockscreenDoubleTapToSleep.onTouchEvent((MotionEvent) param.args[param.args.length - 1]);
+					}
+				} catch (Throwable ignored) {
 				}
 			}
 		};
