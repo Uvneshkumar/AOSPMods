@@ -9,12 +9,15 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.VibrationAttributes;
+import android.os.VibrationEffect;
 import android.view.View;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.AOSPMods;
 import sh.siava.AOSPMods.XposedModPack;
+import sh.siava.AOSPMods.utils.SystemUtils;
 
 @SuppressWarnings("RedundantThrows")
 public class SystemUIListener extends XposedModPack {
@@ -145,6 +148,19 @@ public class SystemUIListener extends XposedModPack {
 						param.setResult(null);
 					}
 				});
+			}
+		}
+		if (Xprefs.getBoolean("qsTileVibrate", false)) {
+			Class<?> QSTileImplClass = findClassIfExists("com.android.systemui.qs.tileimpl.QSTileImpl", lpparam.classLoader);
+			if (QSTileImplClass != null) {
+				XC_MethodHook vibrateCallback = new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						SystemUtils.vibrate(VibrationEffect.EFFECT_CLICK, VibrationAttributes.USAGE_TOUCH);
+					}
+				};
+				tryHookAllMethods(QSTileImplClass, "click", vibrateCallback);
+				tryHookAllMethods(QSTileImplClass, "longClick", vibrateCallback);
 			}
 		}
 	}
