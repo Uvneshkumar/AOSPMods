@@ -31,6 +31,7 @@ import sh.siava.AOSPMods.myListeners.AllAppsListener;
 import sh.siava.AOSPMods.myListeners.PixelLauncherListener;
 import sh.siava.AOSPMods.myListeners.SystemFrameworkListener;
 import sh.siava.AOSPMods.myListeners.SystemUIListener;
+import sh.siava.AOSPMods.myListeners.TelecomListener;
 import sh.siava.AOSPMods.systemui.AOSPSettingsLauncher;
 import sh.siava.AOSPMods.systemui.BatteryStyleManager;
 import sh.siava.AOSPMods.systemui.BrightnessSlider;
@@ -120,6 +121,7 @@ public class AOSPMods implements IXposedHookLoadPackage {
 		modPacks.add(PixelLauncherListener.class);
 		modPacks.add(SystemUIListener.class);
 		modPacks.add(SystemFrameworkListener.class);
+		modPacks.add(TelecomListener.class);
 		//endregion
 	}
 
@@ -164,7 +166,8 @@ public class AOSPMods implements IXposedHookLoadPackage {
 							if (!(mod == AllAppsListener.class ||
 									mod == PixelLauncherListener.class ||
 									mod == SystemUIListener.class ||
-									mod == SystemFrameworkListener.class)) {
+									mod == SystemFrameworkListener.class ||
+									mod == TelecomListener.class)) {
 								continue;
 							}
 						}
