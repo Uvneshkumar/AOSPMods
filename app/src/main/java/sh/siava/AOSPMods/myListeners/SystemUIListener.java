@@ -21,6 +21,8 @@ import android.widget.TextView;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -123,6 +125,8 @@ public class SystemUIListener extends XposedModPack {
 	private static final int SHADE = 0; // frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/StatusBarState.java - screen unlocked - pulsing means screen is locked - shade locked means (Q)QS is open on lockscreen
 	GestureDetector mLockscreenDoubleTapToSleep; // event callback for double tap to sleep detection of statusbar only
 	private Object NotificationPanelViewController;
+
+	private boolean doubleTap;
 
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -396,8 +400,32 @@ public class SystemUIListener extends XposedModPack {
 	private void setHooks(XC_MethodHook.MethodHookParam param) {
 		try {
 			Object mPulsingWakeupGestureHandler = getObjectField(param.thisObject, "mPulsingWakeupGestureHandler"); // A13 R18
+			Object mListener = getObjectField(mPulsingWakeupGestureHandler, "mListener");
 			Object mStatusBarKeyguardViewManager = getObjectField(param.thisObject, "mStatusBarKeyguardViewManager");
 			Object mStatusBarStateController = getObjectField(param.thisObject, "mStatusBarStateController");
+			XC_MethodHook doubleTapHook = new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param1) throws Throwable {
+					boolean isQSExpanded;
+					try { // 13 QPR3
+						isQSExpanded = getBooleanField(getObjectField(NotificationPanelViewController, "mQsController"), "mExpanded");
+					} catch (Throwable ignored) {
+						isQSExpanded = getBooleanField(NotificationPanelViewController, "mQsExpanded"); // 13 QPR2, 1
+					}
+					if (isQSExpanded || getBooleanField(NotificationPanelViewController, "mBouncerShowing")) {
+						return;
+					}
+					doubleTap = true;
+					new Timer().schedule(new TimerTask() {
+						@Override
+						public void run() {
+							doubleTap = false;
+						}
+					}, 500 * 2);
+				}
+			};
+			tryHookAllMethods(mListener.getClass(), "onDoubleTapEvent", doubleTapHook); // A13 R18
+			tryHookAllMethods(mListener.getClass(), "onDoubleTap", doubleTapHook); // older
 			// detect DTS on lockscreen
 			tryHookAllMethods(mPulsingWakeupGestureHandler.getClass(), "onTouchEvent", new XC_MethodHook() {
 				@Override
@@ -408,7 +436,7 @@ public class SystemUIListener extends XposedModPack {
 						}
 						MotionEvent ev = (MotionEvent) param1.args[0];
 						int action = ev.getActionMasked();
-						if (action == MotionEvent.ACTION_UP) {
+						if (doubleTap && action == MotionEvent.ACTION_UP) {
 							if ((Xprefs.getBoolean("dt2sLockScreen", false)) && !((boolean) callMethod(mStatusBarStateController, "isDozing")))
 								SystemUtils.Sleep();
 						}
