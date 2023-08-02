@@ -292,6 +292,11 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		try {
+			String mode = Xprefs.getBoolean("sysUiTuner", false) ? "enable" : "disable";
+			com.topjohnwu.superuser.Shell.cmd("pm " + mode + " com.android.systemui/.tuner.TunerActivity").exec();
+		} catch (Exception ignored) {
+		}
 	}
 
 	private void setQSFooterText() {

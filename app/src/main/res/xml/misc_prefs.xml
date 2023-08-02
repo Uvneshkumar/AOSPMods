@@ -86,6 +86,10 @@
             android:defaultValue="false"
             android:key="enableClipboardSmartActions"
             android:title="Clipboard Smart Actions" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="sysUiTuner"
+            android:title="System UI Tuner" />
     </sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
     <sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/general_section">
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
