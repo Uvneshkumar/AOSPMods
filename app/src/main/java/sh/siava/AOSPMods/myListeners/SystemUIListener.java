@@ -114,6 +114,9 @@ public class SystemUIListener extends XposedModPack {
 		}
 	};
 
+	public final String CLIPBOARD_OVERLAY_SHOW_ACTIONS = "clipboard_overlay_show_actions";
+	public final String NAMESPACE_SYSTEMUI = "systemui";
+
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
 		if (!lpparam.packageName.equals(listenPackage)) return;
@@ -272,6 +275,19 @@ public class SystemUIListener extends XposedModPack {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						setObjectField(param.thisObject, "mBgExecutor", notExecutor);
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("enableClipboardSmartActions", false)) {
+			Class<?> DeviceConfigClass = findClassIfExists("android.provider.DeviceConfig", lpparam.classLoader);
+			if (DeviceConfigClass != null) {
+				tryHookAllMethods(DeviceConfigClass, "getBoolean", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						if (param.args[0].equals(NAMESPACE_SYSTEMUI) && param.args[1].equals(CLIPBOARD_OVERLAY_SHOW_ACTIONS)) {
+							param.setResult(true);
+						}
 					}
 				});
 			}
