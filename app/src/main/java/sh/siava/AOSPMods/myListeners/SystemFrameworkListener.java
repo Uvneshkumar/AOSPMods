@@ -3,6 +3,8 @@ package sh.siava.AOSPMods.myListeners;
 import static de.robv.android.xposed.XposedBridge.hookMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.findMethodExactIfExists;
+import static sh.siava.AOSPMods.XPrefs.Xprefs;
+import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
 import android.widget.Toast;
@@ -14,7 +16,6 @@ import java.lang.reflect.Method;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.AOSPMods;
-import sh.siava.AOSPMods.XPrefs;
 import sh.siava.AOSPMods.XposedModPack;
 import sh.siava.AOSPMods.utils.SystemUtils;
 
@@ -38,7 +39,7 @@ public class SystemFrameworkListener extends XposedModPack {
 
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
-		if (XPrefs.Xprefs.getBoolean("killSystemUi", true)) {
+		if (Xprefs.getBoolean("killSystemUi", true)) {
 			try {
 				Class<?> PhoneWindowManager = findClassIfExists("com.android.server.policy.PhoneWindowManager", lpparam.classLoader);
 				if (PhoneWindowManager != null) {
@@ -56,6 +57,17 @@ public class SystemFrameworkListener extends XposedModPack {
 					}
 				}
 			} catch (Exception ignored) {
+			}
+		}
+		if (Xprefs.getBoolean("allowDowngrade", false)) {
+			Class<?> PackageManagerServiceUtilsClass = findClassIfExists("com.android.server.pm.PackageManagerServiceUtils", lpparam.classLoader);
+			if (PackageManagerServiceUtilsClass != null) {
+				tryHookAllMethods(PackageManagerServiceUtilsClass, "checkDowngrade", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(null);
+					}
+				});
 			}
 		}
 	}
