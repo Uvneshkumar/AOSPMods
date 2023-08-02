@@ -118,6 +118,10 @@
             android:defaultValue="false"
             android:key="holdVolumeToSkipMusic"
             android:title="Long Press Volume Buttons to Skip Music" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="holdPowerForTorch"
+            android:title="Long Press Power Button for Torch" />
     </sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
     <sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/general_section">
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
