@@ -1,6 +1,7 @@
 package sh.siava.AOSPMods.myListeners;
 
 import static de.robv.android.xposed.XposedBridge.hookMethod;
+import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.findMethodExactIfExists;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
@@ -37,6 +38,8 @@ public class SystemFrameworkListener extends XposedModPack {
 		return listenPackage.equals(packageName);
 	}
 
+	public final int PERMISSION = 4;
+
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
 		if (Xprefs.getBoolean("killSystemUi", true)) {
@@ -66,6 +69,47 @@ public class SystemFrameworkListener extends XposedModPack {
 					@Override
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						param.setResult(null);
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("allowMismatchedSignature", false)) {
+			Class<?> SigningDetailsClass = findClassIfExists("android.content.pm.SigningDetails", lpparam.classLoader);
+			Class<?> PackageManagerServiceUtilsClass = findClassIfExists("com.android.server.pm.PackageManagerServiceUtils", lpparam.classLoader);
+			Class<?> InstallPackageHelperClass = findClassIfExists("com.android.server.pm.InstallPackageHelper", lpparam.classLoader);
+			if (SigningDetailsClass != null) {
+				tryHookAllMethods(SigningDetailsClass, "checkCapability", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						if (!param.args[1].equals(PERMISSION)) {
+							param.setResult(true);
+						}
+					}
+				});
+			}
+			if (PackageManagerServiceUtilsClass != null) {
+				tryHookAllMethods(PackageManagerServiceUtilsClass, "verifySignatures", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						try {
+							if (callMethod(callMethod(param.args[0], "getSigningDetails"), "getSignatures") != null) {
+								param.setResult(true);
+							}
+						} catch (Throwable ignored) {
+						}
+					}
+				});
+			}
+			if (InstallPackageHelperClass != null) {
+				tryHookAllMethods(InstallPackageHelperClass, "doesSignatureMatchForPermissions", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						try {
+							if (callMethod(param.args[1], "getPackageName").equals(param.args[0]) && ((String) callMethod(param.args[1], "getBaseApkPath")).startsWith("/data")) {
+								param.setResult(true);
+							}
+						} catch (Throwable ignored) {
+						}
 					}
 				});
 			}

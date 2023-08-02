@@ -94,6 +94,10 @@
             android:defaultValue="false"
             android:key="allowDowngrade"
             android:title="Allow App Downgrade" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="allowMismatchedSignature"
+            android:title="Allow Mismatched Signature" />
     </sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
     <sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/general_section">
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
