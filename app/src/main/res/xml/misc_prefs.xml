@@ -74,6 +74,10 @@
             android:defaultValue="false"
             android:key="qsTileVibrate"
             android:title="Vibrate QS tiles on Tap" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="hideBuildNumber"
+            android:title="Hide Build Number in QS Panel" />
     </sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
     <sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/general_section">
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference

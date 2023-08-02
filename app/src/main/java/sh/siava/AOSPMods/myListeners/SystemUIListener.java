@@ -4,7 +4,9 @@ import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
+import static de.robv.android.xposed.XposedHelpers.setObjectField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
+import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
@@ -12,11 +14,13 @@ import android.graphics.Color;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.view.View;
+import android.widget.TextView;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.AOSPMods;
 import sh.siava.AOSPMods.XposedModPack;
+import sh.siava.AOSPMods.utils.StringFormatter;
 import sh.siava.AOSPMods.utils.SystemUtils;
 
 @SuppressWarnings("RedundantThrows")
@@ -30,6 +34,10 @@ public class SystemUIListener extends XposedModPack {
 	@Override
 	public void updatePrefs(String... Key) {
 	}
+
+	private final StringFormatter stringFormatter = new StringFormatter();
+	private Object QSFV;
+	private final StringFormatter.formattedStringCallback refreshCallback = this::setQSFooterText;
 
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -163,6 +171,41 @@ public class SystemUIListener extends XposedModPack {
 				tryHookAllMethods(QSTileImplClass, "longClick", vibrateCallback);
 			}
 		}
+		if (Xprefs.getBoolean("hideBuildNumber", false)) {
+			stringFormatter.registerCallback(refreshCallback);
+			Class<?> QSFooterViewClass = findClassIfExists("com.android.systemui.qs.QSFooterView", lpparam.classLoader);
+			if (QSFooterViewClass != null) {
+				tryHookAllConstructors(QSFooterViewClass, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						QSFV = param.thisObject;
+					}
+				});
+				tryHookAllMethods(QSFooterViewClass,
+						"setBuildText", new XC_MethodHook() {
+							@Override
+							protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+								setQSFooterText();
+							}
+						});
+			}
+		}
+	}
+
+	private void setQSFooterText() {
+		try {
+			if (Xprefs.getBoolean("hideBuildNumber", false)) {
+				TextView mBuildText = (TextView) getObjectField(QSFV, "mBuildText");
+				setObjectField(QSFV,
+						"mShouldShowBuildText",
+						"".trim().length() > 0);
+				mBuildText.setText(stringFormatter.formatString(""));
+				mBuildText.setSelected(true);
+			} else {
+				callMethod(QSFV, "setBuildText");
+			}
+		} catch (Throwable ignored) {
+		} //probably not initiated yet
 	}
 
 	@Override
