@@ -311,6 +311,10 @@ public class SystemUIListener extends XposedModPack {
 					return true;
 				}
 			});
+			Class<?> PhoneStatusBarViewControllerClass = findClassIfExists("com.android.systemui.statusbar.phone.PhoneStatusBarViewController", lpparam.classLoader);
+			if (PhoneStatusBarViewControllerClass != null) {
+				hookTouchHandler(PhoneStatusBarViewControllerClass); // 13 QPR3
+			}
 			Class<?> NotificationPanelViewControllerClass = findClassIfExists("com.android.systemui.shade.NotificationPanelViewController", lpparam.classLoader);
 			if (NotificationPanelViewControllerClass != null) {
 				tryHookAllConstructors(NotificationPanelViewControllerClass, new XC_MethodHook() {
