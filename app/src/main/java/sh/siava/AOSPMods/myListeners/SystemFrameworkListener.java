@@ -202,6 +202,7 @@ public class SystemFrameworkListener extends XposedModPack {
 									}
 									SystemUtils.ToggleFlash();
 									SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
+									SystemUtils.Sleep();
 									param.setResult(null);
 								} catch (Throwable T) {
 									T.printStackTrace();
