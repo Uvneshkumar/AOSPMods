@@ -150,6 +150,7 @@ public class SystemUIListener extends XposedModPack {
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						callMethod(param.thisObject, "onUnlockHintStarted");
 						callMethod(param.thisObject, "onUnlockHintFinished");
+						SystemUtils.Sleep();
 						param.setResult(null);
 					}
 				});
