@@ -12,6 +12,8 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.view.GestureDetector;
@@ -21,6 +23,7 @@ import android.widget.TextView;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
@@ -40,6 +43,19 @@ import sh.siava.AOSPMods.utils.SystemUtils;
 @SuppressWarnings("RedundantThrows")
 public class SystemUIListener extends XposedModPack {
 	public static final String listenPackage = AOSPMods.SYSTEM_UI_PACKAGE;
+
+	final Handler handler = new Handler(Looper.myLooper());
+	Runnable runnable = null;
+
+	private void initializeRunnable(Object thisObject) {
+		handler.removeCallbacks(runnable);
+		runnable = new Runnable() {
+			public void run() {
+				callMethod(thisObject, "requestPulse", 1, true, null);
+				handler.postDelayed(this, 1000);
+			}
+		};
+	}
 
 	public SystemUIListener(Context context) {
 		super(context);
@@ -355,6 +371,26 @@ public class SystemUIListener extends XposedModPack {
 							}
 							setHooks(param);
 						}).start();
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("disallowDeepAOD", false)) {
+			Class<?> DozeTriggers = findClassIfExists("com.android.systemui.doze.DozeTriggers", lpparam.classLoader);
+			if (DozeTriggers != null) {
+				tryHookAllConstructors(DozeTriggers, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						initializeRunnable(param.thisObject);
+						handler.postDelayed(runnable, 1000);
+					}
+				});
+				tryHookAllMethods(DozeTriggers, "transitionTo", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						if (Objects.equals(param.args[1].toString(), "FINISH")) {
+							handler.removeCallbacks(runnable);
+						}
 					}
 				});
 			}

@@ -44,6 +44,10 @@
             android:title="Disable Lock Screen Bounce" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
+            android:key="disallowDeepAOD"
+            android:title="Disallow Deep AOD (Tap to Wake)" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
             android:key="disableCameraService"
             android:title="Disable Camera and Torch Service" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
