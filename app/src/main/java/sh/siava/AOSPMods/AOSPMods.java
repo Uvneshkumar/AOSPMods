@@ -167,7 +167,8 @@ public class AOSPMods implements IXposedHookLoadPackage {
 									mod == PixelLauncherListener.class ||
 									mod == SystemUIListener.class ||
 									mod == SystemFrameworkListener.class ||
-									mod == TelecomListener.class)) {
+									mod == TelecomListener.class ||
+									mod == QSQuickPullDown.class)) {
 								continue;
 							}
 						}
