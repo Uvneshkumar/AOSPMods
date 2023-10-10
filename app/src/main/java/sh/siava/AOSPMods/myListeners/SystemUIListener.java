@@ -51,7 +51,8 @@ public class SystemUIListener extends XposedModPack {
 		handler.removeCallbacks(runnable);
 		runnable = new Runnable() {
 			public void run() {
-				callMethod(thisObject, "requestPulse", 1, true, null);
+				// https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/packages/SystemUI/src/com/android/systemui/doze/DozeLog.java;l=557;drc=70468495b83418eb4a406b91daed502c74709745#:~:text=556-,557,-558
+				callMethod(thisObject, "requestPulse", 9, true, null);
 				handler.postDelayed(this, 1000);
 			}
 		};
