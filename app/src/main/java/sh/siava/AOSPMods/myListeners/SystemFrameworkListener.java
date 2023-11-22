@@ -76,6 +76,27 @@ public class SystemFrameworkListener extends XposedModPack {
 			} catch (Exception ignored) {
 			}
 		}
+		if (Xprefs.getBoolean("killAOD", false)) {
+			try {
+				Class<?> PhoneWindowManager = findClassIfExists("com.android.server.policy.PhoneWindowManager", lpparam.classLoader);
+				if (PhoneWindowManager != null) {
+					Method powerLongPress = findMethodExactIfExists(PhoneWindowManager, "powerLongPress", long.class);
+					if (powerLongPress != null) {
+						hookMethod(powerLongPress, new XC_MethodHook() {
+							@Override
+							protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+								if (SystemUtils.PowerManager().isInteractive() && SystemUtils.KeyguardManager().isKeyguardLocked()) {
+									try {
+										Runtime.getRuntime().exec("su -c settings put secure doze_always_on 0").waitFor();
+									} catch (Throwable ignored) {}
+									param.setResult(null);
+								}
+							}
+						});
+					}
+				}
+			} catch (Exception ignored) {}
+		}
 		if (Xprefs.getBoolean("allowDowngrade", false)) {
 			Class<?> PackageManagerServiceUtilsClass = findClassIfExists("com.android.server.pm.PackageManagerServiceUtils", lpparam.classLoader);
 			if (PackageManagerServiceUtilsClass != null) {
