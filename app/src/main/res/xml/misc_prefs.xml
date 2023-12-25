@@ -47,6 +47,10 @@
             android:key="disallowDeepAOD"
             android:title="Disallow Deep AOD (Tap to Wake)" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:key="newBackAffordance"
+            android:title="New Back Affordance" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="disableCameraService"
             android:title="Disable Camera and Torch Service" />
