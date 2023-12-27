@@ -60,6 +60,10 @@
             android:title="Disable Bluetooth icon in Status Bar" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
+            android:key="whiteBatteryIcon"
+            android:title="MAGENTA to WHITE Battery Icon" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
             android:key="disableBatteryTime"
             android:title="Disable Battery Time in Status Bar" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference

@@ -1,12 +1,16 @@
 package sh.siava.AOSPMods.myListeners;
 
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
+import static de.robv.android.xposed.XposedHelpers.setIntField;
+import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
+import android.graphics.Color;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import sh.siava.AOSPMods.XPrefs;
 import sh.siava.AOSPMods.XposedModPack;
 
 @SuppressWarnings("RedundantThrows")
@@ -37,6 +41,21 @@ public class AllAppsListener extends XposedModPack {
 					param.setResult(null);
 				}
 			});
+		}
+
+		// https://github.com/AidanWarner97/frameworks_base/commit/cee0f07dad38c2dc93717548da8924b0c0989e64
+		if (XPrefs.Xprefs.getBoolean("whiteBatteryIcon", false)) {
+			Class<?> ThemedBatteryDrawable = findClassIfExists("com.android.settingslib.graph.ThemedBatteryDrawable", lpparam.classLoader);
+			if (ThemedBatteryDrawable != null) {
+				tryHookAllConstructors(ThemedBatteryDrawable, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						setIntField(param.thisObject, "fillColor", Color.WHITE);
+						setIntField(param.thisObject, "backgroundColor", Color.WHITE);
+						setIntField(param.thisObject, "levelColor", Color.WHITE);
+					}
+				});
+			}
 		}
 	}
 }
