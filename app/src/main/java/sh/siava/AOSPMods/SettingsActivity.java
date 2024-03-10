@@ -300,21 +300,6 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			setPreferencesFromResource(R.xml.header_preferences, rootKey);
 
 			updateVisibility();
-
-			try {
-				Process p = Runtime.getRuntime().exec("getprop ro.build.id");
-				p.waitFor();
-				byte[] buffer = new byte[p.getInputStream().available()];
-				//noinspection ResultOfMethodCallIgnored
-				p.getInputStream().read(buffer);
-				String result = new String(buffer, StandardCharsets.US_ASCII).replace("\n", "");
-				if (!Pattern.matches("^T[A-Z]([A-Z0-9]){2}\\.[0-9]{6}\\.[0-9]{3}(\\.[A-Z0-9]{2})?$", result)) //Pixel standard build number of A13
-				{
-					new AlertDialog.Builder(getContext()).setTitle(R.string.incompatible_alert_title).setMessage(R.string.incompatible_alert_body).setPositiveButton(R.string.incompatible_alert_ok_btn, (dialog, which) -> dialog.dismiss()).show();
-				}
-			} catch (Throwable ignored) {
-			}
-
 		}
 
 		private void updateVisibility() {
