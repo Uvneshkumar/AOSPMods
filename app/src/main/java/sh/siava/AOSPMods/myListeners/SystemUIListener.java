@@ -163,13 +163,13 @@ public class SystemUIListener extends XposedModPack {
 		if (Xprefs.getBoolean("disableLockScreenBounce", false)) {
 			Class<?> NotificationPanelViewController = findClassIfExists("com.android.systemui.shade.NotificationPanelViewController", lpparam.classLoader);
 			if (NotificationPanelViewController != null) {
-				tryHookAllMethods(NotificationPanelViewController, "startUnlockHintAnimation", new XC_MethodHook() {
+				tryHookAllMethods(NotificationPanelViewController, "onEmptySpaceClick", new XC_MethodHook() {
 					@Override
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-						callMethod(param.thisObject, "onUnlockHintStarted");
-						callMethod(param.thisObject, "onUnlockHintFinished");
-						SystemUtils.Sleep();
-						param.setResult(null);
+						if (SystemUtils.KeyguardManager().isKeyguardLocked()) {
+							SystemUtils.Sleep();
+							param.setResult(null);
+						}
 					}
 				});
 			}
