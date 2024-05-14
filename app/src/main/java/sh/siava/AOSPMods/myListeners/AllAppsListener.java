@@ -65,7 +65,7 @@ public class AllAppsListener extends XposedModPack {
 			tryHookAllMethods(LockPatternUtils, "requireStrongAuth", new XC_MethodHook() {
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					if (param.args[0] != STRONG_AUTH_NOT_REQUIRED) {
+					if ((int) param.args[0] != STRONG_AUTH_NOT_REQUIRED) {
 						param.setResult(null);
 					}
 				}
@@ -88,7 +88,7 @@ public class AllAppsListener extends XposedModPack {
 			tryHookAllMethods(LockSettingsService, "requireStrongAuth", new XC_MethodHook() {
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					if (param.args[0] != STRONG_AUTH_NOT_REQUIRED) {
+					if ((int) param.args[0] != STRONG_AUTH_NOT_REQUIRED) {
 						param.setResult(null);
 					}
 				}
@@ -111,7 +111,7 @@ public class AllAppsListener extends XposedModPack {
 			tryHookAllMethods(LockSettingsStrongAuth, "requireStrongAuth", new XC_MethodHook() {
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					if (param.args[0] != STRONG_AUTH_NOT_REQUIRED) {
+					if ((int) param.args[0] != STRONG_AUTH_NOT_REQUIRED) {
 						param.setResult(null);
 					}
 				}
