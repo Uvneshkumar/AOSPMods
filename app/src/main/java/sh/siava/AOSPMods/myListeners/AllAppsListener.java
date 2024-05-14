@@ -57,5 +57,24 @@ public class AllAppsListener extends XposedModPack {
 				});
 			}
 		}
+
+		Class<?> LockPatternUtils = findClassIfExists("com.android.internal.widget.LockPatternUtils", lpparam.classLoader);
+		if (LockPatternUtils != null) {
+			tryHookAllMethods(LockPatternUtils, "requireStrongAuth", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					param.setResult(null);
+				}
+			});
+		}
+		Class<?> LockSettingsStrongAuth = findClassIfExists("com.android.server.locksettings.LockSettingsStrongAuth", lpparam.classLoader);
+		if (LockSettingsStrongAuth != null) {
+			tryHookAllMethods(LockSettingsStrongAuth, "handleScheduleNonStrongBiometricIdleTimeout", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					param.setResult(null);
+				}
+			});
+		}
 	}
 }
