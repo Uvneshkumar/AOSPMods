@@ -16,6 +16,8 @@ import sh.siava.AOSPMods.XposedModPack;
 @SuppressWarnings("RedundantThrows")
 public class AllAppsListener extends XposedModPack {
 
+	int STRONG_AUTH_NOT_REQUIRED = 0x0;
+
 	public AllAppsListener(Context context) {
 		super(context);
 	}
@@ -63,7 +65,38 @@ public class AllAppsListener extends XposedModPack {
 			tryHookAllMethods(LockPatternUtils, "requireStrongAuth", new XC_MethodHook() {
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					param.setResult(null);
+					if (param.args[0] != STRONG_AUTH_NOT_REQUIRED) {
+						param.setResult(null);
+					}
+				}
+			});
+			tryHookAllMethods(LockPatternUtils, "getStrongAuthForUser", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					param.setResult(STRONG_AUTH_NOT_REQUIRED);
+				}
+			});
+			tryHookAllMethods(LockPatternUtils, "isTrustAllowedForUser", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					param.setResult(true);
+				}
+			});
+		}
+		Class<?> LockSettingsService = findClassIfExists("com.android.server.locksettings.LockSettingsService", lpparam.classLoader);
+		if (LockSettingsService != null) {
+			tryHookAllMethods(LockSettingsService, "requireStrongAuth", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					if (param.args[0] != STRONG_AUTH_NOT_REQUIRED) {
+						param.setResult(null);
+					}
+				}
+			});
+			tryHookAllMethods(LockPatternUtils, "getStrongAuthForUser", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					param.setResult(STRONG_AUTH_NOT_REQUIRED);
 				}
 			});
 		}
@@ -73,6 +106,20 @@ public class AllAppsListener extends XposedModPack {
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 					param.setResult(null);
+				}
+			});
+			tryHookAllMethods(LockSettingsStrongAuth, "requireStrongAuth", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					if (param.args[0] != STRONG_AUTH_NOT_REQUIRED) {
+						param.setResult(null);
+					}
+				}
+			});
+			tryHookAllMethods(LockPatternUtils, "getStrongAuthForUser", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					param.setResult(STRONG_AUTH_NOT_REQUIRED);
 				}
 			});
 		}
