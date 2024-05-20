@@ -83,6 +83,15 @@ public class AllAppsListener extends XposedModPack {
 				}
 			});
 		}
+		Class<?> StrongAuthTracker = findClassIfExists("com.android.server.trust.TrustManagerService.StrongAuthTracker", lpparam.classLoader);
+		if (StrongAuthTracker != null) {
+			tryHookAllMethods(StrongAuthTracker, "isTrustAllowedForUser", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					param.setResult(true);
+				}
+			});
+		}
 		Class<?> LockSettingsService = findClassIfExists("com.android.server.locksettings.LockSettingsService", lpparam.classLoader);
 		if (LockSettingsService != null) {
 			tryHookAllMethods(LockSettingsService, "requireStrongAuth", new XC_MethodHook() {
