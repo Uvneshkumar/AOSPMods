@@ -60,77 +60,79 @@ public class AllAppsListener extends XposedModPack {
 			}
 		}
 
-		Class<?> LockPatternUtils = findClassIfExists("com.android.internal.widget.LockPatternUtils", lpparam.classLoader);
-		if (LockPatternUtils != null) {
-			tryHookAllMethods(LockPatternUtils, "requireStrongAuth", new XC_MethodHook() {
-				@Override
-				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					if ((int) param.args[0] != STRONG_AUTH_NOT_REQUIRED) {
+		if (XPrefs.Xprefs.getBoolean("requireStrongAuth", false)) {
+			Class<?> LockPatternUtils = findClassIfExists("com.android.internal.widget.LockPatternUtils", lpparam.classLoader);
+			if (LockPatternUtils != null) {
+				tryHookAllMethods(LockPatternUtils, "requireStrongAuth", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						if ((int) param.args[0] != STRONG_AUTH_NOT_REQUIRED) {
+							param.setResult(null);
+						}
+					}
+				});
+				tryHookAllMethods(LockPatternUtils, "getStrongAuthForUser", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(STRONG_AUTH_NOT_REQUIRED);
+					}
+				});
+				tryHookAllMethods(LockPatternUtils, "isTrustAllowedForUser", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(true);
+					}
+				});
+			}
+			Class<?> StrongAuthTracker = findClassIfExists("com.android.server.trust.TrustManagerService.StrongAuthTracker", lpparam.classLoader);
+			if (StrongAuthTracker != null) {
+				tryHookAllMethods(StrongAuthTracker, "isTrustAllowedForUser", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(true);
+					}
+				});
+			}
+			Class<?> LockSettingsService = findClassIfExists("com.android.server.locksettings.LockSettingsService", lpparam.classLoader);
+			if (LockSettingsService != null) {
+				tryHookAllMethods(LockSettingsService, "requireStrongAuth", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						if ((int) param.args[0] != STRONG_AUTH_NOT_REQUIRED) {
+							param.setResult(null);
+						}
+					}
+				});
+				tryHookAllMethods(LockPatternUtils, "getStrongAuthForUser", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(STRONG_AUTH_NOT_REQUIRED);
+					}
+				});
+			}
+			Class<?> LockSettingsStrongAuth = findClassIfExists("com.android.server.locksettings.LockSettingsStrongAuth", lpparam.classLoader);
+			if (LockSettingsStrongAuth != null) {
+				tryHookAllMethods(LockSettingsStrongAuth, "handleScheduleNonStrongBiometricIdleTimeout", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						param.setResult(null);
 					}
-				}
-			});
-			tryHookAllMethods(LockPatternUtils, "getStrongAuthForUser", new XC_MethodHook() {
-				@Override
-				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					param.setResult(STRONG_AUTH_NOT_REQUIRED);
-				}
-			});
-			tryHookAllMethods(LockPatternUtils, "isTrustAllowedForUser", new XC_MethodHook() {
-				@Override
-				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					param.setResult(true);
-				}
-			});
-		}
-		Class<?> StrongAuthTracker = findClassIfExists("com.android.server.trust.TrustManagerService.StrongAuthTracker", lpparam.classLoader);
-		if (StrongAuthTracker != null) {
-			tryHookAllMethods(StrongAuthTracker, "isTrustAllowedForUser", new XC_MethodHook() {
-				@Override
-				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					param.setResult(true);
-				}
-			});
-		}
-		Class<?> LockSettingsService = findClassIfExists("com.android.server.locksettings.LockSettingsService", lpparam.classLoader);
-		if (LockSettingsService != null) {
-			tryHookAllMethods(LockSettingsService, "requireStrongAuth", new XC_MethodHook() {
-				@Override
-				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					if ((int) param.args[0] != STRONG_AUTH_NOT_REQUIRED) {
-						param.setResult(null);
+				});
+				tryHookAllMethods(LockSettingsStrongAuth, "requireStrongAuth", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						if ((int) param.args[0] != STRONG_AUTH_NOT_REQUIRED) {
+							param.setResult(null);
+						}
 					}
-				}
-			});
-			tryHookAllMethods(LockPatternUtils, "getStrongAuthForUser", new XC_MethodHook() {
-				@Override
-				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					param.setResult(STRONG_AUTH_NOT_REQUIRED);
-				}
-			});
-		}
-		Class<?> LockSettingsStrongAuth = findClassIfExists("com.android.server.locksettings.LockSettingsStrongAuth", lpparam.classLoader);
-		if (LockSettingsStrongAuth != null) {
-			tryHookAllMethods(LockSettingsStrongAuth, "handleScheduleNonStrongBiometricIdleTimeout", new XC_MethodHook() {
-				@Override
-				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					param.setResult(null);
-				}
-			});
-			tryHookAllMethods(LockSettingsStrongAuth, "requireStrongAuth", new XC_MethodHook() {
-				@Override
-				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					if ((int) param.args[0] != STRONG_AUTH_NOT_REQUIRED) {
-						param.setResult(null);
+				});
+				tryHookAllMethods(LockPatternUtils, "getStrongAuthForUser", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(STRONG_AUTH_NOT_REQUIRED);
 					}
-				}
-			});
-			tryHookAllMethods(LockPatternUtils, "getStrongAuthForUser", new XC_MethodHook() {
-				@Override
-				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					param.setResult(STRONG_AUTH_NOT_REQUIRED);
-				}
-			});
+				});
+			}
 		}
 	}
 }
