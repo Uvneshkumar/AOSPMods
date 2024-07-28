@@ -56,6 +56,14 @@
             android:title="New Back Affordance" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
+            android:key="aodIconsCenter"
+            android:title="AOD Notifications Icons in Center" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="enableST2SMyAod"
+            android:title="ST2S MyAod" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
             android:key="disableCameraService"
             android:title="Disable Camera and Torch Service" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference

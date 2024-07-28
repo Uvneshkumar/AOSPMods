@@ -3,6 +3,7 @@ package sh.siava.AOSPMods.myListeners;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getBooleanField;
+import static de.robv.android.xposed.XposedHelpers.getIntField;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.setBooleanField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
@@ -18,8 +19,11 @@ import android.os.Looper;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.Collection;
@@ -181,6 +185,35 @@ public class SystemUIListener extends XposedModPack {
 					@Override
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						param.setResult(null);
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("aodIconsCenter", false)) {
+			Class<?> NotificationIconContainer = findClassIfExists("com.android.systemui.statusbar.phone.NotificationIconContainer", lpparam.classLoader);
+			if (NotificationIconContainer != null) {
+				tryHookAllMethods(NotificationIconContainer, "onViewAdded", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						aodNotificationIcons(param);
+					}
+				});
+				tryHookAllMethods(NotificationIconContainer, "onViewRemoved", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						aodNotificationIcons(param);
+					}
+				});
+				tryHookAllMethods(NotificationIconContainer, "setDozing", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						aodNotificationIcons(param);
+					}
+				});
+				tryHookAllMethods(NotificationIconContainer, "setOnLockScreen", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						aodNotificationIcons(param);
 					}
 				});
 			}
@@ -423,6 +456,67 @@ public class SystemUIListener extends XposedModPack {
 			}
 		} catch (Throwable ignored) {
 		} //probably not initiated yet
+	}
+
+	private boolean hasDot(ViewGroup viewGroup) {
+		boolean hasDot = false;
+		for (int i = 0; i < viewGroup.getChildCount(); i++) {
+			View child = viewGroup.getChildAt(i);
+			if (child.toString().contains("visibleState=DOT")) {
+				hasDot = true;
+				break;
+			}
+		}
+		return hasDot;
+	}
+
+//	private boolean hasDotAt(ViewGroup viewGroup, int position) {
+//		boolean isDotAtLast = false;
+//		for (int i = 0; i < viewGroup.getChildCount(); i++) {
+//			View child = viewGroup.getChildAt(i);
+//			if (child.toString().contains("visibleState=DOT") && i == position) {
+//				isDotAtLast = true;
+//				break;
+//			}
+//		}
+//		return isDotAtLast;
+//	}
+
+	private void increaseWidth(ViewGroup viewGroup, int currentWidth) {
+		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(currentWidth + 1, ViewGroup.LayoutParams.WRAP_CONTENT);
+		viewGroup.setLayoutParams(layoutParams);
+		viewGroup.post(() -> {
+			if (hasDot(viewGroup)) {
+				increaseWidth(viewGroup, currentWidth + 1);
+			}
+		});
+	}
+
+//	private void increaseWidthForLast(ViewGroup viewGroup, int currentWidth, int lastIndex) {
+//		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(currentWidth + 1, ViewGroup.LayoutParams.WRAP_CONTENT);
+//		viewGroup.setLayoutParams(layoutParams);
+//		viewGroup.post(() -> {
+//			if (!hasDotAt(viewGroup, lastIndex)) {
+//				increaseWidthForLast(viewGroup, currentWidth + 1, lastIndex);
+//			}
+//		});
+//	}
+
+	private void aodNotificationIcons(XC_MethodHook.MethodHookParam param) {
+		ViewGroup viewGroup = ((ViewGroup) (param.thisObject));
+		if (getBooleanField(param.thisObject, "mOnLockScreen")) {
+			int mMaxIconsOnAod = getIntField(param.thisObject, "mMaxIconsOnAod");
+			viewGroup.setPadding(0, 0, 0, 0);
+			((LinearLayout) (viewGroup.getParent())).setGravity(Gravity.CENTER);
+			int totalChildren = viewGroup.getChildCount();
+			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(totalChildren * 60, ViewGroup.LayoutParams.WRAP_CONTENT);
+			viewGroup.setLayoutParams(layoutParams);
+//			if (totalChildren <= mMaxIconsOnAod && totalChildren > 0) {
+//			increaseWidth(viewGroup, 0);
+//			} else if (totalChildren > mMaxIconsOnAod) {
+//				increaseWidthForLast(viewGroup, 0, mMaxIconsOnAod);
+//			}
+		}
 	}
 
 	private void hookTouchHandler(Class<?> TouchHanlderClass) {
