@@ -8,6 +8,7 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.view.View;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
@@ -235,6 +236,18 @@ public class AllAppsListener extends XposedModPack {
 					@Override
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						param.setResult(null);
+					}
+				});
+			}
+		}
+		if (XPrefs.Xprefs.getBoolean("hideNavIcons", true)) {
+			Class<?> NavigationBarView = findClassIfExists("android.inputmethodservice.navigationbar.NavigationBarView", lpparam.classLoader);
+			if (NavigationBarView != null) {
+				tryHookAllMethods(NavigationBarView, "updateNavButtonIcons", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						Object backButton = callMethod(param.thisObject, "getBackButton");
+						callMethod(backButton, "setVisibility", View.INVISIBLE);
 					}
 				});
 			}

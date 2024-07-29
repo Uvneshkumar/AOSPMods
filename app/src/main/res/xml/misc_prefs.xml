@@ -55,6 +55,10 @@
             android:key="newBackAffordance"
             android:title="New Back Affordance" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:key="hideNavIcons"
+            android:title="Hide Nav Icons" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="aodIconsCenter"
             android:title="AOD Notifications Icons in Center" />
