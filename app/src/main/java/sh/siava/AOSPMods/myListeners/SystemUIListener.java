@@ -13,11 +13,13 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -199,18 +201,6 @@ public class SystemUIListener extends XposedModPack {
 					}
 				});
 				tryHookAllMethods(NotificationIconContainer, "onViewRemoved", new XC_MethodHook() {
-					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						aodNotificationIcons(param);
-					}
-				});
-				tryHookAllMethods(NotificationIconContainer, "setDozing", new XC_MethodHook() {
-					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						aodNotificationIcons(param);
-					}
-				});
-				tryHookAllMethods(NotificationIconContainer, "setOnLockScreen", new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						aodNotificationIcons(param);
@@ -488,37 +478,54 @@ public class SystemUIListener extends XposedModPack {
 		return hasDot;
 	}
 
-//	private boolean hasDotAt(ViewGroup viewGroup, int position) {
-//		boolean isDotAtLast = false;
-//		for (int i = 0; i < viewGroup.getChildCount(); i++) {
-//			View child = viewGroup.getChildAt(i);
-//			if (child.toString().contains("visibleState=DOT") && i == position) {
-//				isDotAtLast = true;
-//				break;
-//			}
-//		}
-//		return isDotAtLast;
-//	}
+	float scaleFactor = 1.25f;
+
+	private boolean hasDotAt(ViewGroup viewGroup, int position) {
+		boolean isDotAtLast = false;
+		for (int i = 0; i < viewGroup.getChildCount(); i++) {
+			View child = viewGroup.getChildAt(i);
+			if (child.toString().contains("visibleState=DOT") && i == position) {
+				isDotAtLast = true;
+				break;
+			}
+		}
+		return isDotAtLast;
+	}
+
+	private float getDP(float dip) {
+		return TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP,
+				dip,
+				Resources.getSystem().getDisplayMetrics()
+		);
+	}
 
 	private void increaseWidth(ViewGroup viewGroup, int currentWidth) {
-		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(currentWidth + 1, ViewGroup.LayoutParams.WRAP_CONTENT);
+		if (currentWidth >= (Resources.getSystem().getDisplayMetrics().widthPixels / scaleFactor) - 100) {
+			return;
+		}
+		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int) (currentWidth + getDP(1f)), ViewGroup.LayoutParams.WRAP_CONTENT);
 		viewGroup.setLayoutParams(layoutParams);
 		viewGroup.post(() -> {
 			if (hasDot(viewGroup)) {
-				increaseWidth(viewGroup, currentWidth + 1);
+				increaseWidth(viewGroup, (int) (currentWidth + getDP(1f)));
 			}
 		});
 	}
 
-//	private void increaseWidthForLast(ViewGroup viewGroup, int currentWidth, int lastIndex) {
-//		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(currentWidth + 1, ViewGroup.LayoutParams.WRAP_CONTENT);
-//		viewGroup.setLayoutParams(layoutParams);
-//		viewGroup.post(() -> {
-//			if (!hasDotAt(viewGroup, lastIndex)) {
-//				increaseWidthForLast(viewGroup, currentWidth + 1, lastIndex);
-//			}
-//		});
-//	}
+	private void increaseWidthForLast(ViewGroup viewGroup, int currentWidth, int lastIndex) {
+		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int) (currentWidth + getDP(1f)), ViewGroup.LayoutParams.WRAP_CONTENT);
+		viewGroup.setLayoutParams(layoutParams);
+		viewGroup.post(() -> {
+			if (!hasDotAt(viewGroup, lastIndex)) {
+				increaseWidthForLast(viewGroup, (int) (currentWidth + getDP(1f)), lastIndex);
+			}
+		});
+	}
+
+	private int getInitialWidth(ViewGroup viewGroup) {
+		return 0;
+	}
 
 	private void aodNotificationIcons(XC_MethodHook.MethodHookParam param) {
 		ViewGroup viewGroup = ((ViewGroup) (param.thisObject));
@@ -527,13 +534,16 @@ public class SystemUIListener extends XposedModPack {
 			viewGroup.setPadding(0, 0, 0, 0);
 			((LinearLayout) (viewGroup.getParent())).setGravity(Gravity.CENTER);
 			int totalChildren = viewGroup.getChildCount();
-			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(totalChildren * 60, ViewGroup.LayoutParams.WRAP_CONTENT);
+			int initialWidth = getInitialWidth(viewGroup);
+			viewGroup.setScaleX(scaleFactor);
+			viewGroup.setScaleY(scaleFactor);
+			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(initialWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
 			viewGroup.setLayoutParams(layoutParams);
-//			if (totalChildren <= mMaxIconsOnAod && totalChildren > 0) {
-//			increaseWidth(viewGroup, 0);
-//			} else if (totalChildren > mMaxIconsOnAod) {
-//				increaseWidthForLast(viewGroup, 0, mMaxIconsOnAod);
-//			}
+			if (totalChildren <= mMaxIconsOnAod && totalChildren > 0) {
+				increaseWidth(viewGroup, initialWidth);
+			} else if (totalChildren > mMaxIconsOnAod) {
+				increaseWidthForLast(viewGroup, initialWidth, mMaxIconsOnAod);
+			}
 		}
 	}
 
