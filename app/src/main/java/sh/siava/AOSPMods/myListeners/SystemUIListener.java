@@ -502,6 +502,7 @@ public class SystemUIListener extends XposedModPack {
 
 	private void increaseWidth(ViewGroup viewGroup, int currentWidth) {
 		if (currentWidth >= (Resources.getSystem().getDisplayMetrics().widthPixels / scaleFactor) - 100) {
+			increaseWidth(viewGroup, getInitialWidth(viewGroup));
 			return;
 		}
 		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int) (currentWidth + getDP(1f)), ViewGroup.LayoutParams.WRAP_CONTENT);
