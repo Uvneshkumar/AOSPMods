@@ -478,7 +478,7 @@ public class SystemUIListener extends XposedModPack {
 		return hasDot;
 	}
 
-	float scaleFactor = 1.25f;
+	float scaleFactor = 1.3f;
 
 	private boolean hasDotAt(ViewGroup viewGroup, int position) {
 		boolean isDotAtLast = false;
@@ -538,13 +538,15 @@ public class SystemUIListener extends XposedModPack {
 			int initialWidth = getInitialWidth(viewGroup);
 			viewGroup.setScaleX(scaleFactor);
 			viewGroup.setScaleY(scaleFactor);
-			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(initialWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+//			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(initialWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
+			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int) (totalChildren * getDP(26)), ViewGroup.LayoutParams.WRAP_CONTENT);
+			layoutParams.setMargins(100, 0, 100, 0);
 			viewGroup.setLayoutParams(layoutParams);
-			if (totalChildren <= mMaxIconsOnAod && totalChildren > 0) {
-				increaseWidth(viewGroup, initialWidth);
-			} else if (totalChildren > mMaxIconsOnAod) {
-				increaseWidthForLast(viewGroup, initialWidth, mMaxIconsOnAod);
-			}
+//			if (totalChildren <= mMaxIconsOnAod && totalChildren > 0) {
+//				increaseWidth(viewGroup, initialWidth);
+//			} else if (totalChildren > mMaxIconsOnAod) {
+//				increaseWidthForLast(viewGroup, initialWidth, mMaxIconsOnAod);
+//			}
 		}
 	}
 
