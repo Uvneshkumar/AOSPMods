@@ -430,21 +430,13 @@ public class SystemUIListener extends XposedModPack {
 				}
 			});
 		}
-		Class<?> KeyguardClockSwitchController = findClassIfExists("com.android.keyguard.KeyguardClockSwitchController", lpparam.classLoader);
-		if (KeyguardClockSwitchController != null) {
-			tryHookAllMethods(KeyguardClockSwitchController, "addSmartspaceView", new XC_MethodHook() {
+		Class<?> PageIndicator = findClassIfExists("com.google.android.systemui.smartspace.PageIndicator", lpparam.classLoader);
+		if (PageIndicator != null) {
+			tryHookAllConstructors(PageIndicator, new XC_MethodHook() {
 				@Override
 				protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-					ViewGroup mSmartspaceView = (ViewGroup) getObjectField(param.thisObject, "mSmartspaceView");
-					for (int i = 0; i < mSmartspaceView.getChildCount(); i++) {
-						View childView = mSmartspaceView.getChildAt(i);
-						if (childView.toString().startsWith("com.google.android.systemui.smartspace.PageIndicator")) {
-							ViewGroup.LayoutParams layoutParams = childView.getLayoutParams();
-							layoutParams.width = 0;
-							layoutParams.height = 0;
-							childView.setLayoutParams(layoutParams);
-						}
-					}
+					LinearLayout pageIndicator = (LinearLayout) param.thisObject;
+					pageIndicator.setPadding(6, 300, 0, 4);
 				}
 			});
 		}
