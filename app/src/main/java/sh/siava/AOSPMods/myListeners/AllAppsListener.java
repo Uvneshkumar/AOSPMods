@@ -252,5 +252,16 @@ public class AllAppsListener extends XposedModPack {
 				});
 			}
 		}
+		Class<?> RecentTasks = findClassIfExists("com.android.server.wm.RecentTasks", lpparam.classLoader);
+		if (RecentTasks != null) {
+			tryHookAllMethods(RecentTasks, "add", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					if (param.args[0].toString().contains("uvnesh.myaod")) {
+						param.setResult(null);
+					}
+				}
+			});
+		}
 	}
 }
