@@ -51,9 +51,9 @@
             android:key="requireStrongAuth"
             android:title="Don't auto-lock Trusted Agents" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="true"
-            android:key="newBackAffordance"
-            android:title="New Back Affordance" />
+            android:defaultValue="false"
+            android:key="disableNewBackAffordance"
+            android:title="Disable New Back Affordance" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="true"
             android:key="hideNavIcons"

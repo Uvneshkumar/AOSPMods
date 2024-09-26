@@ -312,13 +312,12 @@ public class SystemUIListener extends XposedModPack {
 						QSFV = param.thisObject;
 					}
 				});
-				tryHookAllMethods(QSFooterViewClass,
-						"setBuildText", new XC_MethodHook() {
-							@Override
-							protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-								setQSFooterText();
-							}
-						});
+				tryHookAllMethods(QSFooterViewClass, "setBuildText", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						setQSFooterText();
+					}
+				});
 			}
 		}
 		if (Xprefs.getBoolean("disableScreenshotSound", false)) {
@@ -420,15 +419,16 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
-		Class<?> EdgeBackGestureHandler = findClassIfExists("com.android.systemui.navigationbar.gestural.EdgeBackGestureHandler", lpparam.classLoader);
-		if (EdgeBackGestureHandler != null) {
-			tryHookAllMethods(EdgeBackGestureHandler, "resetEdgeBackPlugin", new XC_MethodHook() {
-				@Override
-				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					setBooleanField(param.thisObject, "mIsNewBackAffordanceEnabled",
-							Xprefs.getBoolean("newBackAffordance", true));
-				}
-			});
+		if (Xprefs.getBoolean("disableNewBackAffordance", false)) {
+			Class<?> EdgeBackGestureHandler = findClassIfExists("com.android.systemui.navigationbar.gestural.EdgeBackGestureHandler", lpparam.classLoader);
+			if (EdgeBackGestureHandler != null) {
+				tryHookAllMethods(EdgeBackGestureHandler, "resetEdgeBackPlugin", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						setBooleanField(param.thisObject, "mIsNewBackAffordanceEnabled", false);
+					}
+				});
+			}
 		}
 	}
 
@@ -436,9 +436,7 @@ public class SystemUIListener extends XposedModPack {
 		try {
 			if (Xprefs.getBoolean("hideBuildNumber", false)) {
 				TextView mBuildText = (TextView) getObjectField(QSFV, "mBuildText");
-				setObjectField(QSFV,
-						"mShouldShowBuildText",
-						"".trim().length() > 0);
+				setObjectField(QSFV, "mShouldShowBuildText", "".trim().length() > 0);
 				mBuildText.setText(stringFormatter.formatString(""));
 				mBuildText.setSelected(true);
 			} else {
@@ -475,11 +473,7 @@ public class SystemUIListener extends XposedModPack {
 	}
 
 	private float getDP(float dip) {
-		return TypedValue.applyDimension(
-				TypedValue.COMPLEX_UNIT_DIP,
-				dip,
-				Resources.getSystem().getDisplayMetrics()
-		);
+		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, Resources.getSystem().getDisplayMetrics());
 	}
 
 	private void increaseWidth(ViewGroup viewGroup, int currentWidth) {
@@ -539,10 +533,7 @@ public class SystemUIListener extends XposedModPack {
 				if (!(Xprefs.getBoolean("dt2sStatusBar", false))) return;
 				// double tap to sleep, statusbar only
 				try {
-					if (!(boolean) getObjectField(NotificationPanelViewController, "mPulsing")
-							&& !(boolean) getObjectField(NotificationPanelViewController, "mDozing")
-							&& (int) getObjectField(NotificationPanelViewController, "mBarState") == SHADE
-							&& (boolean) callMethod(NotificationPanelViewController, "isFullyCollapsed")) {
+					if (!(boolean) getObjectField(NotificationPanelViewController, "mPulsing") && !(boolean) getObjectField(NotificationPanelViewController, "mDozing") && (int) getObjectField(NotificationPanelViewController, "mBarState") == SHADE && (boolean) callMethod(NotificationPanelViewController, "isFullyCollapsed")) {
 						mLockscreenDoubleTapToSleep.onTouchEvent((MotionEvent) param.args[param.args.length - 1]);
 					}
 				} catch (Throwable ignored) {
