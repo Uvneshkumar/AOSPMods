@@ -430,16 +430,6 @@ public class SystemUIListener extends XposedModPack {
 				}
 			});
 		}
-		Class<?> PageIndicator = findClassIfExists("com.google.android.systemui.smartspace.PageIndicator", lpparam.classLoader);
-		if (PageIndicator != null) {
-			tryHookAllConstructors(PageIndicator, new XC_MethodHook() {
-				@Override
-				protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-					LinearLayout pageIndicator = (LinearLayout) param.thisObject;
-					pageIndicator.setPadding(6, 300, 0, 4);
-				}
-			});
-		}
 	}
 
 	private void setQSFooterText() {
