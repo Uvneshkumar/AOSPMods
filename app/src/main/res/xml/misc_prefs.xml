@@ -7,7 +7,7 @@
             android:key="disableAllOtherMods"
             android:title="Disable All Other Mods" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="killSystemUi"
             android:title="Long press Power Button to kill System UI" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
@@ -55,7 +55,7 @@
             android:key="disableNewBackAffordance"
             android:title="Disable New Back Affordance" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="hideNavIcons"
             android:title="Hide Nav Icons" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference

@@ -56,7 +56,7 @@ public class SystemFrameworkListener extends XposedModPack {
 
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
-		if (Xprefs.getBoolean("killSystemUi", true)) {
+		if (Xprefs.getBoolean("killSystemUi", false)) {
 			try {
 				Class<?> PhoneWindowManager = findClassIfExists("com.android.server.policy.PhoneWindowManager", lpparam.classLoader);
 				if (PhoneWindowManager != null) {

@@ -240,7 +240,7 @@ public class AllAppsListener extends XposedModPack {
 				});
 			}
 		}
-		if (XPrefs.Xprefs.getBoolean("hideNavIcons", true)) {
+		if (XPrefs.Xprefs.getBoolean("hideNavIcons", false)) {
 			Class<?> NavigationBarView = findClassIfExists("android.inputmethodservice.navigationbar.NavigationBarView", lpparam.classLoader);
 			if (NavigationBarView != null) {
 				tryHookAllMethods(NavigationBarView, "updateNavButtonIcons", new XC_MethodHook() {
