@@ -1,5 +1,6 @@
 package sh.siava.AOSPMods.myListeners
 
+import android.content.res.Resources
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -16,7 +17,7 @@ object Helper {
             )
             tag = "uvneshST2S"
         }
-        val size = 50
+        val size = rootView.width
         val revealView = View(rootView.context).apply {
             layoutParams = FrameLayout.LayoutParams(
                 size, size
@@ -24,8 +25,8 @@ object Helper {
                 // To Start Reveal from touch point
 //                leftMargin = (x - (size / 2)).toInt()
 //                topMargin = (y - (size / 2)).toInt()
-                leftMargin = (rootView.width - size) / 2
-                topMargin = rootView.display.height * 4
+//                leftMargin = (rootView.width - size) / 2
+                topMargin = Resources.getSystem().displayMetrics.heightPixels * 4
             }
         }
         rootView.addView(innerFrame)
