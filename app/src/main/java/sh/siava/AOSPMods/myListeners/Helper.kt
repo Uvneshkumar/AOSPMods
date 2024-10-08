@@ -26,7 +26,7 @@ object Helper {
 //                leftMargin = (x - (size / 2)).toInt()
 //                topMargin = (y - (size / 2)).toInt()
 //                leftMargin = (rootView.width - size) / 2
-                topMargin = Resources.getSystem().displayMetrics.heightPixels * 4
+                topMargin = Resources.getSystem().displayMetrics.heightPixels * 2
             }
         }
         rootView.addView(innerFrame)
