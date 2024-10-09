@@ -18,9 +18,13 @@ import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.FrameLayout;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
@@ -109,8 +113,11 @@ public class PixelLauncherListener extends XposedModPack {
 							Intent intent = mContext.getPackageManager().getLaunchIntentForPackage("uvnesh.myaod");
 							Object mLauncher = getObjectField(param.thisObject, "mLauncher");
 							FrameLayout rootView = (FrameLayout) callMethod(mLauncher, "getRootView");
-							View view = Helper.INSTANCE.addView(event.getX(), event.getY(), rootView, finalStatusBarHeight);
-							FrameLayout innerFrame = ((FrameLayout) (view.getParent()));
+							Window window = (Window) callMethod(mLauncher, "getWindow");
+							WindowInsetsControllerCompat windowInsetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+							windowInsetsController.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+							windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
+							FrameLayout innerFrame = (FrameLayout) Helper.INSTANCE.addView(rootView, finalStatusBarHeight);
 							View blackView = new View(innerFrame.getContext());
 							blackView.setBackgroundColor(ContextCompat.getColor(innerFrame.getContext(), android.R.color.black));
 							View backgroundView = new View(innerFrame.getContext());
@@ -135,20 +142,12 @@ public class PixelLauncherListener extends XposedModPack {
 									mContext.startActivity(intent);
 									new Handler(Looper.getMainLooper()).postDelayed(() -> {
 										rootView.removeView(innerFrame);
+										windowInsetsController.show(WindowInsetsCompat.Type.systemBars());
 									}, 400);
 								}
 							});
 							blackFirst.start();
 							bgFirst.start();
-//							innerFrame.animate().alpha(1f).setDuration(350).setListener(new AnimatorListenerAdapter() {
-//								@Override
-//								public void onAnimationEnd(Animator animation) {
-//									callMethod(mLauncher, "startActivitySafely", view, intent, null);
-//									new Handler(Looper.getMainLooper()).postDelayed(() -> {
-//										innerFrame.setAlpha(0f);
-//									}, 1000);
-//								}
-//							}).start();
 						}
 					}
 				});
