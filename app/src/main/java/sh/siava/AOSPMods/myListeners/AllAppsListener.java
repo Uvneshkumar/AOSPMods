@@ -150,7 +150,8 @@ public class AllAppsListener extends XposedModPack {
 				});
 				tryHookAllMethods(TrustAgentService, "grantTrust", new XC_MethodHook() {
 					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {}
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+					}
 				});
 				tryHookAllMethods(TrustAgentService, "revokeTrust", new XC_MethodHook() {
 					@Override
@@ -194,7 +195,8 @@ public class AllAppsListener extends XposedModPack {
 				});
 				tryHookAllMethods(GoogleTrustAgentChimeraService, "grantTrust", new XC_MethodHook() {
 					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {}
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+					}
 				});
 				tryHookAllMethods(GoogleTrustAgentChimeraService, "revokeTrust", new XC_MethodHook() {
 					@Override
@@ -224,7 +226,8 @@ public class AllAppsListener extends XposedModPack {
 				});
 				tryHookAllMethods(GoogleChimeraTrustAgentService, "grantTrust", new XC_MethodHook() {
 					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {}
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+					}
 				});
 				tryHookAllMethods(GoogleChimeraTrustAgentService, "revokeTrust", new XC_MethodHook() {
 					@Override
@@ -257,7 +260,7 @@ public class AllAppsListener extends XposedModPack {
 			tryHookAllMethods(RecentTasks, "add", new XC_MethodHook() {
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					if (param.args[0].toString().contains("uvnesh.myaod")) {
+					if (param.args[0].toString().contains("uvnesh.myaod") || param.args[0].toString().contains("com.iprototypes.volume")) {
 						param.setResult(null);
 					}
 				}
