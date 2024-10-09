@@ -139,7 +139,6 @@ public class PixelLauncherListener extends XposedModPack {
 								@Override
 								public void onAnimationEnd(Animator animation) {
 									super.onAnimationEnd(animation);
-									mContext.startActivity(intent);
 									new Handler(Looper.getMainLooper()).postDelayed(() -> {
 										rootView.removeView(innerFrame);
 										windowInsetsController.show(WindowInsetsCompat.Type.systemBars());
@@ -148,6 +147,10 @@ public class PixelLauncherListener extends XposedModPack {
 							});
 							blackFirst.start();
 							bgFirst.start();
+							// Only Good for 0.5x Speed
+							new Handler(Looper.getMainLooper()).postDelayed(() -> {
+								mContext.startActivity(intent);
+							}, (long) (animDuration - (animDuration / 1.25)));
 						}
 					}
 				});
