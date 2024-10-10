@@ -3,8 +3,6 @@ package sh.siava.AOSPMods.myListeners;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
-import static de.robv.android.xposed.XposedHelpers.setIntField;
-import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.animation.Animator;
@@ -169,30 +167,17 @@ public class PixelLauncherListener extends XposedModPack {
 			int toPage = 1;
 			Class<?> Workspace = findClassIfExists("com.android.launcher3.Workspace", lpparam.classLoader);
 			if (Workspace != null) {
-				tryHookAllConstructors(Workspace, new XC_MethodHook() {
-					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						setIntField(param.thisObject, "mCurrentPage", toPage);
-					}
-				});
 				tryHookAllMethods(Workspace, "moveToDefaultScreen", new XC_MethodHook() {
 					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						if (!(boolean) callMethod(param.thisObject, "workspaceInModalState")) {
+							callMethod(param.thisObject, "snapToPage", toPage);
+						}
 						View view = (View) callMethod(param.thisObject, "getChildAt", toPage);
 						if (view != null) {
 							view.requestFocus();
 						}
-					}
-				});
-			}
-			Class<?> PagedView = findClassIfExists("com.android.launcher3.PagedView", lpparam.classLoader);
-			if (PagedView != null) {
-				tryHookAllMethods(PagedView, "snapToPage", new XC_MethodHook() {
-					@Override
-					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-						if (((int) param.args[0]) == 0) {
-							param.args[0] = toPage;
-						}
+						param.setResult(null);
 					}
 				});
 			}
