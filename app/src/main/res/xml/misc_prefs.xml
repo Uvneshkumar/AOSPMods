@@ -68,6 +68,10 @@
             android:title="ST2S MyAod" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
+            android:key="enableLauncherPage1"
+            android:title="Launcher Page 1 as Default" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
             android:key="disableCameraService"
             android:title="Disable Camera and Torch Service" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
