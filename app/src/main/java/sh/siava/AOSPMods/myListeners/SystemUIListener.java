@@ -25,6 +25,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -426,6 +427,24 @@ public class SystemUIListener extends XposedModPack {
 					@Override
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						setBooleanField(param.thisObject, "mIsNewBackAffordanceEnabled", false);
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("hideFpIcon", false)) {
+			Class<?> BiometricPromptLayout = findClassIfExists("com.android.systemui.biometrics.ui.BiometricPromptLayout", lpparam.classLoader);
+			if (BiometricPromptLayout != null) {
+				tryHookAllMethods(BiometricPromptLayout, "onLayout", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						LinearLayout biometricPromptLayout = (LinearLayout) param.thisObject;
+						int totalViews = Integer.parseInt(callMethod(param.thisObject, "getChildCount").toString());
+						for (int i = 0; i < totalViews; i++) {
+							if (biometricPromptLayout.getChildAt(i).toString().contains("biometric_icon_frame")) {
+								FrameLayout biometricIconFrame = (FrameLayout) biometricPromptLayout.getChildAt(i);
+								biometricIconFrame.setVisibility(View.GONE);
+							}
+						}
 					}
 				});
 			}
