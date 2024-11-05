@@ -3,6 +3,7 @@ package sh.siava.AOSPMods.myListeners;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
+import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.animation.Animator;
@@ -178,6 +179,32 @@ public class PixelLauncherListener extends XposedModPack {
 							view.requestFocus();
 						}
 						param.setResult(null);
+					}
+				});
+				tryHookAllMethods(Workspace, "onWindowFocusChanged", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						if ((boolean) param.args[0]) {
+							new Handler(Looper.getMainLooper()).postDelayed(() -> {
+								callMethod(param.thisObject, "moveToDefaultScreen");
+							}, 300);
+						}
+					}
+				});
+				tryHookAllMethods(Workspace, "onAttachedToWindow", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						new Handler(Looper.getMainLooper()).postDelayed(() -> {
+							callMethod(param.thisObject, "moveToDefaultScreen");
+						}, 300);
+					}
+				});
+				tryHookAllConstructors(Workspace, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						new Handler(Looper.getMainLooper()).postDelayed(() -> {
+							callMethod(param.thisObject, "moveToDefaultScreen");
+						}, 300);
 					}
 				});
 			}
