@@ -130,7 +130,7 @@ public class PixelLauncherListener extends XposedModPack {
 							backgroundView.setY(-frameHeight);
 							int pixelsToAdjust = 1; // Additional Pixels to avoid slight gap
 							blackView.setY((-(frameHeight * 2)) + pixelsToAdjust);
-							long animDuration = 350;
+							long animDuration = 400;
 							ObjectAnimator bgFirst = ObjectAnimator.ofFloat(backgroundView, "y", backgroundView.getY(), frameHeight - pixelsToAdjust);
 							bgFirst.setDuration(animDuration);
 							ObjectAnimator blackFirst = ObjectAnimator.ofFloat(blackView, "y", blackView.getY(), 0);
