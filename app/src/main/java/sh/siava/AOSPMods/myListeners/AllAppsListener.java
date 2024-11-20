@@ -272,8 +272,11 @@ public class AllAppsListener extends XposedModPack {
 				tryHookAllMethods(Transaction, "setCornerRadius", new XC_MethodHook() {
 					@Override
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-						// Komodo - 42
-						param.args[1] = ((float) param.args[1]) - 42.0f;
+						// rounded_corner_radius - extra
+						// Komodo
+						if (((float) param.args[1]) == 153.0f) {
+							param.args[1] = ((float) param.args[1]) - 42.0f;
+						}
 					}
 				});
 			}
