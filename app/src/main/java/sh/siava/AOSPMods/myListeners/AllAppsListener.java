@@ -266,5 +266,17 @@ public class AllAppsListener extends XposedModPack {
 				}
 			});
 		}
+		if (XPrefs.Xprefs.getBoolean("oneHandedCornerRadiusReduce", false)) {
+			Class<?> Transaction = findClassIfExists("android.view.SurfaceControl.Transaction", lpparam.classLoader);
+			if (Transaction != null) {
+				tryHookAllMethods(Transaction, "setCornerRadius", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						// Komodo - 42
+						param.args[1] = ((float) param.args[1]) - 42.0f;
+					}
+				});
+			}
+		}
 	}
 }
