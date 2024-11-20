@@ -1,5 +1,8 @@
 package sh.siava.AOSPMods.myListeners;
 
+import static android.os.VibrationAttributes.USAGE_ACCESSIBILITY;
+import static android.os.VibrationEffect.EFFECT_TICK;
+import static de.robv.android.xposed.XposedBridge.hookAllMethods;
 import static de.robv.android.xposed.XposedBridge.hookMethod;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
@@ -7,6 +10,8 @@ import static de.robv.android.xposed.XposedHelpers.findMethodExactIfExists;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
+import static sh.siava.AOSPMods.utils.SystemUtils.ToggleFlash;
+import static sh.siava.AOSPMods.utils.SystemUtils.vibrate;
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,7 +27,6 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
-import java.util.Calendar;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
@@ -49,10 +53,10 @@ public class SystemFrameworkListener extends XposedModPack {
 	}
 
 	public final int PERMISSION = 4;
+	public static final int WAKE_REASON_POWER_BUTTON = 1;
 
 	private boolean isVolDown = false;
-
-	private long wakeTime = 0;
+	private long mWakeTime = 0;
 
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -142,7 +146,7 @@ public class SystemFrameworkListener extends XposedModPack {
 							keyEvent = KeyEvent.changeAction(keyEvent, KeyEvent.ACTION_UP);
 							keyIntent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
 							SystemUtils.AudioManager().dispatchMediaKeyEvent(keyEvent);
-							SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
+							vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
 						} catch (Throwable ignored) {
 						}
 					};
@@ -175,45 +179,40 @@ public class SystemFrameworkListener extends XposedModPack {
 			}
 		}
 		if (Xprefs.getBoolean("holdPowerForTorch", false)) {
-			Class<?> PhoneWindowManager = findClassIfExists("com.android.server.policy.PhoneWindowManager", lpparam.classLoader);
-			if (PhoneWindowManager != null) {
-				Method powerLongPress = findMethodExactIfExists(PhoneWindowManager, "powerLongPress", long.class);
-				Method startedWakingUp = findMethodExactIfExists(PhoneWindowManager, "startedWakingUp", int.class);
-				if (startedWakingUp != null && powerLongPress != null) {
-					try {
-						hookMethod(startedWakingUp, new XC_MethodHook() {
-							@Override
-							protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-								int r = (int) param.args[0];
-								if (r == 1) {
-									wakeTime = Calendar.getInstance().getTimeInMillis();
-								}
-							}
-						});
-						hookMethod(powerLongPress, new XC_MethodHook() {
-							@Override
-							protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-								if (Calendar.getInstance().getTimeInMillis() - wakeTime > 1000)
-									return;
-								try {
-									int behavior = (int) callMethod(param.thisObject, "getResolvedLongPressOnPowerBehavior");
-									if (behavior == 3) { // this is a force shutdown event. never play with it (3=LONG_PRESS_POWER_SHUT_OFF_NO_CONFIRM)
-										return;
-									}
-									SystemUtils.ToggleFlash();
-									SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
-									SystemUtils.Sleep();
-									param.setResult(null);
-								} catch (Throwable T) {
-									T.printStackTrace();
-								}
-							}
-						});
-					} catch (Throwable ignored) {
+			Class<?> PhoneWindowManagerClass = findClassIfExists("com.android.server.policy.PhoneWindowManager", lpparam.classLoader);
+			Class<?> PowerKeyRuleClass = findClassIfExists("com.android.server.policy.PhoneWindowManager$PowerKeyRule", lpparam.classLoader);
+			hookAllMethods(PhoneWindowManagerClass, "startedWakingUp", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					if ((int) param.args[param.args.length - 1] == WAKE_REASON_POWER_BUTTON) {
+						mWakeTime = SystemClock.uptimeMillis();
 					}
 				}
-			}
+			});
+			hookAllMethods(PowerKeyRuleClass, "onLongPress", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					boolean screenIsOn = screenIsOn();
+					if (!screenIsOn) {
+						launchAction();
+						param.setResult(null);
+					}
+				}
+			});
 		}
+	}
+
+	private void launchAction() {
+		try {
+			ToggleFlash();
+			vibrate(EFFECT_TICK, USAGE_ACCESSIBILITY);
+			new Thread(SystemUtils::Sleep).start();
+		} catch (Throwable ignored) {
+		}
+	}
+
+	private boolean screenIsOn() { //for power button, display state isn't reliable enough because pressing power will trigger it
+		return SystemClock.uptimeMillis() - mWakeTime > 1000;
 	}
 
 	private void killSystemUi() {
