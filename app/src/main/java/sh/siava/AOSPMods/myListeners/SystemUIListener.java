@@ -449,6 +449,17 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("hideFpDwellAnimation", false)) {
+			Class<?> DwellRippleShader = findClassIfExists("com.android.systemui.biometrics.DwellRippleShader", lpparam.classLoader);
+			if (DwellRippleShader != null) {
+				tryHookAllMethods(DwellRippleShader, "setColor", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.args[0] = 0;
+					}
+				});
+			}
+		}
 	}
 
 	private void setQSFooterText() {
