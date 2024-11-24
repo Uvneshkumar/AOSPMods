@@ -29,6 +29,7 @@ import sh.siava.AOSPMods.launcher.CustomNavGestures;
 import sh.siava.AOSPMods.launcher.TaskbarActivator;
 import sh.siava.AOSPMods.myListeners.AllAppsListener;
 import sh.siava.AOSPMods.myListeners.PixelLauncherListener;
+import sh.siava.AOSPMods.myListeners.ScreenshotManager;
 import sh.siava.AOSPMods.myListeners.SystemFrameworkListener;
 import sh.siava.AOSPMods.myListeners.SystemUIListener;
 import sh.siava.AOSPMods.myListeners.TelecomListener;
@@ -117,6 +118,7 @@ public class AOSPMods implements IXposedHookLoadPackage {
 		modPacks.add(VolumeTile.class);
 		modPacks.add(HotSpotController.class);
 
+		modPacks.add(ScreenshotManager.class);
 		modPacks.add(AllAppsListener.class);
 		modPacks.add(PixelLauncherListener.class);
 		modPacks.add(SystemUIListener.class);
@@ -168,6 +170,7 @@ public class AOSPMods implements IXposedHookLoadPackage {
 									mod == SystemUIListener.class ||
 									mod == SystemFrameworkListener.class ||
 									mod == TelecomListener.class ||
+									mod == ScreenshotManager.class ||
 									mod == QSQuickPullDown.class)) {
 								continue;
 							}
