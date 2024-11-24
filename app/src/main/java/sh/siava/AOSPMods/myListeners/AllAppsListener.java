@@ -291,7 +291,6 @@ public class AllAppsListener extends XposedModPack {
 			tryHookAllMethods(BatteryControllerImpl, "updatePercentText", new XC_MethodHook() {
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					batteryMeterView[0] = (LinearLayout) param.thisObject;
 					if (Xprefs.getBoolean("disableBatteryTime", false)) {
 						int mShowPercentMode = getIntField(param.thisObject, "mShowPercentMode");
 						if (mShowPercentMode == 3) {
@@ -300,6 +299,9 @@ public class AllAppsListener extends XposedModPack {
 							callMethod(param.thisObject, "updatePercentText");
 							param.setResult(null);
 						}
+					}
+					if (batteryMeterView[0] == null) {
+						batteryMeterView[0] = (LinearLayout) param.thisObject;
 					}
 				}
 			});
