@@ -2,23 +2,27 @@ package sh.siava.AOSPMods.myListeners;
 
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
+import static de.robv.android.xposed.XposedHelpers.getIntField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
+import static sh.siava.AOSPMods.XPrefs.Xprefs;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import sh.siava.AOSPMods.XPrefs;
 import sh.siava.AOSPMods.XposedModPack;
 
 @SuppressWarnings("RedundantThrows")
 public class AllAppsListener extends XposedModPack {
 
 	int STRONG_AUTH_NOT_REQUIRED = 0x0;
+	final LinearLayout[] batteryMeterView = {null};
 
 	public AllAppsListener(Context context) {
 		super(context);
@@ -48,7 +52,7 @@ public class AllAppsListener extends XposedModPack {
 		}
 
 		// https://github.com/AidanWarner97/frameworks_base/commit/cee0f07dad38c2dc93717548da8924b0c0989e64
-		if (XPrefs.Xprefs.getBoolean("whiteBatteryIcon", false)) {
+		if (Xprefs.getBoolean("whiteBatteryIcon", false)) {
 			Class<?> ThemedBatteryDrawable = findClassIfExists("com.android.settingslib.graph.ThemedBatteryDrawable", lpparam.classLoader);
 			if (ThemedBatteryDrawable != null) {
 				tryHookAllConstructors(ThemedBatteryDrawable, new XC_MethodHook() {
@@ -62,7 +66,7 @@ public class AllAppsListener extends XposedModPack {
 			}
 		}
 
-		if (XPrefs.Xprefs.getBoolean("requireStrongAuth", false)) {
+		if (Xprefs.getBoolean("requireStrongAuth", false)) {
 			Class<?> LockPatternUtils = findClassIfExists("com.android.internal.widget.LockPatternUtils", lpparam.classLoader);
 			if (LockPatternUtils != null) {
 				tryHookAllMethods(LockPatternUtils, "requireStrongAuth", new XC_MethodHook() {
@@ -243,7 +247,7 @@ public class AllAppsListener extends XposedModPack {
 				});
 			}
 		}
-		if (XPrefs.Xprefs.getBoolean("hideNavIcons", false)) {
+		if (Xprefs.getBoolean("hideNavIcons", false)) {
 			Class<?> NavigationBarView = findClassIfExists("android.inputmethodservice.navigationbar.NavigationBarView", lpparam.classLoader);
 			if (NavigationBarView != null) {
 				tryHookAllMethods(NavigationBarView, "updateNavButtonIcons", new XC_MethodHook() {
@@ -266,7 +270,7 @@ public class AllAppsListener extends XposedModPack {
 				}
 			});
 		}
-		if (XPrefs.Xprefs.getBoolean("oneHandedCornerRadiusReduce", false)) {
+		if (Xprefs.getBoolean("oneHandedCornerRadiusReduce", false)) {
 			Class<?> Transaction = findClassIfExists("android.view.SurfaceControl.Transaction", lpparam.classLoader);
 			if (Transaction != null) {
 				tryHookAllMethods(Transaction, "setCornerRadius", new XC_MethodHook() {
@@ -280,6 +284,40 @@ public class AllAppsListener extends XposedModPack {
 					}
 				});
 			}
+		}
+		// Battery Mods
+		Class<?> BatteryControllerImpl = findClassIfExists("com.android.systemui.battery.BatteryMeterView", lpparam.classLoader);
+		if (BatteryControllerImpl != null) {
+			tryHookAllMethods(BatteryControllerImpl, "updatePercentText", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					batteryMeterView[0] = (LinearLayout) param.thisObject;
+					if (Xprefs.getBoolean("disableBatteryTime", false)) {
+						int mShowPercentMode = getIntField(param.thisObject, "mShowPercentMode");
+						if (mShowPercentMode == 3) {
+							setIntField(param.thisObject, "mShowPercentMode", 1);
+							callMethod(param.thisObject, "updateShowPercent");
+							callMethod(param.thisObject, "updatePercentText");
+							param.setResult(null);
+						}
+					}
+				}
+			});
+		}
+		Class<?> ConfigurationControllerImpl = findClassIfExists("com.android.systemui.statusbar.phone.ConfigurationControllerImpl", lpparam.classLoader);
+		if (ConfigurationControllerImpl != null) {
+			tryHookAllMethods(ConfigurationControllerImpl, "onConfigurationChanged", new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+					if (batteryMeterView[0] != null && Xprefs.getBoolean("batteryEndExtraPadding", false)) {
+						if (((Configuration) param.args[0]).orientation == Configuration.ORIENTATION_LANDSCAPE) {
+							batteryMeterView[0].setPadding(0, 0, 25, 0);
+						} else {
+							batteryMeterView[0].setPadding(0, 0, 0, 0);
+						}
+					}
+				}
+			});
 		}
 	}
 }

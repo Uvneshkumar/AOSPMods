@@ -13,7 +13,6 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Handler;
@@ -45,7 +44,6 @@ import sh.siava.AOSPMods.utils.SystemUtils;
 public class SystemUIListener extends XposedModPack {
 	public static final String listenPackage = AOSPMods.SYSTEM_UI_PACKAGE;
 
-	final LinearLayout[] batteryMeterView = {null};
 	final Handler handler = new Handler(Looper.myLooper());
 	Runnable runnable = null;
 
@@ -365,41 +363,6 @@ public class SystemUIListener extends XposedModPack {
 					}
 				});
 			}
-		}
-
-		// Battery Mods
-		Class<?> BatteryControllerImpl = findClassIfExists("com.android.systemui.battery.BatteryMeterView", lpparam.classLoader);
-		if (BatteryControllerImpl != null) {
-			tryHookAllMethods(BatteryControllerImpl, "updatePercentText", new XC_MethodHook() {
-				@Override
-				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					batteryMeterView[0] = (LinearLayout) param.thisObject;
-					if (Xprefs.getBoolean("disableBatteryTime", false)) {
-						int mShowPercentMode = getIntField(param.thisObject, "mShowPercentMode");
-						if (mShowPercentMode == 3) {
-							setIntField(param.thisObject, "mShowPercentMode", 1);
-							callMethod(param.thisObject, "updateShowPercent");
-							callMethod(param.thisObject, "updatePercentText");
-							param.setResult(null);
-						}
-					}
-				}
-			});
-		}
-		Class<?> ConfigurationControllerImpl = findClassIfExists("com.android.systemui.statusbar.phone.ConfigurationControllerImpl", lpparam.classLoader);
-		if (ConfigurationControllerImpl != null) {
-			tryHookAllMethods(ConfigurationControllerImpl, "onConfigurationChanged", new XC_MethodHook() {
-				@Override
-				protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-					if (batteryMeterView[0] != null && Xprefs.getBoolean("batteryEndExtraPadding", false)) {
-						if (((Configuration) param.args[0]).orientation == Configuration.ORIENTATION_LANDSCAPE) {
-							batteryMeterView[0].setPadding(0, 0, 25, 0);
-						} else {
-							batteryMeterView[0].setPadding(0, 0, 0, 0);
-						}
-					}
-				}
-			});
 		}
 	}
 
