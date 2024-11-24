@@ -143,12 +143,12 @@
 		<sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/qs_pulldown_category">
 			<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 				android:defaultValue="false"
-				android:key="QSPullodwnEnabled"
+				android:key="QSPulldownEnabled"
 				android:summaryOff="@string/general_off"
 				android:summaryOn="@string/general_on"
 				android:title="@string/qs_pulldown_switch_title" />
 			<sh.siava.AOSPMods.ui.MaterialSeekbarPreference
-				android:defaultValue="25"
+				android:defaultValue="50"
 				android:key="QSPulldownPercent"
 				app:title="@string/qs_pulldown_size"
 				app:updatesContinuously="true" />

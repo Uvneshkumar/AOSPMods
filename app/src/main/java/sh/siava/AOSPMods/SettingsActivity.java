@@ -42,12 +42,10 @@ import androidx.preference.SeekBarPreference;
 import com.google.android.material.slider.LabelFormatter;
 import com.topjohnwu.superuser.Shell;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 import sh.siava.AOSPMods.utils.PrefManager;
 import sh.siava.AOSPMods.utils.SystemUtils;
@@ -872,25 +870,25 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 		@SuppressLint("RtlHardcoded")
 		private void updateVisibililty(SharedPreferences sharedPreferences) {
 			try {
-				boolean QSPullodwnEnabled = sharedPreferences.getBoolean("QSPullodwnEnabled", false);
+				boolean QSPulldownEnabled = sharedPreferences.getBoolean("QSPulldownEnabled", false);
 
 				int displayWidth = getActivity().getWindowManager().getCurrentWindowMetrics().getBounds().width();
 
-				findPreference("QSPulldownPercent").setVisible(QSPullodwnEnabled);
-				findPreference("QSPulldownSide").setVisible(QSPullodwnEnabled);
+				findPreference("QSPulldownPercent").setVisible(QSPulldownEnabled);
+				findPreference("QSPulldownSide").setVisible(QSPulldownEnabled);
 
 				findPreference("BSThickTrackOverlay").setVisible(!sharedPreferences.getBoolean("QSBrightnessDisabled", false) && showOverlays);
 				findPreference("BrightnessSlierOnBottom").setVisible(!sharedPreferences.getBoolean("QSBrightnessDisabled", false));
 				findPreference("QQSBrightnessEnabled").setVisible(sharedPreferences.getBoolean("QQSBrightnessSupported", true) && !sharedPreferences.getBoolean("QSBrightnessDisabled", false));
 				findPreference("QSFooterText").setVisible(sharedPreferences.getBoolean("QSFooterMod", false));
-				findPreference("QSPulldownPercent").setSummary(sharedPreferences.getInt("QSPulldownPercent", 25) + "%");
+				findPreference("QSPulldownPercent").setSummary(sharedPreferences.getInt("QSPulldownPercent", 50) + "%");
 				findPreference("dualToneQSEnabled").setVisible(sharedPreferences.getBoolean("LightQSPanel", false));
 
 				findPreference("network_settings_header").setVisible(sharedPreferences.getBoolean("networkOnQSEnabled", false));
 
 				pullDownIndicator.setVisibility(findPreference("QSPulldownPercent").isVisible() ? View.VISIBLE : View.GONE);
 				FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) pullDownIndicator.getLayoutParams();
-				lp.width = Math.round(sharedPreferences.getInt("QSPulldownPercent", 25) * displayWidth / 100f);
+				lp.width = Math.round(sharedPreferences.getInt("QSPulldownPercent", 50) * displayWidth / 100f);
 				lp.gravity = Gravity.TOP | (Integer.parseInt(sharedPreferences.getString("QSPulldownSide", "1")) == 1 ? Gravity.RIGHT : Gravity.LEFT);
 				pullDownIndicator.setLayoutParams(lp);
 
