@@ -278,8 +278,8 @@ public class AllAppsListener extends XposedModPack {
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						// rounded_corner_radius - extra
 						// Komodo
-						if (((float) param.args[1]) == 153.0f) {
-							param.args[1] = ((float) param.args[1]) - 42.0f;
+						if (((float) param.args[1]) == 166.0f) {
+							param.args[1] = ((float) param.args[1]) - 40.0f;
 						}
 					}
 				});
