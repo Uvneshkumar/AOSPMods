@@ -3,7 +3,6 @@ package sh.siava.AOSPMods.myListeners;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getBooleanField;
-import static de.robv.android.xposed.XposedHelpers.getIntField;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.setBooleanField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
@@ -13,15 +12,13 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
-import android.util.TypedValue;
+import android.service.notification.StatusBarNotification;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +26,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -37,6 +35,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.AOSPMods;
 import sh.siava.AOSPMods.XposedModPack;
+import sh.siava.AOSPMods.myListeners.helper.Helper;
 import sh.siava.AOSPMods.utils.StringFormatter;
 import sh.siava.AOSPMods.utils.SystemUtils;
 
@@ -124,13 +123,13 @@ public class SystemUIListener extends XposedModPack {
 				tryHookAllMethods(NotificationIconContainer, "onViewAdded", new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						aodNotificationIcons(param);
+						aodNotification(param);
 					}
 				});
 				tryHookAllMethods(NotificationIconContainer, "onViewRemoved", new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						aodNotificationIcons(param);
+						aodNotification(param);
 					}
 				});
 			}
@@ -366,6 +365,20 @@ public class SystemUIListener extends XposedModPack {
 		}
 	}
 
+	private void aodNotification(XC_MethodHook.MethodHookParam param) {
+		ViewGroup viewGroup = ((ViewGroup) param.thisObject);
+		if (viewGroup.getLayoutParams().width == ViewGroup.LayoutParams.MATCH_PARENT && viewGroup.getParent() instanceof LinearLayout) {
+			ViewGroup.LayoutParams layoutParams = viewGroup.getLayoutParams();
+			layoutParams.height = 0;
+			viewGroup.setLayoutParams(layoutParams);
+			ArrayList<StatusBarNotification> notifications = new ArrayList<>();
+			for (int i = 0; i < viewGroup.getChildCount(); i++) {
+				notifications.add((StatusBarNotification) getObjectField(viewGroup.getChildAt(i), "mNotification"));
+			}
+			Helper.INSTANCE.manageNotificationHere(((LinearLayout) (viewGroup.getParent())), notifications);
+		}
+	}
+
 	private void setQSFooterText() {
 		try {
 			if (Xprefs.getBoolean("hideBuildNumber", false)) {
@@ -378,86 +391,6 @@ public class SystemUIListener extends XposedModPack {
 			}
 		} catch (Throwable ignored) {
 		} //probably not initiated yet
-	}
-
-	private boolean hasDot(ViewGroup viewGroup) {
-		boolean hasDot = false;
-		for (int i = 0; i < viewGroup.getChildCount(); i++) {
-			View child = viewGroup.getChildAt(i);
-			if (child.toString().contains("visibleState=DOT")) {
-				hasDot = true;
-				break;
-			}
-		}
-		return hasDot;
-	}
-
-	float scaleFactor = 1.3f;
-
-	private boolean hasDotAt(ViewGroup viewGroup, int position) {
-		boolean isDotAtLast = false;
-		for (int i = 0; i < viewGroup.getChildCount(); i++) {
-			View child = viewGroup.getChildAt(i);
-			if (child.toString().contains("visibleState=DOT") && i == position) {
-				isDotAtLast = true;
-				break;
-			}
-		}
-		return isDotAtLast;
-	}
-
-	private float getDP(float dip) {
-		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dip, Resources.getSystem().getDisplayMetrics());
-	}
-
-	private void increaseWidth(ViewGroup viewGroup, int currentWidth) {
-		if (currentWidth >= (Resources.getSystem().getDisplayMetrics().widthPixels / scaleFactor) - 100) {
-			increaseWidth(viewGroup, getInitialWidth(viewGroup));
-			return;
-		}
-		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int) (currentWidth + getDP(1f)), ViewGroup.LayoutParams.WRAP_CONTENT);
-		viewGroup.setLayoutParams(layoutParams);
-		viewGroup.post(() -> {
-			if (hasDot(viewGroup)) {
-				increaseWidth(viewGroup, (int) (currentWidth + getDP(1f)));
-			}
-		});
-	}
-
-	private void increaseWidthForLast(ViewGroup viewGroup, int currentWidth, int lastIndex) {
-		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int) (currentWidth + getDP(1f)), ViewGroup.LayoutParams.WRAP_CONTENT);
-		viewGroup.setLayoutParams(layoutParams);
-		viewGroup.post(() -> {
-			if (!hasDotAt(viewGroup, lastIndex)) {
-				increaseWidthForLast(viewGroup, (int) (currentWidth + getDP(1f)), lastIndex);
-			}
-		});
-	}
-
-	private int getInitialWidth(ViewGroup viewGroup) {
-		return 0;
-	}
-
-	private void aodNotificationIcons(XC_MethodHook.MethodHookParam param) {
-		ViewGroup viewGroup = ((ViewGroup) (param.thisObject));
-		if (getBooleanField(param.thisObject, "mOnLockScreen")) {
-			int mMaxIconsOnAod = getIntField(param.thisObject, "mMaxIconsOnAod");
-			viewGroup.setPadding(0, 0, 0, 0);
-			((LinearLayout) (viewGroup.getParent())).setGravity(Gravity.CENTER);
-			int totalChildren = viewGroup.getChildCount();
-			int initialWidth = getInitialWidth(viewGroup);
-			viewGroup.setScaleX(scaleFactor);
-			viewGroup.setScaleY(scaleFactor);
-//			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(initialWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
-			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int) (totalChildren * getDP(26)), ViewGroup.LayoutParams.WRAP_CONTENT);
-			layoutParams.setMargins(100, 0, 100, 0);
-			viewGroup.setLayoutParams(layoutParams);
-//			if (totalChildren <= mMaxIconsOnAod && totalChildren > 0) {
-//				increaseWidth(viewGroup, initialWidth);
-//			} else if (totalChildren > mMaxIconsOnAod) {
-//				increaseWidthForLast(viewGroup, initialWidth, mMaxIconsOnAod);
-//			}
-		}
 	}
 
 	private void hookTouchHandler(Class<?> TouchHanlderClass) {
