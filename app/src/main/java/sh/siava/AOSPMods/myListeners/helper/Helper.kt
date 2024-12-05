@@ -9,13 +9,16 @@ import android.os.Handler
 import android.os.Looper
 import android.service.notification.StatusBarNotification
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.LinearLayout
 
 object Helper {
 
     private const val NOTIF_TAG = "uvneshNotifIcons"
+    private const val NOTIF_TAG_SCROLL = "uvneshNotifIconsScroll"
 
     private val appListItems: MutableSet<Pair<String, Drawable>> = mutableSetOf()
     private var isLoading = false
@@ -57,15 +60,24 @@ object Helper {
         if (appListItems.isEmpty() && !isLoading) {
             loadAppIcons(linearLayout.context)
         }
-        if (linearLayout.findViewWithTag<View>(NOTIF_TAG) == null) {
+        if (linearLayout.findViewWithTag<View>(NOTIF_TAG_SCROLL) == null) {
             val innerLayout = LinearLayout(linearLayout.context).apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
                 )
                 tag = NOTIF_TAG
-                setPadding(30.px, 12.px, 30.px, 0)
             }
-            linearLayout.addView(innerLayout)
+            val innerScrollLayout = HorizontalScrollView(linearLayout.context).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                tag = NOTIF_TAG_SCROLL
+                setPadding(30.px, 12.px, 30.px, 0)
+                isHorizontalScrollBarEnabled = false
+                clipToPadding = false
+            }
+            linearLayout.addView(innerScrollLayout)
+            innerScrollLayout.addView(innerLayout)
         }
         val notificationSmall = linearLayout.findViewWithTag<LinearLayout>(NOTIF_TAG)
         notificationSmall.removeAllViews()
