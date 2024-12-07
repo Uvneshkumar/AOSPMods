@@ -95,6 +95,6 @@ object Helper {
             notificationSmall.addView(notificationIcon)
         }
     }
-}
 
-val Int.px: Int get() = (this * getSystem().displayMetrics.density).toInt()
+    val Int.px: Int get() = (this * getSystem().displayMetrics.density).toInt()
+}

@@ -108,6 +108,10 @@
             android:title="White Lock Clock" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
+            android:key="largeClockTopMargin"
+            android:title="Move Large Clock a little up" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
             android:key="hideLockScreenStatusBar"
             android:title="Hide Lock Screen Status Bar" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference

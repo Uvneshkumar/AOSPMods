@@ -168,6 +168,29 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("largeClockTopMargin", false)) {
+			Class<?> AnimatableClockView = findClassIfExists("com.android.systemui.shared.clocks.AnimatableClockView", lpparam.classLoader);
+			if (AnimatableClockView != null) {
+				tryHookAllMethods(AnimatableClockView, "animateAppearOnLockscreen", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						adjustClockMargin(param);
+					}
+				});
+				tryHookAllMethods(AnimatableClockView, "animateFoldAppear", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						adjustClockMargin(param);
+					}
+				});
+				tryHookAllMethods(AnimatableClockView, "animateDoze", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						adjustClockMargin(param);
+					}
+				});
+			}
+		}
 		if (Xprefs.getBoolean("hideLockScreenStatusBar", false)) {
 			Class<?> KeyguardStatusBarView = findClassIfExists("com.android.systemui.statusbar.phone.KeyguardStatusBarView", lpparam.classLoader);
 			if (KeyguardStatusBarView != null) {
@@ -363,6 +386,11 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+	}
+
+	private void adjustClockMargin(XC_MethodHook.MethodHookParam param) {
+		TextView textView = (TextView) param.thisObject;
+		textView.setPadding(0, 0, 0, Helper.INSTANCE.getPx(80));
 	}
 
 	private void aodNotification(XC_MethodHook.MethodHookParam param) {
