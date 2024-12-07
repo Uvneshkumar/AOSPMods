@@ -390,7 +390,9 @@ public class SystemUIListener extends XposedModPack {
 
 	private void adjustClockMargin(XC_MethodHook.MethodHookParam param) {
 		TextView textView = (TextView) param.thisObject;
-		textView.setPadding(0, 0, 0, Helper.INSTANCE.getPx(80));
+		if (!textView.isSingleLine()) {
+			textView.setPadding(0, 0, 0, Helper.INSTANCE.getPx(80));
+		}
 	}
 
 	private void aodNotification(XC_MethodHook.MethodHookParam param) {
