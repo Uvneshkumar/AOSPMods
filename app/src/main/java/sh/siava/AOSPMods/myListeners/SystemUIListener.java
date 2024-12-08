@@ -81,6 +81,8 @@ public class SystemUIListener extends XposedModPack {
 	private boolean doubleTap;
 
 	int aodIconPosition = 0;
+	boolean aodIconVisible = false;
+	View innerScrollLayout = null;
 
 	private void adjustClockMargin(XC_MethodHook.MethodHookParam param) {
 		TextView textView = (TextView) param.thisObject;
@@ -88,8 +90,6 @@ public class SystemUIListener extends XposedModPack {
 			textView.setPadding(0, 0, 0, Helper.INSTANCE.getPx(80));
 		}
 	}
-	boolean aodIconVisible = false;
-	XC_MethodHook.MethodHookParam aodIconParam = null;
 
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -136,14 +136,12 @@ public class SystemUIListener extends XposedModPack {
 				tryHookAllMethods(NotificationIconContainer, "onViewAdded", new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						aodIconParam = param;
 						aodNotification(param);
 					}
 				});
 				tryHookAllMethods(NotificationIconContainer, "onViewRemoved", new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						aodIconParam = param;
 						aodNotification(param);
 					}
 				});
@@ -159,7 +157,7 @@ public class SystemUIListener extends XposedModPack {
 						} else if (Objects.equals(param.args[1].toString(), "FINISH")) {
 							aodIconVisible = false;
 						}
-						aodNotification(aodIconParam);
+						setAodIconVisibility();
 					}
 				});
 			}
@@ -418,10 +416,25 @@ public class SystemUIListener extends XposedModPack {
 		}
 	}
 
-	private void aodNotification(XC_MethodHook.MethodHookParam param) {
-		if (param == null) {
-			return;
+	private void setAodIconVisibility() {
+		if (innerScrollLayout != null) {
+			if (aodIconVisible) {
+				if (innerScrollLayout.getVisibility() != View.VISIBLE) {
+					new Handler(Looper.getMainLooper()).postDelayed(() -> {
+						if (aodIconVisible) {
+							Helper.INSTANCE.animateAlpha(innerScrollLayout, 300, false);
+						} else {
+							innerScrollLayout.setVisibility(View.GONE);
+						}
+					}, 700);
+				}
+			} else {
+				innerScrollLayout.setVisibility(View.GONE);
+			}
 		}
+	}
+
+	private void aodNotification(XC_MethodHook.MethodHookParam param) {
 		ViewGroup viewGroup = ((ViewGroup) param.thisObject);
 		ViewGroup rootView = (ViewGroup) viewGroup.getParent();
 		if (!rootView.toString().contains("KeyguardRootView")) {
@@ -432,32 +445,12 @@ public class SystemUIListener extends XposedModPack {
 		for (int j = 0; j < rootView.getChildCount(); j++) {
 			View innerView = rootView.getChildAt(j);
 			if (innerView.toString().contains("NotificationIconContainer")) {
-				View innerScrollLayout = rootView.findViewWithTag(NOTIF_TAG_SCROLL);
+				innerScrollLayout = rootView.findViewWithTag(NOTIF_TAG_SCROLL);
 				if (innerScrollLayout != null) {
-					if (!aodIconVisible) {
-						if (innerScrollLayout.getVisibility() == View.VISIBLE) {
-							innerScrollLayout.setVisibility(View.GONE);
-						}
-					}
 					innerView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
 						innerView.getLocationOnScreen(location);
-						aodIconPosition = -(Resources.getSystem().getDisplayMetrics().heightPixels - location[1]) + Helper.INSTANCE.getPx(130);
+						aodIconPosition = -(Resources.getSystem().getDisplayMetrics().heightPixels - location[1]) + Helper.INSTANCE.getPx(110);
 						Helper.INSTANCE.applyMarginToAodIcons(innerScrollLayout, aodIconPosition);
-						if (aodIconVisible) {
-							if (innerView.getVisibility() == View.VISIBLE) {
-								if (innerScrollLayout.getVisibility() != View.VISIBLE) {
-									Helper.INSTANCE.animateAlpha(innerScrollLayout, 400, false);
-								}
-							} else {
-								if (innerScrollLayout.getVisibility() == View.VISIBLE) {
-									innerScrollLayout.setVisibility(View.GONE);
-								}
-							}
-						} else {
-							if (innerScrollLayout.getVisibility() == View.VISIBLE) {
-								innerScrollLayout.setVisibility(View.GONE);
-							}
-						}
 					});
 				}
 			}
