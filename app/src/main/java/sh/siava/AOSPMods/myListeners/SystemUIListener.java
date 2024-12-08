@@ -422,7 +422,7 @@ public class SystemUIListener extends XposedModPack {
 				if (innerScrollLayout.getVisibility() != View.VISIBLE) {
 					new Handler(Looper.getMainLooper()).postDelayed(() -> {
 						if (aodIconVisible) {
-							Helper.INSTANCE.animateAlpha(innerScrollLayout, 300, false);
+							Helper.INSTANCE.animateAlpha(innerScrollLayout, 350, false);
 						} else {
 							innerScrollLayout.setVisibility(View.GONE);
 						}
