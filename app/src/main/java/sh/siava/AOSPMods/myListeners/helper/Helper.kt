@@ -1,5 +1,6 @@
 package sh.siava.AOSPMods.myListeners.helper
 
+import android.animation.Animator
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
@@ -18,7 +19,7 @@ import android.widget.LinearLayout
 object Helper {
 
     private const val NOTIF_TAG = "uvneshNotifIcons"
-    private const val NOTIF_TAG_SCROLL = "uvneshNotifIconsScroll"
+    const val NOTIF_TAG_SCROLL = "uvneshNotifIconsScroll"
 
     private val appListItems: MutableSet<Pair<String, Drawable>> = mutableSetOf()
     private var isLoading = false
@@ -54,8 +55,19 @@ object Helper {
         return innerFrame
     }
 
+    fun applyMarginToAodIcons(innerScrollLayout: View, aodIconPosition: Int) {
+        val params = innerScrollLayout.layoutParams as? ViewGroup.MarginLayoutParams
+        params?.topMargin = aodIconPosition
+        innerScrollLayout.setLayoutParams(params)
+        if (aodIconPosition == 0) {
+            innerScrollLayout.visibility = View.GONE
+        }
+    }
+
     fun manageNotificationHere(
-        linearLayout: LinearLayout, notifications: ArrayList<StatusBarNotification>
+        linearLayout: LinearLayout,
+        notifications: ArrayList<StatusBarNotification>,
+        aodIconPosition: Int
     ) {
         if (appListItems.isEmpty() && !isLoading) {
             loadAppIcons(linearLayout.context)
@@ -68,17 +80,25 @@ object Helper {
                 tag = NOTIF_TAG
             }
             val innerScrollLayout = HorizontalScrollView(linearLayout.context).apply {
-                layoutParams = ViewGroup.LayoutParams(
+                val params = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
                 )
+                val marginParams = ViewGroup.MarginLayoutParams(params)
+                marginParams.topMargin = aodIconPosition
+                layoutParams = marginParams
                 tag = NOTIF_TAG_SCROLL
                 setPadding(30.px, 12.px, 30.px, 0)
                 isHorizontalScrollBarEnabled = false
                 clipToPadding = false
+                visibility = View.GONE
             }
             linearLayout.addView(innerScrollLayout)
             innerScrollLayout.addView(innerLayout)
         }
+        val innerScrollLayout = linearLayout.findViewWithTag<HorizontalScrollView>(NOTIF_TAG_SCROLL)
+        val params = innerScrollLayout.layoutParams as? ViewGroup.MarginLayoutParams
+        params?.topMargin = aodIconPosition
+        innerScrollLayout.setLayoutParams(params)
         val notificationSmall = linearLayout.findViewWithTag<LinearLayout>(NOTIF_TAG)
         notificationSmall.removeAllViews()
         notifications.forEach { notification ->
@@ -94,7 +114,30 @@ object Helper {
             }
             notificationSmall.addView(notificationIcon)
         }
+        if (aodIconPosition == 0) {
+            innerScrollLayout.visibility = View.GONE
+        }
     }
 
     val Int.px: Int get() = (this * getSystem().displayMetrics.density).toInt()
+
+    fun View.animateAlpha(duration: Long = 400, isReverse: Boolean = false) {
+        alpha = if (isReverse) 1f else 0f
+        if (!isReverse) {
+            visibility = View.VISIBLE
+        }
+        Handler(Looper.getMainLooper()).post {
+            animate().alpha(if (isReverse) 0f else 1f)
+                .setListener(object : Animator.AnimatorListener {
+                    override fun onAnimationStart(animation: Animator) {}
+                    override fun onAnimationCancel(animation: Animator) {}
+                    override fun onAnimationRepeat(animation: Animator) {}
+                    override fun onAnimationEnd(animation: Animator) {
+                        if (isReverse) {
+                            this@animateAlpha.visibility = View.GONE
+                        }
+                    }
+                }).duration = duration
+        }
+    }
 }
