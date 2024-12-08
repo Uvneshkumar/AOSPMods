@@ -57,6 +57,8 @@ public class PixelLauncherListener extends XposedModPack {
 
 	private Boolean canLock = false;
 
+	private boolean isHomeTriggered = false;
+
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
 		int statusBarHeight = 0;
@@ -206,6 +208,27 @@ public class PixelLauncherListener extends XposedModPack {
 						new Handler(Looper.getMainLooper()).postDelayed(() -> {
 							callMethod(param.thisObject, "moveToDefaultScreen");
 						}, 300);
+					}
+				});
+//				onPageBeginTransition, onPageEndTransition, getDestinationPage
+				tryHookAllMethods(Workspace, "onScrollChanged", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						if (isHomeTriggered) {
+							callMethod(param.thisObject, "moveToDefaultScreen");
+							isHomeTriggered = false;
+						}
+					}
+				});
+			}
+			Class<?> QuickstepLauncher = findClassIfExists("com.android.launcher3.uioverrides.QuickstepLauncher", lpparam.classLoader);
+			if (QuickstepLauncher != null) {
+				tryHookAllMethods(QuickstepLauncher, "onStateSetEnd", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						if (callMethod(param.args[0], "toString").equals("Hint")) {
+							isHomeTriggered = true;
+						}
 					}
 				});
 			}
