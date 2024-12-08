@@ -83,6 +83,7 @@ public class SystemUIListener extends XposedModPack {
 	int aodIconPosition = 0;
 	boolean aodIconVisible = false;
 	View innerScrollLayout = null;
+	long timeToWait = 700;
 
 	private void adjustClockMargin(XC_MethodHook.MethodHookParam param) {
 		TextView textView = (TextView) param.thisObject;
@@ -158,6 +159,15 @@ public class SystemUIListener extends XposedModPack {
 							aodIconVisible = false;
 						}
 						setAodIconVisibility();
+					}
+				});
+			}
+			Class<?> KeyguardUnlockAnimationController = findClassIfExists("com.android.systemui.keyguard.KeyguardUnlockAnimationController", lpparam.classLoader);
+			if (KeyguardUnlockAnimationController != null) {
+				tryHookAllMethods(KeyguardUnlockAnimationController, "notifyStartSurfaceBehindRemoteAnimation", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						timeToWait = 700;
 					}
 				});
 			}
@@ -423,10 +433,11 @@ public class SystemUIListener extends XposedModPack {
 					new Handler(Looper.getMainLooper()).postDelayed(() -> {
 						if (aodIconVisible) {
 							Helper.INSTANCE.animateAlpha(innerScrollLayout, 350, false);
+							timeToWait = 100;
 						} else {
 							innerScrollLayout.setVisibility(View.GONE);
 						}
-					}, 700);
+					}, timeToWait);
 				}
 			} else {
 				innerScrollLayout.setVisibility(View.GONE);
