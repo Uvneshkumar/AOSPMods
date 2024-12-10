@@ -72,6 +72,10 @@
 			android:title="Launcher Page 1 as Default" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="enableLauncherExtraPadding"
+			android:title="Launcher Extra Side Padding" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="oneHandedCornerRadiusReduce"
 			android:title="OneHanded Corner Radius Reduce" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference

@@ -254,5 +254,16 @@ public class LauncherListener extends XposedModPack {
 				});
 			}
 		}
+		if (XPrefs.Xprefs.getBoolean("enableLauncherExtraPadding", false)) {
+			Class<?> DeviceProfile = findClassIfExists("com.android.launcher3.DeviceProfile", lpparam.classLoader);
+			if (DeviceProfile != null) {
+				tryHookAllMethods(DeviceProfile, "getHorizontalMarginPx", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(((int) param.getResult()) * 3);
+					}
+				});
+			}
+		}
 	}
 }
