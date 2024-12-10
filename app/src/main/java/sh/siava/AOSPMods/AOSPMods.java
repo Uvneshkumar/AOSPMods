@@ -28,7 +28,7 @@ import sh.siava.AOSPMods.launcher.ClearAllButtonMod;
 import sh.siava.AOSPMods.launcher.CustomNavGestures;
 import sh.siava.AOSPMods.launcher.TaskbarActivator;
 import sh.siava.AOSPMods.myListeners.AllAppsListener;
-import sh.siava.AOSPMods.myListeners.PixelLauncherListener;
+import sh.siava.AOSPMods.myListeners.LauncherListener;
 import sh.siava.AOSPMods.myListeners.SystemFrameworkListener;
 import sh.siava.AOSPMods.myListeners.SystemUIListener;
 import sh.siava.AOSPMods.myListeners.TelecomListener;
@@ -118,7 +118,7 @@ public class AOSPMods implements IXposedHookLoadPackage {
 		modPacks.add(HotSpotController.class);
 
 		modPacks.add(AllAppsListener.class);
-		modPacks.add(PixelLauncherListener.class);
+		modPacks.add(LauncherListener.class);
 		modPacks.add(SystemUIListener.class);
 		modPacks.add(SystemFrameworkListener.class);
 		modPacks.add(TelecomListener.class);
@@ -164,7 +164,7 @@ public class AOSPMods implements IXposedHookLoadPackage {
 					try {
 						if (Xprefs.getBoolean("disableAllOtherMods", false)) {
 							if (!(mod == AllAppsListener.class ||
-									mod == PixelLauncherListener.class ||
+									mod == LauncherListener.class ||
 									mod == SystemUIListener.class ||
 									mod == SystemFrameworkListener.class ||
 									mod == TelecomListener.class ||

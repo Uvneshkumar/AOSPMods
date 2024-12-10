@@ -29,20 +29,17 @@ import androidx.core.view.WindowInsetsControllerCompat;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import sh.siava.AOSPMods.AOSPMods;
 import sh.siava.AOSPMods.XPrefs;
 import sh.siava.AOSPMods.XposedModPack;
 import sh.siava.AOSPMods.myListeners.helper.Helper;
 import sh.siava.AOSPMods.utils.SystemUtils;
 
 @SuppressWarnings("RedundantThrows")
-public class PixelLauncherListener extends XposedModPack {
+public class LauncherListener extends XposedModPack {
 
 	final boolean[] hasVibrated = {false};
 
-	private static final String listenPackage = AOSPMods.LAUNCHER_PACKAGE;
-
-	public PixelLauncherListener(Context context) {
+	public LauncherListener(Context context) {
 		super(context);
 	}
 
@@ -52,7 +49,7 @@ public class PixelLauncherListener extends XposedModPack {
 
 	@Override
 	public boolean listensTo(String packageName) {
-		return listenPackage.equals(packageName);
+		return true;
 	}
 
 	private Boolean canLock = false;
@@ -66,7 +63,7 @@ public class PixelLauncherListener extends XposedModPack {
 		if (resourceId > 0) {
 			statusBarHeight = mContext.getResources().getDimensionPixelSize(resourceId);
 		}
-		if (XPrefs.Xprefs.getBoolean("enablePixelVibration", false)) {
+		if (XPrefs.Xprefs.getBoolean("enableLauncherVibration", false)) {
 			Class<?> AllAppsRecyclerView = findClassIfExists("com.android.launcher3.allapps.AllAppsRecyclerView", lpparam.classLoader);
 			if (AllAppsRecyclerView != null) {
 				tryHookAllMethods(AllAppsRecyclerView, "onUpdateScrollbar", new XC_MethodHook() {
