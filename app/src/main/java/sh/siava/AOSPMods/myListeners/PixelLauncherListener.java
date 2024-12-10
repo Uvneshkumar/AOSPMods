@@ -97,6 +97,30 @@ public class PixelLauncherListener extends XposedModPack {
 				});
 			}
 		}
+		if (XPrefs.Xprefs.getBoolean("enableST2SLock", false)) {
+			Class<?> WorkspaceTouchListener = findClassIfExists("com.android.launcher3.touch.WorkspaceTouchListener", lpparam.classLoader);
+			if (WorkspaceTouchListener != null) {
+				tryHookAllMethods(WorkspaceTouchListener, "onTouch", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						MotionEvent event = (MotionEvent) param.args[1];
+						if (event.getAction() == MotionEvent.ACTION_DOWN) {
+							canLock = true;
+							new Handler(Looper.getMainLooper()).postDelayed(() -> {
+								canLock = false;
+							}, 200);
+						}
+						if ((event.getAction() == MotionEvent.ACTION_UP) && canLock && ((boolean) (param.getResult()))) {
+							canLock = false;
+							try {
+								Runtime.getRuntime().exec("su -c input keyevent 223");
+							} catch (Throwable ignored) {
+							}
+						}
+					}
+				});
+			}
+		}
 		if (XPrefs.Xprefs.getBoolean("enableST2SMyAod", false)) {
 			Class<?> WorkspaceTouchListener = findClassIfExists("com.android.launcher3.touch.WorkspaceTouchListener", lpparam.classLoader);
 			if (WorkspaceTouchListener != null) {
