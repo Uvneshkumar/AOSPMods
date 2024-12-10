@@ -1,340 +1,340 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-    <sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="My Settings">
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="disableAllOtherMods"
-            android:title="Disable All Other Mods" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="killSystemUi"
-            android:title="Long press Power Button to kill System UI" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="hideLockIcon"
-            android:title="Hide Lock Icon in Lock Screen" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="rootForSleep"
-            android:title="Enable Root Method for DT2S" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="enableLauncherVibration"
-            android:title="Enable Launcher Overscroll Vibration" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="enableStatusBarVibration"
-            android:title="Enable Status Bar Vibration" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="enableLauncherStatusVibration"
-            android:title="Enable Launcher Status Bar Vibration" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="disableLocationPrivacyIndicator"
-            android:title="Disable Location Privacy Indicator" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="disableLockScreenBounce"
-            android:title="Disable Lock Screen Bounce" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="disallowDeepAOD"
-            android:title="Disallow Deep AOD (Tap to Wake)" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="requireStrongAuth"
-            android:title="Don't auto-lock Trusted Agents" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="disableNewBackAffordance"
-            android:title="Disable New Back Affordance" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="hideNavIcons"
-            android:title="Hide Nav Icons" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="aodIconsCenter"
-            android:title="App Icon for Notifications in AOD" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="enableST2SLock"
-            android:title="ST2S Lock Screen" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="enableST2SMyAod"
-            android:title="ST2S MyAod" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="enableLauncherPage1"
-            android:title="Launcher Page 1 as Default" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="oneHandedCornerRadiusReduce"
-            android:title="OneHanded Corner Radius Reduce" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="hideFpIcon"
-            android:title="Hide FP Icon in Biometric Prompt" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="hideFpDwellAnimation"
-            android:title="Hide UDFPS Dwell Animation" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="disableCameraService"
-            android:title="Disable Camera and Torch Service" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="disableBluetoothIcon"
-            android:title="Disable Bluetooth icon in Status Bar" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="whiteBatteryIcon"
-            android:title="MAGENTA to WHITE Battery Icon" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="disableBatteryTime"
-            android:title="Disable Battery Time in Status Bar" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="batteryEndExtraPadding"
-            android:title="Battery Padding End in Landscape" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="hookUnlockAnim"
-            android:title="Hook Unlock Animation" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="whiteLockClock"
-            android:title="White Lock Clock" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="largeClockTopMargin"
-            android:title="Move Large Clock a little up" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="hideLockScreenStatusBar"
-            android:title="Hide Lock Screen Status Bar" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="forceSmallClock"
-            android:title="Force Small Clock (A12)" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="qsTileVibrate"
-            android:title="Vibrate QS tiles on Tap" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="hideBuildNumber"
-            android:title="Hide Build Number in QS Panel" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="enableClipboardSmartActions"
-            android:title="Clipboard Smart Actions" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="sysUiTuner"
-            android:title="System UI Tuner" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="allowDowngrade"
-            android:title="Allow App Downgrade" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="allowMismatchedSignature"
-            android:title="Allow Mismatched Signature" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="vibrateOnCallAnswered"
-            android:title="Vibrate On Call Answered" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="vibrateOnCallDisconnected"
-            android:title="Vibrate On Call Disconnected" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="dt2sStatusBar"
-            android:title="DT2S Status Bar" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="dt2sLockScreen"
-            android:title="DT2S Lock Screen" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="holdVolumeToSkipMusic"
-            android:title="Long Press Volume Buttons to Skip Music" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="holdPowerForTorch"
-            android:title="Long Press Power Button for Torch" />
-    </sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
-    <sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/general_section">
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="CustomThemedIconsOverlay"
-            android:title="@string/custom_themed_icons_title"
-            app:summaryOn="@string/custom_themed_icons_on"
-            app:summaryOff="@string/custom_themed_icons_off" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="disableScreenshotSound"
-            android:summaryOff="@string/general_off"
-            android:summaryOn="@string/general_on"
-            android:title="@string/screenshot_sound_disable_title" />
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+	<sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="My Settings">
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="disableAllOtherMods"
+			android:title="Disable All Other Mods" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="killSystemUi"
+			android:title="Long press Power Button to kill System UI" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="hideLockIcon"
+			android:title="Hide Lock Icon in Lock Screen" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="rootForSleep"
+			android:title="Enable Root Method for DT2S" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="enableLauncherVibration"
+			android:title="Enable Launcher Overscroll Vibration" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="enableStatusBarVibration"
+			android:title="Enable Status Bar Vibration" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="enableLauncherStatusVibration"
+			android:title="Enable Launcher Status Bar Vibration" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="disableLocationPrivacyIndicator"
+			android:title="Disable Location Privacy Indicator" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="disableLockScreenBounce"
+			android:title="Disable Lock Screen Bounce" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="disallowDeepAOD"
+			android:title="Disallow Deep AOD (Tap to Wake)" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="requireStrongAuth"
+			android:title="Don't auto-lock Trusted Agents" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="disableNewBackAffordance"
+			android:title="Disable New Back Affordance" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="hideNavIcons"
+			android:title="Hide Nav Icons" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="aodIconsCenter"
+			android:title="App Icon for Notifications in AOD" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="enableST2SLock"
+			android:title="ST2S Lock Screen" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="enableST2SMyAod"
+			android:title="ST2S MyAod" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="enableLauncherPage1"
+			android:title="Launcher Page 1 as Default" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="oneHandedCornerRadiusReduce"
+			android:title="OneHanded Corner Radius Reduce" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="hideFpIcon"
+			android:title="Hide FP Icon in Biometric Prompt" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="hideFpDwellAnimation"
+			android:title="Hide UDFPS Dwell Animation" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="disableCameraService"
+			android:title="Disable Camera and Torch Service" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="disableBluetoothIcon"
+			android:title="Disable Bluetooth icon in Status Bar" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="whiteBatteryIcon"
+			android:title="MAGENTA to WHITE Battery Icon" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="disableBatteryTime"
+			android:title="Disable Battery Time in Status Bar" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="batteryEndExtraPadding"
+			android:title="Battery Padding End in Landscape" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="hookUnlockAnim"
+			android:title="Hook Unlock Animation" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="whiteLockClock"
+			android:title="White Lock Clock" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="largeClockTopMargin"
+			android:title="Move Large Clock a little up" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="hideLockScreenStatusBar"
+			android:title="Hide Lock Screen Status Bar" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="forceSmallClock"
+			android:title="Force Small Clock (A12)" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="qsTileVibrate"
+			android:title="Vibrate QS tiles on Tap" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="hideBuildNumber"
+			android:title="Hide Build Number in QS Panel" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="enableClipboardSmartActions"
+			android:title="Clipboard Smart Actions" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="sysUiTuner"
+			android:title="System UI Tuner" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="allowDowngrade"
+			android:title="Allow App Downgrade" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="allowMismatchedSignature"
+			android:title="Allow Mismatched Signature" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="vibrateOnCallAnswered"
+			android:title="Vibrate On Call Answered" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="vibrateOnCallDisconnected"
+			android:title="Vibrate On Call Disconnected" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="dt2sStatusBar"
+			android:title="DT2S Status Bar" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="dt2sLockScreen"
+			android:title="DT2S Lock Screen" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="holdVolumeToSkipMusic"
+			android:title="Long Press Volume Buttons to Skip Music" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="holdPowerForTorch"
+			android:title="Long Press Power Button for Torch" />
+	</sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
+	<sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/general_section">
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="CustomThemedIconsOverlay"
+			android:title="@string/custom_themed_icons_title"
+			app:summaryOff="@string/custom_themed_icons_off"
+			app:summaryOn="@string/custom_themed_icons_on" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="disableScreenshotSound"
+			android:summaryOff="@string/general_off"
+			android:summaryOn="@string/general_on"
+			android:title="@string/screenshot_sound_disable_title" />
 
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="EnableClipboardSmartActions"
-            android:summaryOff="@string/general_off"
-            android:summaryOn="@string/general_on"
-            android:title="@string/clipboard_smart_actions_title" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="EnableClipboardSmartActions"
+			android:summaryOff="@string/general_off"
+			android:summaryOn="@string/general_on"
+			android:title="@string/clipboard_smart_actions_title" />
 
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="ScreenshotChordInsecure"
-            android:summaryOff="@string/general_off"
-            android:summaryOn="@string/general_on"
-            android:title="@string/screenshot_chord_insecure" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="ScreenshotChordInsecure"
+			android:summaryOff="@string/general_off"
+			android:summaryOn="@string/general_on"
+			android:title="@string/screenshot_chord_insecure" />
 
 
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="allScreenRotations"
-            android:summaryOff="@string/general_off"
-            android:summaryOn="@string/general_on"
-            android:title="@string/allow_all_screen_rotations"
-            android:summary="@string/allow_all_screen_rotations_summary" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="allScreenRotations"
+			android:summary="@string/allow_all_screen_rotations_summary"
+			android:summaryOff="@string/general_off"
+			android:summaryOn="@string/general_on"
+			android:title="@string/allow_all_screen_rotations" />
 
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="noCutoutEnabled"
-            android:summaryOff="@string/general_off"
-            android:summaryOn="@string/general_on"
-            android:title="@string/force_no_cutout" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="noCutoutEnabled"
+			android:summaryOff="@string/general_off"
+			android:summaryOn="@string/general_on"
+			android:title="@string/force_no_cutout" />
 
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="RecentClearAllReposition"
-            android:summaryOff="@string/general_off"
-            android:summaryOn="@string/general_on"
-            android:title="@string/clear_all_reposition_title" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="RecentClearAllReposition"
+			android:summaryOff="@string/general_off"
+			android:summaryOn="@string/general_on"
+			android:title="@string/clear_all_reposition_title" />
 
-        <sh.siava.AOSPMods.ui.MaterialRangeSliderPreference
-            android:key="BrightnessRange"
-            android:title="@string/brightness_range_title"
-            android:summary="@string/brightness_range_not_linear"
+		<sh.siava.AOSPMods.ui.MaterialRangeSliderPreference
+			android:key="BrightnessRange"
+			android:summary="@string/brightness_range_not_linear"
+			android:title="@string/brightness_range_title"
 
-            app:tickInterval=".01"
+			app:defaultValue="0,100"
 
-            app:valueCount="2"
-            app:minVal="0"
-            app:maxVal="100"
+			app:maxVal="100"
+			app:minVal="0"
+			app:tickInterval=".01"
 
-            app:defaultValue="0,100" />
+			app:valueCount="2" />
 
-        <sh.siava.AOSPMods.ui.MaterialRangeSliderPreference
-            android:key="displayOverride"
-            android:title="@string/display_resolution_title"
+		<sh.siava.AOSPMods.ui.MaterialRangeSliderPreference
+			android:key="displayOverride"
+			android:title="@string/display_resolution_title"
 
-            app:tickInterval="5"
+			app:defaultValue="100"
 
-            app:valueCount="1"
-            app:minVal="50"
-            app:maxVal="200"
+			app:maxVal="200"
+			app:minVal="50"
+			app:tickInterval="5"
 
-            app:defaultValue="100" />
+			app:valueCount="1" />
 
-        <sh.siava.AOSPMods.ui.MaterialSeekbarPreference
-            android:layout_width="wrap_content"
-            android:defaultValue="10"
-            android:key="volumeStps"
-            android:max="50"
-            android:title="@string/volume_button_step_title"
-            app:min="10"
-            app:seekBarIncrement="5"
-            app:updatesContinuously="true" />
+		<sh.siava.AOSPMods.ui.MaterialSeekbarPreference
+			android:layout_width="wrap_content"
+			android:defaultValue="10"
+			android:key="volumeStps"
+			android:max="50"
+			android:title="@string/volume_button_step_title"
+			app:min="10"
+			app:seekBarIncrement="5"
+			app:updatesContinuously="true" />
 
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="sysui_tuner"
-            android:summaryOff="@string/general_off"
-            android:summaryOn="@string/general_on"
-            android:title="SystemUI Tuner" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="disableOverScroll"
-            android:summaryOff="@string/general_off"
-            android:summaryOn="@string/overscroll_on_summary"
-            android:title="@string/disable_overscroll" />
-    </sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
-    <sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/doze_header">
-        <sh.siava.AOSPMods.ui.MaterialEditTextPreference
-            android:key="NotificationAODIconLimit"
-            android:defaultValue="3"
-            android:selectAllOnFocus="true"
-            android:singleLine="true"
-            android:title="@string/sb_notification_limit" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="true"
-            android:key="fingerprintWhileDozing"
-            android:title="@string/so_fingerprint_sensor_enabled" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="replaceAssistantwithTorch"
-            android:title="@string/so_power_longpress_torch_title" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="holdVolumeToSkip"
-            android:title="@string/so_vol_longpress_skip" />
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="doubleTapToWake"
-            android:title="@string/so_double_tap_wake_title"
-            app:summary="@string/so_double_tap_wake_summary" />
-    </sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
-    <sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/notifications_header">
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="notificationExpandallEnabled"
-            android:title="@string/expand_notifications_icons_title"
-            android:summaryOff="@string/general_off"
-            android:summaryOn="@string/general_on" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="sysui_tuner"
+			android:summaryOff="@string/general_off"
+			android:summaryOn="@string/general_on"
+			android:title="SystemUI Tuner" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="disableOverScroll"
+			android:summaryOff="@string/general_off"
+			android:summaryOn="@string/overscroll_on_summary"
+			android:title="@string/disable_overscroll" />
+	</sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
+	<sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/doze_header">
+		<sh.siava.AOSPMods.ui.MaterialEditTextPreference
+			android:defaultValue="3"
+			android:key="NotificationAODIconLimit"
+			android:selectAllOnFocus="true"
+			android:singleLine="true"
+			android:title="@string/sb_notification_limit" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="true"
+			android:key="fingerprintWhileDozing"
+			android:title="@string/so_fingerprint_sensor_enabled" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="replaceAssistantwithTorch"
+			android:title="@string/so_power_longpress_torch_title" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="holdVolumeToSkip"
+			android:title="@string/so_vol_longpress_skip" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="doubleTapToWake"
+			android:title="@string/so_double_tap_wake_title"
+			app:summary="@string/so_double_tap_wake_summary" />
+	</sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
+	<sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/notifications_header">
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="notificationExpandallEnabled"
+			android:summaryOff="@string/general_off"
+			android:summaryOn="@string/general_on"
+			android:title="@string/expand_notifications_icons_title" />
 
-        <sh.siava.AOSPMods.ui.MaterialRangeSliderPreference
-            android:key="HeadupAutoDismissNotificationDecay"
-            android:title="@string/heads_up_notification_duration"
+		<sh.siava.AOSPMods.ui.MaterialRangeSliderPreference
+			android:key="HeadupAutoDismissNotificationDecay"
+			android:title="@string/heads_up_notification_duration"
 
-            app:tickInterval="500"
+			app:defaultValue="5000"
 
-            app:valueCount="1"
-            app:minVal="1000"
-            app:maxVal="10000"
+			app:maxVal="10000"
+			app:minVal="1000"
+			app:tickInterval="500"
 
-            app:defaultValue="5000" />
-    </sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
-    <sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/call_category">
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="vibrateOnAnswered"
-            android:title="@string/vibrate_on_call_active_title"
-            app:summaryOn="@string/vibration_type_notification"
-            app:summaryOff="@string/general_off" />
+			app:valueCount="1" />
+	</sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
+	<sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/call_category">
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="vibrateOnAnswered"
+			android:title="@string/vibrate_on_call_active_title"
+			app:summaryOff="@string/general_off"
+			app:summaryOn="@string/vibration_type_notification" />
 
-        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:key="vibrateOnDrop"
-            android:title="@string/vibrate_on_call_drop_title"
-            app:summaryOn="@string/vibration_type_notification"
-            app:summaryOff="@string/general_off" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="vibrateOnDrop"
+			android:title="@string/vibrate_on_call_drop_title"
+			app:summaryOff="@string/general_off"
+			app:summaryOn="@string/vibration_type_notification" />
 
-    </sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
-    <sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/monitoring_category_title">
-        <sh.siava.AOSPMods.ui.MaterialPreference
-            app:fragment="sh.siava.AOSPMods.SettingsActivity$NetworkStatFragment"
-            app:key="netstat_header"
-            app:title="@string/netstat_header" />
-    </sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
+	</sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
+	<sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/monitoring_category_title">
+		<sh.siava.AOSPMods.ui.MaterialPreference
+			app:fragment="sh.siava.AOSPMods.SettingsActivity$NetworkStatFragment"
+			app:key="netstat_header"
+			app:title="@string/netstat_header" />
+	</sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
 </PreferenceScreen>
