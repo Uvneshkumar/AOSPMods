@@ -3,6 +3,7 @@
     <string-array name="module_scope">
         <item>com.android.systemui</item> <!-- systemUI -->
         <item>com.google.android.apps.nexuslauncher</item> <!-- Pixel Launcher - Taskbar -->
+        <item>com.android.launcher3</item> <!-- Launcher -->
         <item>android</item>  <!-- System Framework -->
         <item>com.android.phone</item> <!-- phone services -->
         <item>com.google.android.gms</item> <!-- Play Services -->
