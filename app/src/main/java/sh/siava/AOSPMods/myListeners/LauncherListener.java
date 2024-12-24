@@ -71,7 +71,7 @@ public class LauncherListener extends XposedModPack {
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						if (!((View) (param.thisObject)).canScrollVertically(1) || !((View) (param.thisObject)).canScrollVertically(-1)) {
 							if (!hasVibrated[0]) {
-								SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
+								SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_TOUCH);
 								hasVibrated[0] = true;
 							}
 						} else {
