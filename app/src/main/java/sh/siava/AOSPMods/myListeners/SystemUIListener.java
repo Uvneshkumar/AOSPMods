@@ -8,12 +8,10 @@ import static de.robv.android.xposed.XposedHelpers.setBooleanField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
-import static sh.siava.AOSPMods.myListeners.helper.Helper.NOTIF_TAG_SCROLL;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,10 +23,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -80,16 +78,29 @@ public class SystemUIListener extends XposedModPack {
 
 	private boolean doubleTap;
 
-	int aodIconPosition = 0;
-	boolean aodIconVisible = false;
-	View innerScrollLayout = null;
-	long timeToWait = 700;
-
 	private void adjustClockMargin(XC_MethodHook.MethodHookParam param) {
 		TextView textView = (TextView) param.thisObject;
 		if (!textView.isSingleLine()) {
 			textView.setPadding(0, 0, 0, Helper.INSTANCE.getPx(80));
 		}
+	}
+
+	private final View.OnLayoutChangeListener onLayoutChangeListener = (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+		float firstX = 0;
+		ViewGroup viewGroup = ((ViewGroup) v);
+		for (int i = 0; i < viewGroup.getChildCount(); i++) {
+			View view = viewGroup.getChildAt(i);
+			if (i == 0) {
+				firstX = view.getX();
+			} else {
+				firstX += view.getMeasuredWidth() + Helper.INSTANCE.getPx(10);
+				view.setX(firstX);
+			}
+		}
+	};
+
+	private boolean isOnLockScreen(String className) {
+		return className.contains("KeyguardRootView") || className.contains("KeyguardStatusAreaView");
 	}
 
 	@Override
@@ -132,42 +143,32 @@ public class SystemUIListener extends XposedModPack {
 			}
 		}
 		if (Xprefs.getBoolean("aodIconsCenter", false)) {
-			Class<?> NotificationIconContainer = findClassIfExists("com.android.systemui.statusbar.phone.NotificationIconContainer", lpparam.classLoader);
-			if (NotificationIconContainer != null) {
-				tryHookAllMethods(NotificationIconContainer, "onViewAdded", new XC_MethodHook() {
+			Class<?> StatusBarIconView = findClassIfExists("com.android.systemui.statusbar.StatusBarIconView", lpparam.classLoader);
+			if (StatusBarIconView != null) {
+				tryHookAllMethods(StatusBarIconView, "updateIconColor", new XC_MethodHook() {
 					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						aodNotification(param);
-					}
-				});
-				tryHookAllMethods(NotificationIconContainer, "onViewRemoved", new XC_MethodHook() {
-					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						aodNotification(param);
-					}
-				});
-//				onLayout
-			}
-			Class<?> DozeUi = findClassIfExists("com.android.systemui.doze.DozeUi", lpparam.classLoader);
-			if (DozeUi != null) {
-				tryHookAllMethods(DozeUi, "transitionTo", new XC_MethodHook() {
-					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						if (Objects.equals(param.args[1].toString(), "DOZE_AOD")) {
-							aodIconVisible = true;
-						} else if (Objects.equals(param.args[1].toString(), "FINISH")) {
-							aodIconVisible = false;
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						try {
+							if (isOnLockScreen(((ImageView) param.thisObject).getParent().getParent().toString())) {
+								param.setResult(null);
+								callMethod(param.thisObject, "setColorFilter", (Object) null);
+							}
+						} catch (Exception ignored) {
 						}
-						setAodIconVisibility();
 					}
 				});
-			}
-			Class<?> KeyguardUnlockAnimationController = findClassIfExists("com.android.systemui.keyguard.KeyguardUnlockAnimationController", lpparam.classLoader);
-			if (KeyguardUnlockAnimationController != null) {
-				tryHookAllMethods(KeyguardUnlockAnimationController, "notifyStartSurfaceBehindRemoteAnimation", new XC_MethodHook() {
+				tryHookAllMethods(StatusBarIconView, "updateDrawable", new XC_MethodHook() {
 					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						timeToWait = 700;
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						try {
+							if (isOnLockScreen(((ImageView) param.thisObject).getParent().getParent().toString())) {
+								Helper.INSTANCE.setNotificationIcon((ImageView) param.thisObject, (StatusBarNotification) getObjectField(param.thisObject, "mNotification"), true);
+								((ViewGroup) ((ImageView) param.thisObject).getParent()).removeOnLayoutChangeListener(onLayoutChangeListener);
+								((ViewGroup) ((ImageView) param.thisObject).getParent()).addOnLayoutChangeListener(onLayoutChangeListener);
+								param.setResult(true);
+							}
+						} catch (Exception ignored) {
+						}
 					}
 				});
 			}
@@ -422,61 +423,6 @@ public class SystemUIListener extends XposedModPack {
 						param.args[0] = 0;
 					}
 				});
-			}
-		}
-	}
-
-	private void setAodIconVisibility() {
-		if (innerScrollLayout != null) {
-			if (aodIconVisible) {
-				if (innerScrollLayout.getVisibility() != View.VISIBLE) {
-					new Handler(Looper.getMainLooper()).postDelayed(() -> {
-						if (aodIconVisible) {
-							Helper.INSTANCE.animateAlpha(innerScrollLayout, 350, false);
-							timeToWait = 100;
-						} else {
-							innerScrollLayout.setVisibility(View.GONE);
-						}
-					}, timeToWait);
-				}
-			} else {
-				innerScrollLayout.setVisibility(View.GONE);
-			}
-		}
-	}
-
-	private void aodNotification(XC_MethodHook.MethodHookParam param) {
-		ViewGroup viewGroup = ((ViewGroup) param.thisObject);
-		ViewGroup rootView = (ViewGroup) viewGroup.getParent();
-		if (!rootView.toString().contains("KeyguardRootView")) {
-			return;
-		}
-		int[] location = new int[2];
-		aodIconPosition = 0;
-		for (int j = 0; j < rootView.getChildCount(); j++) {
-			View innerView = rootView.getChildAt(j);
-			if (innerView.toString().contains("NotificationIconContainer")) {
-				innerScrollLayout = rootView.findViewWithTag(NOTIF_TAG_SCROLL);
-				if (innerScrollLayout != null) {
-					innerView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-						innerView.getLocationOnScreen(location);
-						aodIconPosition = -(Resources.getSystem().getDisplayMetrics().heightPixels - location[1]) + Helper.INSTANCE.getPx(110);
-						Helper.INSTANCE.applyMarginToAodIcons(innerScrollLayout, aodIconPosition);
-					});
-				}
-			}
-		}
-		for (int j = 0; j < rootView.getChildCount(); j++) {
-			View innerView = rootView.getChildAt(j);
-			if (innerView.toString().contains("KeyguardIndicationArea")) {
-				ViewGroup.LayoutParams layoutParams = viewGroup.getLayoutParams();
-				layoutParams.width = 1;
-				viewGroup.setLayoutParams(layoutParams);
-				ArrayList<StatusBarNotification> notifications = new ArrayList<>();
-				for (int i = 0; i < viewGroup.getChildCount(); i++) {
-					notifications.add((StatusBarNotification) getObjectField(viewGroup.getChildAt(i), "mNotification"));
-				}
-				Helper.INSTANCE.manageNotificationHere((LinearLayout) innerView, notifications, aodIconPosition);
 			}
 		}
 	}
