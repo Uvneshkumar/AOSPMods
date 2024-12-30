@@ -46,6 +46,9 @@ public class SystemUIListener extends XposedModPack {
 	final Handler handler = new Handler(Looper.myLooper());
 	Runnable runnable = null;
 
+	final Handler handler2 = new Handler(Looper.myLooper());
+	Runnable runnable2 = null;
+
 	private void initializeRunnable(Object thisObject) {
 		handler.removeCallbacks(runnable);
 		runnable = new Runnable() {
@@ -53,6 +56,15 @@ public class SystemUIListener extends XposedModPack {
 				// https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/packages/SystemUI/src/com/android/systemui/doze/DozeLog.java;l=557;drc=70468495b83418eb4a406b91daed502c74709745#:~:text=556-,557,-558
 				callMethod(thisObject, "requestPulse", 9, true, null);
 				handler.postDelayed(this, 1000);
+			}
+		};
+	}
+
+	private void initializeRunnable2(Object thisObject) {
+		handler2.removeCallbacks(runnable2);
+		runnable2 = new Runnable() {
+			public void run() {
+				callMethod(thisObject, "gentleWakeUp", 9);
 			}
 		};
 	}
@@ -381,6 +393,27 @@ public class SystemUIListener extends XposedModPack {
 						if (Objects.equals(param.args[1].toString(), "FINISH")) {
 							handler.removeCallbacks(runnable);
 						}
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("disallowDeepAOD2", false)) {
+			Class<?> DozeTriggers = findClassIfExists("com.android.systemui.doze.DozeTriggers", lpparam.classLoader);
+			if (DozeTriggers != null) {
+				tryHookAllConstructors(DozeTriggers, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						initializeRunnable2(param.thisObject);
+						handler2.postDelayed(runnable2, 350);
+					}
+				});
+			}
+			Class<?> AnimatableClockView = findClassIfExists("com.android.systemui.shared.clocks.AnimatableClockView", lpparam.classLoader);
+			if (AnimatableClockView != null) {
+				tryHookAllConstructors(AnimatableClockView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						setObjectField(param.thisObject, "lockScreenWeightInternal", getObjectField(param.thisObject, "dozingWeightInternal"));
 					}
 				});
 			}

@@ -44,6 +44,10 @@
 			android:title="Disallow Deep AOD (Tap to Wake)" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="disallowDeepAOD2"
+			android:title="Disallow AOD 2 (Stay on LS)" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="requireStrongAuth"
 			android:title="Don't auto-lock Trusted Agents" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
