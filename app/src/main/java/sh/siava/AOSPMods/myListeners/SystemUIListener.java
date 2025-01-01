@@ -22,6 +22,8 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
+import android.view.animation.PathInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -454,6 +456,36 @@ public class SystemUIListener extends XposedModPack {
 					@Override
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						param.args[0] = 0;
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("powerButtonRevealScrimBottom", false)) {
+			Class<?> PowerButtonReveal = findClassIfExists("com.android.systemui.statusbar.PowerButtonReveal", lpparam.classLoader);
+			float OFF_SCREEN_START_AMOUNT = 0.05f;
+			float INCREASE_MULTIPLIER = 1.25f;
+			if (PowerButtonReveal != null) {
+				tryHookAllMethods(PowerButtonReveal, "setRevealAmountOnScrim", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//					float powerButtonY = (float) getObjectField(param.thisObject, "powerButtonY");
+						float amount = (float) param.args[0];
+						View scrim = (View) param.args[1];
+						float powerButtonY = (float) scrim.getWidth() / 2;
+						Interpolator FAST_OUT_SLOW_IN_REVERSE = new PathInterpolator(0.8f, 0f, 0.6f, 1f);
+						float interpolatedAmount = FAST_OUT_SLOW_IN_REVERSE.getInterpolation(amount);
+						float threshold = 0.5f;
+						float fadeAmount = Math.max(0f, interpolatedAmount - threshold) * (1f / (1f - threshold));
+						setObjectField(scrim, "revealGradientEndColorAlpha", 1f - fadeAmount);
+						setObjectField(scrim, "interpolatedRevealAmount", interpolatedAmount);
+						callMethod(
+								scrim,
+								"setRevealGradientBounds",
+								(scrim.getWidth() - powerButtonY) - scrim.getWidth() * interpolatedAmount,
+								scrim.getHeight() * (1f + OFF_SCREEN_START_AMOUNT) - scrim.getHeight() * INCREASE_MULTIPLIER * interpolatedAmount,
+								(scrim.getWidth() - powerButtonY) + scrim.getWidth() * interpolatedAmount,
+								scrim.getHeight() * (1f + OFF_SCREEN_START_AMOUNT) + scrim.getHeight() * INCREASE_MULTIPLIER * interpolatedAmount
+						);
 					}
 				});
 			}
