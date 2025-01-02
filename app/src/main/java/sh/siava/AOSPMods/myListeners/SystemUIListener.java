@@ -107,7 +107,7 @@ public class SystemUIListener extends XposedModPack {
 			if (i == 0) {
 				firstX = view.getX();
 			} else {
-				firstX += view.getMeasuredWidth() + Helper.INSTANCE.getPx(10);
+				firstX += view.getMeasuredWidth() + Helper.INSTANCE.getPx(12);
 				view.setX(firstX);
 			}
 		}
