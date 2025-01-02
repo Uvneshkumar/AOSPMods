@@ -3,6 +3,7 @@ package sh.siava.AOSPMods.myListeners;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getIntField;
+import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
@@ -317,6 +318,18 @@ public class AllAppsListener extends XposedModPack {
 						} else {
 							batteryMeterView[0].setPadding(0, 0, 0, 0);
 						}
+					}
+				}
+			});
+		}
+		Class<?> AppCompatAspectRatioPolicy = findClassIfExists("com.android.server.wm.AppCompatAspectRatioPolicy", lpparam.classLoader);
+		if (AppCompatAspectRatioPolicy != null) {
+			tryHookAllMethods(AppCompatAspectRatioPolicy, "applyAspectRatio", new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					String appPackageName = (String) getObjectField(getObjectField(param.thisObject, "mActivityRecord"), "packageName");
+					if (appPackageName.equals("com.crater.bbtan")) {
+						param.setResult(false);
 					}
 				}
 			});
