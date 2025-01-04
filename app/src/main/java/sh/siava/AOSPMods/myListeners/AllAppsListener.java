@@ -265,7 +265,10 @@ public class AllAppsListener extends XposedModPack {
 			tryHookAllMethods(RecentTasks, "add", new XC_MethodHook() {
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					if (param.args[0].toString().contains("uvnesh.myaod") || param.args[0].toString().contains("com.iprototypes.volume")) {
+					if (param.args[0].toString().contains("uvnesh.myaod")
+							|| param.args[0].toString().contains("com.iprototypes.volume")
+							|| param.args[0].toString().contains("uvnesh.lockwidget")
+					) {
 						param.setResult(null);
 					}
 				}
