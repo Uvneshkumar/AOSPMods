@@ -15,6 +15,8 @@ import android.graphics.Color;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import java.util.Arrays;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.XposedModPack;
@@ -265,7 +267,7 @@ public class AllAppsListener extends XposedModPack {
 			tryHookAllMethods(RecentTasks, "add", new XC_MethodHook() {
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					if (param.args[0].toString().contains("uvnesh.myaod") || param.args[0].toString().contains("com.iprototypes.volume")) {
+					if (Arrays.asList("uvnesh.myaod", "com.iprototypes.volume", "uvnesh.lockwidget").contains(param.args[0].toString())) {
 						param.setResult(null);
 					}
 				}
