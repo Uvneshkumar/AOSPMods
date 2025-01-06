@@ -399,6 +399,17 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("disallowDeepAOD1", false)) {
+			Class<?> DozeTriggers = findClassIfExists("com.android.systemui.doze.DozeTriggers", lpparam.classLoader);
+			if (DozeTriggers != null) {
+				tryHookAllMethods(DozeTriggers, "transitionTo", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						Runtime.getRuntime().exec("su -c echo 1 > /sys/class/sec/tsp/input/enabled");
+					}
+				});
+			}
+		}
 		if (Xprefs.getBoolean("disallowDeepAOD2", false)) {
 			Class<?> DozeTriggers = findClassIfExists("com.android.systemui.doze.DozeTriggers", lpparam.classLoader);
 			if (DozeTriggers != null) {
