@@ -1,6 +1,7 @@
 package sh.siava.AOSPMods.myListeners;
 
 import static android.os.VibrationAttributes.USAGE_ACCESSIBILITY;
+import static android.os.VibrationAttributes.USAGE_TOUCH;
 import static android.os.VibrationEffect.EFFECT_TICK;
 import static de.robv.android.xposed.XposedBridge.hookAllMethods;
 import static de.robv.android.xposed.XposedBridge.hookMethod;
@@ -199,6 +200,17 @@ public class SystemFrameworkListener extends XposedModPack {
 					}
 				}
 			});
+		}
+		if (Xprefs.getBoolean("vibrationTouchAlways", false)) {
+			Class<?> VibrationAttributes = findClassIfExists("android.os.VibrationAttributes", lpparam.classLoader);
+			if (VibrationAttributes != null) {
+				tryHookAllMethods(VibrationAttributes, "createForUsage", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.args[0] = USAGE_TOUCH;
+					}
+				});
+			}
 		}
 	}
 
