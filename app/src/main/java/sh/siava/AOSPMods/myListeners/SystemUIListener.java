@@ -21,6 +21,7 @@ import android.service.notification.StatusBarNotification;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.view.animation.PathInterpolator;
 import android.widget.FrameLayout;
@@ -97,6 +98,22 @@ public class SystemUIListener extends XposedModPack {
 			textView.setPadding(0, 0, 0, Helper.INSTANCE.getPx(80));
 		}
 	}
+
+	private final View.OnLayoutChangeListener keyguardSliceViewLayoutChangeListener = (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+		LinearLayout linearLayout = (LinearLayout) v;
+		if (linearLayout.getChildCount() > 1) {
+			ViewGroup child = (ViewGroup) linearLayout.getChildAt(1);
+			if (child.getChildCount() > 0) {
+				View innerChild = child.getChildAt(0);
+				innerChild.setPadding(
+						innerChild.getPaddingLeft(),
+						innerChild.getPaddingTop(),
+						Helper.INSTANCE.getPx(8),
+						innerChild.getPaddingBottom()
+				);
+			}
+		}
+	};
 
 	private boolean isOnLockScreen(String className) {
 		return className.contains("KeyguardRootView") || className.contains("KeyguardStatusAreaView");
@@ -480,6 +497,30 @@ public class SystemUIListener extends XposedModPack {
 								(scrim.getWidth() - powerButtonY) + scrim.getWidth() * interpolatedAmount,
 								scrim.getHeight() * (1f + OFF_SCREEN_START_AMOUNT) + scrim.getHeight() * INCREASE_MULTIPLIER * interpolatedAmount
 						);
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("hideKeyguardSliceView", false)) {
+			Class<?> KeyguardSliceView = findClassIfExists("com.android.keyguard.KeyguardSliceView", lpparam.classLoader);
+			if (KeyguardSliceView != null) {
+				tryHookAllConstructors(KeyguardSliceView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						((View) param.thisObject).setVisibility(View.GONE);
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("keyguardSliceViewAlarmPadding", false)) {
+			Class<?> KeyguardSliceView = findClassIfExists("com.android.keyguard.KeyguardSliceView", lpparam.classLoader);
+			if (KeyguardSliceView != null) {
+				tryHookAllConstructors(KeyguardSliceView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						LinearLayout keyguardSliceView = (LinearLayout) param.thisObject;
+						keyguardSliceView.removeOnLayoutChangeListener(keyguardSliceViewLayoutChangeListener);
+						keyguardSliceView.addOnLayoutChangeListener(keyguardSliceViewLayoutChangeListener);
 					}
 				});
 			}
