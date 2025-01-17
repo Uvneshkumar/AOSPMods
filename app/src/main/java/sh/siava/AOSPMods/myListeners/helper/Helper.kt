@@ -38,6 +38,8 @@ object Helper {
         statusBarNotification: StatusBarNotification,
         isFirstTry: Boolean = true
     ) {
+        val iconScaleFactor = 1.2f
+        val rootScaleFactor = 1.3f
         loadAppIcons(imageView.context) {
             val iconDrawable =
                 appListItems.find { it.first == statusBarNotification.packageName }?.second
@@ -48,10 +50,22 @@ object Helper {
             }
             imageView.apply {
                 post {
-                    scaleX = 1.5f
-                    scaleY = 1.5f
+                    scaleX = iconScaleFactor
+                    scaleY = iconScaleFactor
                     setImageDrawable(iconDrawable)
                 }
+            }
+            (imageView.parent as? View)?.apply {
+                scaleX = rootScaleFactor
+                scaleY = rootScaleFactor
+                // From System UI
+                val below_clock_padding_start_icons = 31.px
+                setPadding(
+                    (below_clock_padding_start_icons * (iconScaleFactor + rootScaleFactor)).toInt() + 3,
+                    paddingTop,
+                    paddingRight,
+                    paddingBottom
+                )
             }
         }
     }

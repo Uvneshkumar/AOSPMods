@@ -21,7 +21,6 @@ import android.service.notification.StatusBarNotification;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.view.animation.PathInterpolator;
 import android.widget.FrameLayout;
@@ -99,20 +98,6 @@ public class SystemUIListener extends XposedModPack {
 		}
 	}
 
-	private final View.OnLayoutChangeListener onLayoutChangeListener = (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-		float firstX = 0;
-		ViewGroup viewGroup = ((ViewGroup) v);
-		for (int i = 0; i < viewGroup.getChildCount(); i++) {
-			View view = viewGroup.getChildAt(i);
-			if (i == 0) {
-				firstX = view.getX();
-			} else {
-				firstX += view.getMeasuredWidth() + Helper.INSTANCE.getPx(12);
-				view.setX(firstX);
-			}
-		}
-	};
-
 	private boolean isOnLockScreen(String className) {
 		return className.contains("KeyguardRootView") || className.contains("KeyguardStatusAreaView");
 	}
@@ -177,8 +162,6 @@ public class SystemUIListener extends XposedModPack {
 						try {
 							if (isOnLockScreen(((ImageView) param.thisObject).getParent().getParent().toString())) {
 								Helper.INSTANCE.setNotificationIcon((ImageView) param.thisObject, (StatusBarNotification) getObjectField(param.thisObject, "mNotification"), true);
-								((ViewGroup) ((ImageView) param.thisObject).getParent()).removeOnLayoutChangeListener(onLayoutChangeListener);
-								((ViewGroup) ((ImageView) param.thisObject).getParent()).addOnLayoutChangeListener(onLayoutChangeListener);
 								param.setResult(true);
 							}
 						} catch (Exception ignored) {
