@@ -197,6 +197,10 @@ public class SystemFrameworkListener extends XposedModPack {
 					if (!screenIsOn) {
 						launchAction();
 						param.setResult(null);
+					} else if (Xprefs.getBoolean("holdPowerForTorchEverywhere", false)) {
+						ToggleFlash();
+						vibrate(EFFECT_TICK, USAGE_ACCESSIBILITY);
+						param.setResult(null);
 					}
 				}
 			});

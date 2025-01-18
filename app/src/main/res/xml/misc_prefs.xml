@@ -198,6 +198,10 @@
 			android:defaultValue="false"
 			android:key="holdPowerForTorch"
 			android:title="Long Press Power Button for Torch" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="holdPowerForTorchEverywhere"
+			android:title="Long Press Power Button for Torch EVERYWHERE" />
 	</sh.siava.AOSPMods.ui.MaterialPreferenceCategory>
 	<sh.siava.AOSPMods.ui.MaterialPreferenceCategory android:title="@string/general_section">
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
