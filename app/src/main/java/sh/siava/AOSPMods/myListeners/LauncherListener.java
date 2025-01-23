@@ -135,7 +135,11 @@ public class LauncherListener extends XposedModPack {
 						}
 						if ((event.getAction() == MotionEvent.ACTION_UP) && canLock && ((boolean) (param.getResult()))) {
 							canLock = false;
-							PackageInfo packageInfo = mContext.getPackageManager().getPackageInfo("uvnesh.myaod", GET_ACTIVITIES);
+							PackageInfo packageInfo = null;
+							try {
+								packageInfo = mContext.getPackageManager().getPackageInfo("uvnesh.myaod", GET_ACTIVITIES);
+							} catch (Exception ignored) {
+							}
 							Object mLauncher = getObjectField(param.thisObject, "mLauncher");
 							Helper.INSTANCE.playSound(mContext);
 							FrameLayout rootView = (FrameLayout) callMethod(mLauncher, "getRootView");
@@ -161,11 +165,12 @@ public class LauncherListener extends XposedModPack {
 							bgFirst.setDuration(animDuration);
 							ObjectAnimator blackFirst = ObjectAnimator.ofFloat(blackView, "y", blackView.getY(), 0);
 							blackFirst.setDuration(animDuration);
+							PackageInfo finalPackageInfo = packageInfo;
 							blackFirst.addListener(new AnimatorListenerAdapter() {
 								@Override
 								public void onAnimationEnd(Animator animation) {
 									super.onAnimationEnd(animation);
-									if (packageInfo == null) {
+									if (finalPackageInfo == null) {
 										try {
 											Runtime.getRuntime().exec("su -c input keyevent 223");
 										} catch (Throwable ignored) {
