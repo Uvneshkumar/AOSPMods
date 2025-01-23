@@ -1,16 +1,21 @@
 package sh.siava.AOSPMods.myListeners.helper
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources.getSystem
 import android.graphics.drawable.Drawable
+import android.media.AudioManager
+import android.media.RingtoneManager
 import android.os.Handler
 import android.os.Looper
 import android.service.notification.StatusBarNotification
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
+import sh.siava.AOSPMods.XPrefs
 
 object Helper {
 
@@ -31,6 +36,31 @@ object Helper {
         } else {
             postAction()
         }
+    }
+
+    private fun createNotificationChannel(context: Context) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+        val lockChannel = NotificationChannel(
+            "LOCK_CHANNEL", "Lock Channel", NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = name.toString()
+        }
+        notificationManager?.createNotificationChannel(lockChannel)
+    }
+
+    fun playSound(context: Context) {
+        createNotificationChannel(context)
+        if (XPrefs.Xprefs.getBoolean("enableST2SMyAodVolume", false) && isRingerModeNormal(context)) {
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+            val channel = notificationManager?.getNotificationChannel("LOCK_CHANNEL")
+            RingtoneManager.getRingtone(context, channel?.sound).play()
+        }
+    }
+
+    private fun isRingerModeNormal(context: Context): Boolean {
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+        val ringerMode = audioManager?.ringerMode
+        return ringerMode == AudioManager.RINGER_MODE_NORMAL
     }
 
     fun setNotificationIcon(

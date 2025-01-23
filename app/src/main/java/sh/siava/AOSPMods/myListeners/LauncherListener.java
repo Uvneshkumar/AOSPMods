@@ -1,5 +1,6 @@
 package sh.siava.AOSPMods.myListeners;
 
+import static android.content.pm.PackageManager.GET_ACTIVITIES;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
@@ -11,7 +12,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -134,8 +135,9 @@ public class LauncherListener extends XposedModPack {
 						}
 						if ((event.getAction() == MotionEvent.ACTION_UP) && canLock && ((boolean) (param.getResult()))) {
 							canLock = false;
-							Intent intent = mContext.getPackageManager().getLaunchIntentForPackage("uvnesh.myaod");
+							PackageInfo packageInfo = mContext.getPackageManager().getPackageInfo("uvnesh.myaod", GET_ACTIVITIES);
 							Object mLauncher = getObjectField(param.thisObject, "mLauncher");
+							Helper.INSTANCE.playSound(mContext);
 							FrameLayout rootView = (FrameLayout) callMethod(mLauncher, "getRootView");
 							Window window = (Window) callMethod(mLauncher, "getWindow");
 							WindowInsetsControllerCompat windowInsetsController = WindowCompat.getInsetsController(window, window.getDecorView());
@@ -163,7 +165,7 @@ public class LauncherListener extends XposedModPack {
 								@Override
 								public void onAnimationEnd(Animator animation) {
 									super.onAnimationEnd(animation);
-									if (intent == null) {
+									if (packageInfo == null) {
 										try {
 											Runtime.getRuntime().exec("su -c input keyevent 223");
 										} catch (Throwable ignored) {
@@ -178,9 +180,12 @@ public class LauncherListener extends XposedModPack {
 							blackFirst.start();
 							bgFirst.start();
 							// Only Good for 0.5x Speed
-							if (intent != null) {
+							if (packageInfo != null) {
 								new Handler(Looper.getMainLooper()).postDelayed(() -> {
-									mContext.startActivity(intent);
+									try {
+										Runtime.getRuntime().exec("su -c am start -n uvnesh.myaod/.MainActivity");
+									} catch (Throwable ignored) {
+									}
 								}, (long) (animDuration - (animDuration / 1.25)));
 							}
 						}
