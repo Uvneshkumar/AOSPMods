@@ -19,6 +19,7 @@ import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.service.notification.StatusBarNotification;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -105,12 +106,7 @@ public class SystemUIListener extends XposedModPack {
 			ViewGroup child = (ViewGroup) linearLayout.getChildAt(1);
 			if (child.getChildCount() > 0) {
 				View innerChild = child.getChildAt(0);
-				innerChild.setPadding(
-						innerChild.getPaddingLeft(),
-						innerChild.getPaddingTop(),
-						Helper.INSTANCE.getPx(8),
-						innerChild.getPaddingBottom()
-				);
+				innerChild.setPadding(innerChild.getPaddingLeft(), innerChild.getPaddingTop(), Helper.INSTANCE.getPx(8), innerChild.getPaddingBottom());
 			}
 		}
 	};
@@ -276,6 +272,39 @@ public class SystemUIListener extends XposedModPack {
 						View mSystemIconsContainer = (View) getObjectField(param.thisObject, "mView");
 						callMethod(mSystemIconsContainer, "setVisibility", View.INVISIBLE);
 						param.setResult(null);
+					}
+				});
+			}
+			Class<?> DeviceEntryIconView = findClassIfExists("com.android.systemui.keyguard.ui.view.DeviceEntryIconView", lpparam.classLoader);
+			if (DeviceEntryIconView != null) {
+				tryHookAllConstructors(DeviceEntryIconView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						ImageView iconView = (ImageView) getObjectField(param.thisObject, "iconView");
+						iconView.setAlpha(0f);
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("nothingLockIcon", false)) {
+			Class<?> DeviceEntryIconView = findClassIfExists("com.android.systemui.keyguard.ui.view.DeviceEntryIconView", lpparam.classLoader);
+			if (DeviceEntryIconView != null) {
+				tryHookAllConstructors(DeviceEntryIconView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						FrameLayout rootView = (FrameLayout) param.thisObject;
+						ImageView myIcon = new ImageView(mContext);
+						myIcon.setImageDrawable(Helper.INSTANCE.createOvalDrawable());
+						int iconPadding = 5;
+						myIcon.setPadding(iconPadding, iconPadding, iconPadding, iconPadding);
+						rootView.addView(myIcon);
+						FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) myIcon.getLayoutParams();
+						lp.height = FrameLayout.LayoutParams.MATCH_PARENT;
+						lp.width = FrameLayout.LayoutParams.MATCH_PARENT;
+						lp.gravity = Gravity.CENTER;
+						myIcon.setLayoutParams(lp);
+						rootView.setScaleX(1.5f);
+						rootView.setScaleY(1.5f);
 					}
 				});
 			}
@@ -489,14 +518,7 @@ public class SystemUIListener extends XposedModPack {
 						float fadeAmount = Math.max(0f, interpolatedAmount - threshold) * (1f / (1f - threshold));
 						setObjectField(scrim, "revealGradientEndColorAlpha", 1f - fadeAmount);
 						setObjectField(scrim, "interpolatedRevealAmount", interpolatedAmount);
-						callMethod(
-								scrim,
-								"setRevealGradientBounds",
-								(scrim.getWidth() - powerButtonY) - scrim.getWidth() * interpolatedAmount,
-								scrim.getHeight() * (1f + OFF_SCREEN_START_AMOUNT) - scrim.getHeight() * INCREASE_MULTIPLIER * interpolatedAmount,
-								(scrim.getWidth() - powerButtonY) + scrim.getWidth() * interpolatedAmount,
-								scrim.getHeight() * (1f + OFF_SCREEN_START_AMOUNT) + scrim.getHeight() * INCREASE_MULTIPLIER * interpolatedAmount
-						);
+						callMethod(scrim, "setRevealGradientBounds", (scrim.getWidth() - powerButtonY) - scrim.getWidth() * interpolatedAmount, scrim.getHeight() * (1f + OFF_SCREEN_START_AMOUNT) - scrim.getHeight() * INCREASE_MULTIPLIER * interpolatedAmount, (scrim.getWidth() - powerButtonY) + scrim.getWidth() * interpolatedAmount, scrim.getHeight() * (1f + OFF_SCREEN_START_AMOUNT) + scrim.getHeight() * INCREASE_MULTIPLIER * interpolatedAmount);
 					}
 				});
 			}

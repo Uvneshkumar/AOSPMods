@@ -6,12 +6,17 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources.getSystem
+import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.OvalShape
 import android.media.AudioManager
 import android.media.RingtoneManager
 import android.os.Handler
 import android.os.Looper
 import android.service.notification.StatusBarNotification
+import android.util.TypedValue
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -39,7 +44,8 @@ object Helper {
     }
 
     private fun createNotificationChannel(context: Context) {
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
         val lockChannel = NotificationChannel(
             "LOCK_CHANNEL", "Lock Channel", NotificationManager.IMPORTANCE_HIGH
         ).apply {
@@ -50,8 +56,12 @@ object Helper {
 
     fun playSound(context: Context) {
         createNotificationChannel(context)
-        if (XPrefs.Xprefs.getBoolean("enableST2SMyAodVolume", false) && isRingerModeNormal(context)) {
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+        if (XPrefs.Xprefs.getBoolean(
+                "enableST2SMyAodVolume", false
+            ) && isRingerModeNormal(context)
+        ) {
+            val notificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
             val channel = notificationManager?.getNotificationChannel("LOCK_CHANNEL")
             RingtoneManager.getRingtone(context, channel?.sound).play()
         }
@@ -113,6 +123,20 @@ object Helper {
         }
         rootView.addView(innerFrame)
         return innerFrame
+    }
+
+    fun createOvalDrawable(): ShapeDrawable {
+        val size =
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64f, getSystem().displayMetrics)
+                .toInt()
+        val circleDrawable = ShapeDrawable(OvalShape()).apply {
+            paint.color = Color.WHITE
+            paint.strokeWidth = 8f
+            paint.style = Paint.Style.STROKE
+            setIntrinsicWidth(size)
+            setIntrinsicHeight(size)
+        }
+        return circleDrawable
     }
 
     val Int.px: Int get() = (this * getSystem().displayMetrics.density).toInt()
