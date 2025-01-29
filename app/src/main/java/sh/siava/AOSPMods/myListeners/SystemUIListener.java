@@ -39,6 +39,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.AOSPMods;
 import sh.siava.AOSPMods.XposedModPack;
 import sh.siava.AOSPMods.myListeners.helper.Helper;
+import sh.siava.AOSPMods.utils.Helpers;
 import sh.siava.AOSPMods.utils.StringFormatter;
 import sh.siava.AOSPMods.utils.SystemUtils;
 
@@ -305,6 +306,23 @@ public class SystemUIListener extends XposedModPack {
 						myIcon.setLayoutParams(lp);
 						rootView.setScaleX(1.5f);
 						rootView.setScaleY(1.5f);
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("hideExtendUnlockMessage", false)) {
+			Class<?> KeyguardIndicationTextView = findClassIfExists("com.android.systemui.statusbar.phone.KeyguardIndicationTextView", lpparam.classLoader);
+			if (KeyguardIndicationTextView != null) {
+				Helpers.dumpClass(KeyguardIndicationTextView);
+				tryHookAllMethods(KeyguardIndicationTextView, "switchIndication", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						TextView textView = (TextView) param.thisObject;
+						if (getObjectField(param.thisObject, "mMessage").toString().contains("Kept unlocked by Extend Unlock")) {
+							textView.setScaleY(0f);
+						} else {
+							textView.setScaleY(1f);
+						}
 					}
 				});
 			}
