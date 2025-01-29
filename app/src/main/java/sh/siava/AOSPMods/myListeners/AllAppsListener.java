@@ -265,10 +265,7 @@ public class AllAppsListener extends XposedModPack {
 			tryHookAllMethods(RecentTasks, "add", new XC_MethodHook() {
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					if (param.args[0].toString().contains("uvnesh.myaod")
-							|| param.args[0].toString().contains("com.iprototypes.volume")
-							|| param.args[0].toString().contains("uvnesh.lockwidget")
-					) {
+					if (param.args[0].toString().contains("uvnesh.myaod") || param.args[0].toString().contains("com.iprototypes.volume") || param.args[0].toString().contains("uvnesh.lockwidget")) {
 						param.setResult(null);
 					}
 				}
@@ -337,5 +334,19 @@ public class AllAppsListener extends XposedModPack {
 				}
 			});
 		}
+//		Recents Vibration
+//		Class<?> VibratorWrapper = findClassIfExists("com.android.launcher3.util.VibratorWrapper", lpparam.classLoader);
+//		if (VibratorWrapper != null) {
+//			tryHookAllMethods(VibratorWrapper, "vibrate", new XC_MethodHook() {
+//				@Override
+//				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//					if (param.args[0].toString().equals("Composed{segments=[Prebaked{effect=CLICK, strength=MEDIUM, fallback=true}], repeat=-1, mMagnitudeType=TYPE_EXTRA}")) {
+//						VibrationEffect vibrationEffect = VibrationEffect.createOneShot(10, 255);
+//						SystemUtils.vibrate(vibrationEffect, VibrationAttributes.USAGE_TOUCH);
+//						param.setResult(null);
+//					}
+//				}
+//			});
+//		}
 	}
 }
