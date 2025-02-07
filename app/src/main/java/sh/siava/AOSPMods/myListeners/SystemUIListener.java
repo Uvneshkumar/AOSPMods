@@ -23,6 +23,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.Interpolator;
 import android.view.animation.PathInterpolator;
 import android.widget.FrameLayout;
@@ -562,6 +563,36 @@ public class SystemUIListener extends XposedModPack {
 						LinearLayout keyguardSliceView = (LinearLayout) param.thisObject;
 						keyguardSliceView.removeOnLayoutChangeListener(keyguardSliceViewLayoutChangeListener);
 						keyguardSliceView.addOnLayoutChangeListener(keyguardSliceViewLayoutChangeListener);
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("keyguardSliceViewBurnIn", false)) {
+			Class<?> KeyguardRootViewBinder = findClassIfExists("com.android.systemui.keyguard.ui.binder.KeyguardRootViewBinder", lpparam.classLoader);
+			if (KeyguardRootViewBinder != null) {
+				tryHookAllMethods(KeyguardRootViewBinder, "bind", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						ViewGroup view = (ViewGroup) param.args[0];
+						ViewTreeObserver viewTreeObserver = view.getViewTreeObserver();
+						viewTreeObserver.addOnPreDrawListener(() -> {
+							int childCount = view.getChildCount();
+							View burn_in_layer = null;
+							View keyguard_slice_view = null;
+							for (int i = 0; i < childCount; i++) {
+								if (view.getChildAt(i).toString().contains("app:id/burn_in_layer")) {
+									burn_in_layer = view.getChildAt(i);
+								}
+								if (view.getChildAt(i).toString().contains("app:id/keyguard_slice_view")) {
+									keyguard_slice_view = view.getChildAt(i);
+								}
+							}
+							if (burn_in_layer != null && keyguard_slice_view != null) {
+								keyguard_slice_view.setTranslationX(burn_in_layer.getTranslationX());
+								keyguard_slice_view.setTranslationY(burn_in_layer.getTranslationY());
+							}
+							return true;
+						});
 					}
 				});
 			}

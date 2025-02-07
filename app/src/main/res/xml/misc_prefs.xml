@@ -88,6 +88,10 @@
 			android:title="KeyguardSliceView Alarm Padding" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="keyguardSliceViewBurnIn"
+			android:title="KeyguardSliceView Burn In" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="aodIconsCenter"
 			android:title="App Icon for Notifications in AOD" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
