@@ -597,6 +597,26 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("disableBurnIn", false)) {
+			Class<?> KeyguardRootViewBinder = findClassIfExists("com.android.systemui.keyguard.ui.binder.KeyguardRootViewBinder", lpparam.classLoader);
+			if (KeyguardRootViewBinder != null) {
+				tryHookAllMethods(KeyguardRootViewBinder, "bind", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						ViewGroup view = (ViewGroup) param.args[0];
+						ViewTreeObserver viewTreeObserver = view.getViewTreeObserver();
+						viewTreeObserver.addOnPreDrawListener(() -> {
+							int childCount = view.getChildCount();
+							for (int i = 0; i < childCount; i++) {
+								view.getChildAt(i).setTranslationX(0);
+								view.getChildAt(i).setTranslationY(0);
+							}
+							return true;
+						});
+					}
+				});
+			}
+		}
 	}
 
 	private void setQSFooterText() {
