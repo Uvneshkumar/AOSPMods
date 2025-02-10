@@ -184,6 +184,22 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("wakeForFirstNotification", false)) {
+			Class<?> NotificationIconContainer = findClassIfExists("com.android.systemui.statusbar.phone.NotificationIconContainer", lpparam.classLoader);
+			if (NotificationIconContainer != null) {
+				tryHookAllMethods(NotificationIconContainer, "onViewAdded", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						ViewGroup viewGroup = (ViewGroup) param.thisObject;
+						if (viewGroup.getChildCount() == 1) {
+							try {
+								Runtime.getRuntime().exec("su -c input keyevent KEYCODE_WAKEUP");
+							} catch (Throwable ignored) {}
+						}
+					}
+				});
+			}
+		}
 		if (Xprefs.getBoolean("hookUnlockAnim", false)) {
 			Class<?> KeyguardUnlockAnimationController = findClassIfExists("com.android.systemui.keyguard.KeyguardUnlockAnimationController", lpparam.classLoader);
 			if (KeyguardUnlockAnimationController != null) {
