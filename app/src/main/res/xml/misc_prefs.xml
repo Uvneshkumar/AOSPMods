@@ -20,6 +20,10 @@
 			android:title="Nothing Style Lock Icon" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="nothingFpIcon"
+			android:title="Nothing Style FP Icon" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="hideExtendUnlockMessage"
 			android:title="Hide - Kept unlocked by Extend Unlock" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference

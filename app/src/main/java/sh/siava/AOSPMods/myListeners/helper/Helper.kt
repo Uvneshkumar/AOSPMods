@@ -125,13 +125,13 @@ object Helper {
         return innerFrame
     }
 
-    fun createOvalDrawable(): ShapeDrawable {
+    fun createOvalDrawable(isSmall: Boolean): ShapeDrawable {
         val size =
             TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64f, getSystem().displayMetrics)
                 .toInt()
         val circleDrawable = ShapeDrawable(OvalShape()).apply {
             paint.color = Color.WHITE
-            paint.strokeWidth = 8f
+            paint.strokeWidth = if (isSmall) 6f else 8f
             paint.style = Paint.Style.STROKE
             setIntrinsicWidth(size)
             setIntrinsicHeight(size)

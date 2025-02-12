@@ -12,6 +12,7 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
@@ -311,7 +312,7 @@ public class SystemUIListener extends XposedModPack {
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						FrameLayout rootView = (FrameLayout) param.thisObject;
 						ImageView myIcon = new ImageView(mContext);
-						myIcon.setImageDrawable(Helper.INSTANCE.createOvalDrawable());
+						myIcon.setImageDrawable(Helper.INSTANCE.createOvalDrawable(false));
 						int iconPadding = 5;
 						myIcon.setPadding(iconPadding, iconPadding, iconPadding, iconPadding);
 						rootView.addView(myIcon);
@@ -322,6 +323,25 @@ public class SystemUIListener extends XposedModPack {
 						myIcon.setLayoutParams(lp);
 						rootView.setScaleX(1.5f);
 						rootView.setScaleY(1.5f);
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("nothingFpIcon", false)) {
+			Class<?> DeviceEntryIconView = findClassIfExists("com.android.systemui.keyguard.ui.view.DeviceEntryIconView", lpparam.classLoader);
+			if (DeviceEntryIconView != null) {
+				tryHookAllConstructors(DeviceEntryIconView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						FrameLayout rootView = (FrameLayout) param.thisObject;
+						ImageView myIcon = (ImageView) rootView.getChildAt(0);
+						myIcon.setImageDrawable(Helper.INSTANCE.createOvalDrawable(true));
+						int iconPadding = 10;
+						myIcon.setPadding(iconPadding, iconPadding, iconPadding, iconPadding);
+						new Handler(Looper.getMainLooper()).postDelayed(() -> {
+							int whiteColor = Color.parseColor("#FFFFFF");
+							myIcon.setImageTintList(ColorStateList.valueOf(whiteColor));
+						}, 1000);
 					}
 				});
 			}
