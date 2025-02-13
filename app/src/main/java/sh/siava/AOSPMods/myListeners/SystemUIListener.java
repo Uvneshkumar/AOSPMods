@@ -54,6 +54,9 @@ public class SystemUIListener extends XposedModPack {
 	final Handler handler2 = new Handler(Looper.myLooper());
 	Runnable runnable2 = null;
 
+	float previousY = 0;
+	float previousDiff = 0;
+
 	private void initializeRunnable(Object thisObject) {
 		handler.removeCallbacks(runnable);
 		runnable = new Runnable() {
@@ -624,6 +627,17 @@ public class SystemUIListener extends XposedModPack {
 								}
 							}
 							if (burn_in_layer != null && keyguard_slice_view != null) {
+								float currentY = keyguard_slice_view.getY();
+								float currentDiff = Math.abs(previousY - currentY);
+								if (previousY != currentY) {
+									if (currentDiff > 100 && currentDiff != previousDiff) {
+										Helper.INSTANCE.animateAlpha(view);
+									}
+								}
+								previousY = currentY;
+								previousDiff = currentDiff;
+								keyguard_slice_view.setVisibility(burn_in_layer.getVisibility());
+								keyguard_slice_view.setAlpha(burn_in_layer.getAlpha());
 								keyguard_slice_view.setTranslationX(burn_in_layer.getTranslationX());
 								keyguard_slice_view.setTranslationY(burn_in_layer.getTranslationY());
 							}
