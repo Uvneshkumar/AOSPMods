@@ -198,7 +198,8 @@ public class SystemUIListener extends XposedModPack {
 						if (viewGroup.getChildCount() == 1) {
 							try {
 								Runtime.getRuntime().exec("su -c input keyevent KEYCODE_WAKEUP");
-							} catch (Throwable ignored) {}
+							} catch (Throwable ignored) {
+							}
 						}
 					}
 				});
@@ -485,6 +486,28 @@ public class SystemUIListener extends XposedModPack {
 						}
 					}
 				});
+			}
+		}
+		if (Xprefs.getBoolean("disallowDeepAODBetter", false)) {
+			XC_MethodHook noDozeHook = new XC_MethodHook() {
+				@Override
+				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					if ((int) param.args[0] == 3) {
+						param.setResult(null);
+					}
+				}
+			};
+			Class<?> DozeTriggers = findClassIfExists("com.android.systemui.doze.DozeTriggers", lpparam.classLoader);
+			if (DozeTriggers != null) {
+				tryHookAllMethods(DozeTriggers, "onScreenState", noDozeHook);
+			}
+			Class<?> DozeService = findClassIfExists("com.android.systemui.doze.DozeService", lpparam.classLoader);
+			if (DozeService != null) {
+				tryHookAllMethods(DozeService, "setDozeScreenState", noDozeHook);
+			}
+			Class<?> DozeScreenState = findClassIfExists("com.android.systemui.doze.DozeScreenState", lpparam.classLoader);
+			if (DozeScreenState != null) {
+				tryHookAllMethods(DozeScreenState, "applyScreenState", noDozeHook);
 			}
 		}
 		if (Xprefs.getBoolean("disallowDeepAOD1", false)) {

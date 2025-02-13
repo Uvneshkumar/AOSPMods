@@ -60,6 +60,10 @@
 			android:title="Disallow Deep AOD (Tap to Wake)" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="disallowDeepAODBetter"
+			android:title="Disallow Deep AOD (Better Tap to Wake)" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="disallowDeepAOD1"
 			android:title="Don't disable touch while dozing\n#ROOT" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
