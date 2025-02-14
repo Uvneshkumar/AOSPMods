@@ -306,7 +306,7 @@ public class SystemUIListener extends XposedModPack {
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						FrameLayout rootView = (FrameLayout) param.thisObject;
 						ImageView myIcon = new ImageView(mContext);
-						myIcon.setImageDrawable(Helper.INSTANCE.createOvalDrawable(false));
+						myIcon.setImageDrawable(Helper.INSTANCE.createOvalDrawable());
 						int iconPadding = 5;
 						myIcon.setPadding(iconPadding, iconPadding, iconPadding, iconPadding);
 						rootView.addView(myIcon);
@@ -315,8 +315,8 @@ public class SystemUIListener extends XposedModPack {
 						lp.width = FrameLayout.LayoutParams.MATCH_PARENT;
 						lp.gravity = Gravity.CENTER;
 						myIcon.setLayoutParams(lp);
-						rootView.setScaleX(1.5f);
-						rootView.setScaleY(1.5f);
+						rootView.setScaleX(1.3f);
+						rootView.setScaleY(1.3f);
 					}
 				});
 			}
@@ -329,7 +329,7 @@ public class SystemUIListener extends XposedModPack {
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						FrameLayout rootView = (FrameLayout) param.thisObject;
 						ImageView myIcon = (ImageView) rootView.getChildAt(0);
-						myIcon.setImageDrawable(Helper.INSTANCE.createOvalDrawable(true));
+						myIcon.setImageDrawable(Helper.INSTANCE.createOvalDrawable());
 						int iconPadding = 10;
 						myIcon.setPadding(iconPadding, iconPadding, iconPadding, iconPadding);
 						new Handler(Looper.getMainLooper()).postDelayed(() -> {
