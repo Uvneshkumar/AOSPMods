@@ -61,7 +61,7 @@ public class QSQuickPullDown extends XposedModPack {
 							MotionEvent event = (MotionEvent) param1.args[0];
 							if (event.getAction() == MotionEvent.ACTION_DOWN) {
 								if (XPrefs.Xprefs.getBoolean("enableStatusBarVibration", false))
-									SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
+									SystemUtils.vibrate(VibrationEffect.EFFECT_CLICK, VibrationAttributes.USAGE_TOUCH);
 							}
 						}
 					});
@@ -77,7 +77,7 @@ public class QSQuickPullDown extends XposedModPack {
 							MotionEvent event = (MotionEvent) param1.args[1];
 							if (event.getAction() == MotionEvent.ACTION_DOWN) {
 								if (XPrefs.Xprefs.getBoolean("enableStatusBarVibration", false))
-									SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
+									SystemUtils.vibrate(VibrationEffect.EFFECT_CLICK, VibrationAttributes.USAGE_TOUCH);
 							}
 						}
 					});
@@ -90,7 +90,7 @@ public class QSQuickPullDown extends XposedModPack {
 						MotionEvent event = param.args[0] instanceof MotionEvent ? (MotionEvent) param.args[0] : (MotionEvent) param.args[1];
 						if (event.getAction() == MotionEvent.ACTION_DOWN) {
 							if (XPrefs.Xprefs.getBoolean("enableStatusBarVibration", false))
-								SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
+								SystemUtils.vibrate(VibrationEffect.EFFECT_CLICK, VibrationAttributes.USAGE_TOUCH);
 						}
 					}
 				};
