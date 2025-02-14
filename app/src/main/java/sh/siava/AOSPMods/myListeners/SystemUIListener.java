@@ -48,6 +48,7 @@ import sh.siava.AOSPMods.utils.SystemUtils;
 public class SystemUIListener extends XposedModPack {
 	public static final String listenPackage = AOSPMods.SYSTEM_UI_PACKAGE;
 
+	long pulseDelay = 4000;
 	final Handler handler = new Handler(Looper.myLooper());
 	Runnable runnable = null;
 
@@ -63,7 +64,7 @@ public class SystemUIListener extends XposedModPack {
 			public void run() {
 				// https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/packages/SystemUI/src/com/android/systemui/doze/DozeLog.java;l=557;drc=70468495b83418eb4a406b91daed502c74709745#:~:text=556-,557,-558
 				callMethod(thisObject, "requestPulse", 9, true, null);
-				handler.postDelayed(this, 1000);
+				handler.postDelayed(this, pulseDelay);
 			}
 		};
 	}
@@ -475,7 +476,7 @@ public class SystemUIListener extends XposedModPack {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						initializeRunnable(param.thisObject);
-						handler.postDelayed(runnable, 1000);
+						handler.postDelayed(runnable, pulseDelay);
 					}
 				});
 				tryHookAllMethods(DozeTriggers, "transitionTo", new XC_MethodHook() {
