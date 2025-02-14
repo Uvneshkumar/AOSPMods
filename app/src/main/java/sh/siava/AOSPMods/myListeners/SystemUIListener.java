@@ -58,6 +58,8 @@ public class SystemUIListener extends XposedModPack {
 	float previousY = 0;
 	float previousDiff = 0;
 
+	boolean isAodIconVisible = true;
+
 	private void initializeRunnable(Object thisObject) {
 		handler.removeCallbacks(runnable);
 		runnable = new Runnable() {
@@ -180,27 +182,14 @@ public class SystemUIListener extends XposedModPack {
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						try {
 							if (isOnLockScreen(((ImageView) param.thisObject).getParent().getParent().toString())) {
-								Helper.INSTANCE.setNotificationIcon((ImageView) param.thisObject, (StatusBarNotification) getObjectField(param.thisObject, "mNotification"), true);
+								if (isAodIconVisible) {
+									Helper.INSTANCE.setNotificationIcon((ImageView) param.thisObject, (StatusBarNotification) getObjectField(param.thisObject, "mNotification"), true);
+								} else {
+									((ImageView) param.thisObject).setImageDrawable(null);
+								}
 								param.setResult(true);
 							}
 						} catch (Exception ignored) {
-						}
-					}
-				});
-			}
-		}
-		if (Xprefs.getBoolean("wakeForFirstNotification", false)) {
-			Class<?> NotificationIconContainer = findClassIfExists("com.android.systemui.statusbar.phone.NotificationIconContainer", lpparam.classLoader);
-			if (NotificationIconContainer != null) {
-				tryHookAllMethods(NotificationIconContainer, "onViewAdded", new XC_MethodHook() {
-					@Override
-					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-						ViewGroup viewGroup = (ViewGroup) param.thisObject;
-						if (viewGroup.getChildCount() == 1) {
-							try {
-								Runtime.getRuntime().exec("su -c input keyevent KEYCODE_WAKEUP");
-							} catch (Throwable ignored) {
-							}
 						}
 					}
 				});
@@ -484,6 +473,24 @@ public class SystemUIListener extends XposedModPack {
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						if (Objects.equals(param.args[1].toString(), "FINISH")) {
 							handler.removeCallbacks(runnable);
+						}
+					}
+				});
+			}
+			Class<?> NotificationIconContainer = findClassIfExists("com.android.systemui.statusbar.phone.NotificationIconContainer", lpparam.classLoader);
+			if (NotificationIconContainer != null) {
+				tryHookAllMethods(NotificationIconContainer, "onViewAdded", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						ViewGroup viewGroup = (ViewGroup) param.thisObject;
+						if (isOnLockScreen(viewGroup.getParent().toString())) {
+							if (viewGroup.getChildCount() == 1) {
+								isAodIconVisible = false;
+								new Handler(Looper.getMainLooper()).postDelayed(() -> {
+									isAodIconVisible = true;
+									Helper.INSTANCE.setNotificationIcon((ImageView) param.args[0], (StatusBarNotification) getObjectField(param.args[0], "mNotification"), true);
+								}, 1000);
+							}
 						}
 					}
 				});

@@ -108,10 +108,6 @@
 			android:title="App Icon for Notifications in AOD" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
-			android:key="wakeForFirstNotification"
-			android:title="Wake for First Notification\n#ROOT" />
-		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
-			android:defaultValue="false"
 			android:key="enableST2SLock"
 			android:title="ST2S Lock Screen" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
