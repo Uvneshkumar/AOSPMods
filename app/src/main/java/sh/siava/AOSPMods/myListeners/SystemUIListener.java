@@ -48,7 +48,7 @@ import sh.siava.AOSPMods.utils.SystemUtils;
 public class SystemUIListener extends XposedModPack {
 	public static final String listenPackage = AOSPMods.SYSTEM_UI_PACKAGE;
 
-	long pulseDelay = 4000;
+	long pulseDelay = 1000;
 	final Handler handler = new Handler(Looper.myLooper());
 	Runnable runnable = null;
 
