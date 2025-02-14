@@ -83,14 +83,19 @@ public class LauncherListener extends XposedModPack {
 			}
 		}
 		if (XPrefs.Xprefs.getBoolean("enableLauncherStatusVibration", false)) {
+			final boolean[] canVibrate = {true};
 			Class<?> StatusBarTouchController = findClassIfExists("com.android.launcher3.uioverrides.touchcontrollers.StatusBarTouchController", lpparam.classLoader);
 			if (StatusBarTouchController != null) {
-				tryHookAllMethods(StatusBarTouchController, "dispatchTouchEvent", new XC_MethodHook() {
+				tryHookAllMethods(StatusBarTouchController, "onControllerTouchEvent", new XC_MethodHook() {
 					@Override
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-						if (((MotionEvent) (param.args[0])).getActionMasked() == MotionEvent.ACTION_DOWN) {
-							SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY);
+						if (((MotionEvent) (param.args[0])).getActionMasked() == MotionEvent.ACTION_MOVE && canVibrate[0]) {
+							canVibrate[0] = false;
+							SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_TOUCH);
 						}
+						new Handler(Looper.getMainLooper()).postDelayed(() -> {
+							canVibrate[0] = true;
+						}, 100);
 					}
 				});
 			}
