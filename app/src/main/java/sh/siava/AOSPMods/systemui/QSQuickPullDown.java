@@ -10,6 +10,8 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.view.MotionEvent;
@@ -33,6 +35,8 @@ public class QSQuickPullDown extends XposedModPack {
 	private static int pullDownSide = PULLDOWN_SIDE_RIGHT;
 	private static boolean oneFingerPulldownEnabled = false;
 	private static float statusbarPortion = 0.50f; // now set to 50% of the screen. it can be anything between 0 to 100%
+
+	boolean canVibrate = true;
 
 	public QSQuickPullDown(Context context) {
 		super(context);
@@ -60,8 +64,13 @@ public class QSQuickPullDown extends XposedModPack {
 						protected void beforeHookedMethod(MethodHookParam param1) throws Throwable {
 							MotionEvent event = (MotionEvent) param1.args[0];
 							if (event.getAction() == MotionEvent.ACTION_DOWN) {
-								if (XPrefs.Xprefs.getBoolean("enableStatusBarVibration", false))
+								if (XPrefs.Xprefs.getBoolean("enableStatusBarVibration", false) && canVibrate) {
+									canVibrate = false;
 									SystemUtils.vibrate(VibrationEffect.EFFECT_CLICK, VibrationAttributes.USAGE_TOUCH);
+									new Handler(Looper.getMainLooper()).postDelayed(() -> {
+										canVibrate = true;
+									}, 100);
+								}
 							}
 						}
 					});
@@ -76,8 +85,13 @@ public class QSQuickPullDown extends XposedModPack {
 						protected void beforeHookedMethod(MethodHookParam param1) throws Throwable {
 							MotionEvent event = (MotionEvent) param1.args[1];
 							if (event.getAction() == MotionEvent.ACTION_DOWN) {
-								if (XPrefs.Xprefs.getBoolean("enableStatusBarVibration", false))
+								if (XPrefs.Xprefs.getBoolean("enableStatusBarVibration", false) && canVibrate) {
+									canVibrate = false;
 									SystemUtils.vibrate(VibrationEffect.EFFECT_CLICK, VibrationAttributes.USAGE_TOUCH);
+									new Handler(Looper.getMainLooper()).postDelayed(() -> {
+										canVibrate = true;
+									}, 100);
+								}
 							}
 						}
 					});
@@ -89,8 +103,13 @@ public class QSQuickPullDown extends XposedModPack {
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						MotionEvent event = param.args[0] instanceof MotionEvent ? (MotionEvent) param.args[0] : (MotionEvent) param.args[1];
 						if (event.getAction() == MotionEvent.ACTION_DOWN) {
-							if (XPrefs.Xprefs.getBoolean("enableStatusBarVibration", false))
+							if (XPrefs.Xprefs.getBoolean("enableStatusBarVibration", false) && canVibrate) {
+								canVibrate = false;
 								SystemUtils.vibrate(VibrationEffect.EFFECT_CLICK, VibrationAttributes.USAGE_TOUCH);
+								new Handler(Looper.getMainLooper()).postDelayed(() -> {
+									canVibrate = true;
+								}, 100);
+							}
 						}
 					}
 				};
