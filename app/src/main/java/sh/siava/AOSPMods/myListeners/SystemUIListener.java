@@ -113,8 +113,10 @@ public class SystemUIListener extends XposedModPack {
 		if (linearLayout.getChildCount() > 1) {
 			ViewGroup child = (ViewGroup) linearLayout.getChildAt(1);
 			if (child.getChildCount() > 0) {
-				View innerChild = child.getChildAt(0);
-				innerChild.setPadding(innerChild.getPaddingLeft(), innerChild.getPaddingTop(), Helper.INSTANCE.getPx(8), innerChild.getPaddingBottom());
+				for (int i = 0; i < child.getChildCount(); i++) {
+					View innerChild = child.getChildAt(i);
+					innerChild.setPadding(innerChild.getPaddingLeft(), innerChild.getPaddingTop(), Helper.INSTANCE.getPx(8), innerChild.getPaddingBottom());
+				}
 			}
 		}
 	};
