@@ -100,6 +100,10 @@
 			android:title="KeyguardSliceView Burn In" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="keyguardSliceViewBurnIn2"
+			android:title="Always Animate Lock Screen AOD Appear\nWorks with KeyguardSliceView Burn In" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="disableBurnIn"
 			android:title="Disable Burn In" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference

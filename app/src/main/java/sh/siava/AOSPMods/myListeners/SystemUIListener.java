@@ -672,14 +672,25 @@ public class SystemUIListener extends XposedModPack {
 							if (burn_in_layer != null && keyguard_slice_view != null && aod_notification_icon_container != null && lockscreen_clock_view_large != null) {
 								float currentY = keyguard_slice_view.getY();
 								float currentDiff = Math.abs(previousY - currentY);
-								if (previousY != currentY && previousDiff != currentDiff && currentDiff > 100 && view.getAlpha() >= 0.9) {
+								float currentAlpha = view.getAlpha();
+								if (previousY != currentY && previousDiff != currentDiff && currentDiff > 100 && currentAlpha >= 0.9) {
 									// Clock Switch When Notification
 									Helper.INSTANCE.animateAlpha(view);
 								}
-								float currentAlpha = view.getAlpha();
+								previousY = currentY;
+								previousDiff = currentDiff;
 								if (currentAlpha != previousAlpha) {
-									if (previousAlpha == 0) {
-										// Check and Apply Anim when Entering Lock Screen AOD
+									if (currentAlpha == 0) {
+										if (Xprefs.getBoolean("keyguardSliceViewBurnIn2", false)) {
+											shouldAnimate = true;
+										}
+										if (shouldAnimate) {
+											view.setScaleX(0);
+											view.setScaleY(0);
+										}
+									}
+									// Check and Apply Anim when Entering Lock Screen AOD
+									if (previousAlpha == 0 && !shouldAnimate) {
 										boolean isLargeClockVisible = lockscreen_clock_view_large.getVisibility() == View.VISIBLE;
 										boolean shouldSmallClockBeVisible = aod_notification_icon_container.getChildCount() != 0;
 										shouldAnimate = shouldSmallClockBeVisible == isLargeClockVisible;
@@ -688,7 +699,6 @@ public class SystemUIListener extends XposedModPack {
 											view.setScaleY(0);
 										}
 									}
-									previousAlpha = view.getAlpha();
 									if (currentAlpha == 1 && shouldAnimate) {
 										view.setScaleX(1);
 										view.setScaleY(1);
@@ -697,8 +707,7 @@ public class SystemUIListener extends XposedModPack {
 										shouldAnimate = false;
 									}
 								}
-								previousY = currentY;
-								previousDiff = currentDiff;
+								previousAlpha = currentAlpha;
 								keyguard_slice_view.setVisibility(burn_in_layer.getVisibility());
 								keyguard_slice_view.setAlpha(burn_in_layer.getAlpha());
 								keyguard_slice_view.setTranslationX(burn_in_layer.getTranslationX());
