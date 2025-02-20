@@ -57,6 +57,8 @@ public class SystemUIListener extends XposedModPack {
 
 	float previousY = 0;
 	float previousDiff = 0;
+	float previousAlpha = -1f;
+	boolean canAnimate = true;
 
 	boolean isAodIconVisible = true;
 
@@ -662,9 +664,24 @@ public class SystemUIListener extends XposedModPack {
 							if (burn_in_layer != null && keyguard_slice_view != null) {
 								float currentY = keyguard_slice_view.getY();
 								float currentDiff = Math.abs(previousY - currentY);
-								if (previousY != currentY) {
-									if (currentDiff > 100 && currentDiff != previousDiff) {
-										Helper.INSTANCE.animateAlpha(view);
+								if (previousY != currentY && previousDiff != currentDiff && currentDiff > 100 && view.getAlpha() >= 0.9) {
+									// Clock Switch When Notification
+									Helper.INSTANCE.animateAlpha(view);
+								}
+								float currentAlpha = view.getAlpha();
+								if (currentAlpha != previousAlpha) {
+									previousAlpha = view.getAlpha();
+									if (currentAlpha == 0) {
+										canAnimate = true;
+										view.setScaleX(0);
+										view.setScaleY(0);
+									}
+									if (currentAlpha == 1 && canAnimate) {
+										view.setScaleX(1);
+										view.setScaleY(1);
+										// Enter Lock Screen AOD from Home Screen
+										Helper.INSTANCE.animateAppear(view);
+										canAnimate = false;
 									}
 								}
 								previousY = currentY;
