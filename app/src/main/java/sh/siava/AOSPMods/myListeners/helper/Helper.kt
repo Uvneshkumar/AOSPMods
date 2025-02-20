@@ -139,5 +139,11 @@ object Helper {
         return circleDrawable
     }
 
+    fun animateAlpha(view: View) {
+        if (view.alpha != 1f) return
+        view.alpha = 0f
+        view.animate().alpha(1f).setDuration(500).start()
+    }
+
     val Int.px: Int get() = (this * getSystem().displayMetrics.density).toInt()
 }
