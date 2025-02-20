@@ -142,7 +142,8 @@ object Helper {
 
     fun animateAppear(view: View) {
         val viewGroup = view as? ViewGroup
-        val isLargeClock = viewGroup?.getChildAt(viewGroup.childCount - 1)?.visibility == 0
+        val isLargeClock =
+            viewGroup?.getChildAt(viewGroup.childCount - 1)?.visibility == View.VISIBLE
         view.translationY = if (isLargeClock) -40f else -20f
         view.alpha = 0.00001f
         view.animate().alpha(0.99999f).translationY(0f).setDuration(500).start()
