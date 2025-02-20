@@ -58,7 +58,7 @@ public class SystemUIListener extends XposedModPack {
 	float previousY = 0;
 	float previousDiff = 0;
 	float previousAlpha = -1f;
-	boolean canAnimate = true;
+	boolean shouldAnimate = false;
 
 	boolean isAodIconVisible = true;
 
@@ -653,6 +653,8 @@ public class SystemUIListener extends XposedModPack {
 							int childCount = view.getChildCount();
 							View burn_in_layer = null;
 							View keyguard_slice_view = null;
+							ViewGroup aod_notification_icon_container = null;
+							View lockscreen_clock_view_large = null;
 							for (int i = 0; i < childCount; i++) {
 								if (view.getChildAt(i).toString().contains("app:id/burn_in_layer")) {
 									burn_in_layer = view.getChildAt(i);
@@ -660,8 +662,14 @@ public class SystemUIListener extends XposedModPack {
 								if (view.getChildAt(i).toString().contains("app:id/keyguard_slice_view")) {
 									keyguard_slice_view = view.getChildAt(i);
 								}
+								if (view.getChildAt(i).toString().contains("app:id/aod_notification_icon_container")) {
+									aod_notification_icon_container = (ViewGroup) view.getChildAt(i);
+								}
+								if (view.getChildAt(i).toString().contains("app:id/lockscreen_clock_view_large")) {
+									lockscreen_clock_view_large = view.getChildAt(i);
+								}
 							}
-							if (burn_in_layer != null && keyguard_slice_view != null) {
+							if (burn_in_layer != null && keyguard_slice_view != null && aod_notification_icon_container != null && lockscreen_clock_view_large != null) {
 								float currentY = keyguard_slice_view.getY();
 								float currentDiff = Math.abs(previousY - currentY);
 								if (previousY != currentY && previousDiff != currentDiff && currentDiff > 100 && view.getAlpha() >= 0.9) {
@@ -670,18 +678,23 @@ public class SystemUIListener extends XposedModPack {
 								}
 								float currentAlpha = view.getAlpha();
 								if (currentAlpha != previousAlpha) {
-									previousAlpha = view.getAlpha();
-									if (currentAlpha == 0) {
-										canAnimate = true;
-										view.setScaleX(0);
-										view.setScaleY(0);
+									if (previousAlpha == 0) {
+										// Check and Apply Anim when Entering Lock Screen AOD
+										boolean isLargeClockVisible = lockscreen_clock_view_large.getVisibility() == View.VISIBLE;
+										boolean shouldSmallClockBeVisible = aod_notification_icon_container.getChildCount() != 0;
+										shouldAnimate = shouldSmallClockBeVisible == isLargeClockVisible;
+										if (shouldAnimate) {
+											view.setScaleX(0);
+											view.setScaleY(0);
+										}
 									}
-									if (currentAlpha == 1 && canAnimate) {
+									previousAlpha = view.getAlpha();
+									if (currentAlpha == 1 && shouldAnimate) {
 										view.setScaleX(1);
 										view.setScaleY(1);
 										// Enter Lock Screen AOD from Home Screen
 										Helper.INSTANCE.animateAppear(view);
-										canAnimate = false;
+										shouldAnimate = false;
 									}
 								}
 								previousY = currentY;
