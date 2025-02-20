@@ -18,6 +18,7 @@ import android.os.Looper
 import android.service.notification.StatusBarNotification
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import sh.siava.AOSPMods.XPrefs
@@ -140,7 +141,9 @@ object Helper {
     }
 
     fun animateAppear(view: View) {
-        view.translationY = -20f
+        val viewGroup = view as? ViewGroup
+        val isLargeClock = viewGroup?.getChildAt(viewGroup.childCount - 1)?.visibility == 0
+        view.translationY = if (isLargeClock) -40f else -20f
         view.alpha = 0.00001f
         view.animate().alpha(0.99999f).translationY(0f).setDuration(500).start()
     }
