@@ -372,8 +372,14 @@ public class SystemUIListener extends XposedModPack {
 						SystemUtils.vibrate(VibrationEffect.EFFECT_CLICK, VibrationAttributes.USAGE_TOUCH);
 					}
 				};
+				XC_MethodHook longVibrateCallback = new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						SystemUtils.vibrate(VibrationEffect.EFFECT_HEAVY_CLICK, null);
+					}
+				};
 				tryHookAllMethods(QSTileImplClass, "click", vibrateCallback);
-				tryHookAllMethods(QSTileImplClass, "longClick", vibrateCallback);
+				tryHookAllMethods(QSTileImplClass, "longClick", longVibrateCallback);
 			}
 		}
 		if (Xprefs.getBoolean("hideBuildNumber", false)) {
