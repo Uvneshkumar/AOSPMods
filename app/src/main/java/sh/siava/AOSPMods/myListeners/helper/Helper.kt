@@ -13,6 +13,7 @@ import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
 import android.media.AudioManager
 import android.media.RingtoneManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.service.notification.StatusBarNotification
@@ -84,6 +85,7 @@ object Helper {
     ) {
         val iconScaleFactor = 1.2f
         val rootScaleFactor = 1.3f
+        val differenceInRootScale = if (Build.PRODUCT == "flame") 0.1f else 0f
         loadAppIcons(imageView.context) {
             val iconDrawable =
                 appListItems.find { it.first == statusBarNotification.packageName }?.second
@@ -100,10 +102,10 @@ object Helper {
                 }
             }
             (imageView.parent as? View)?.apply {
-                scaleX = rootScaleFactor
-                scaleY = rootScaleFactor
+                scaleX = rootScaleFactor + differenceInRootScale
+                scaleY = rootScaleFactor + differenceInRootScale
                 setPadding(
-                    (below_clock_padding_start_icons * (iconScaleFactor + rootScaleFactor)).toInt() + 3,
+                    (below_clock_padding_start_icons * (iconScaleFactor + rootScaleFactor + (differenceInRootScale * 3))).toInt() + 3,
                     paddingTop,
                     paddingRight,
                     paddingBottom
