@@ -653,7 +653,7 @@ public class SystemUIListener extends XposedModPack {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						LinearLayout keyguardSliceView = (LinearLayout) param.thisObject;
-						keyguardSliceView.setPadding(Helper.INSTANCE.getPx(3), keyguardSliceView.getPaddingTop(), keyguardSliceView.getPaddingRight(), keyguardSliceView.getPaddingBottom());
+						keyguardSliceView.setPadding(Helper.INSTANCE.getPx(3) + 3, keyguardSliceView.getPaddingTop(), keyguardSliceView.getPaddingRight(), keyguardSliceView.getPaddingBottom());
 					}
 				});
 			}
