@@ -14,6 +14,7 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.VibrationAttributes;
@@ -325,8 +326,13 @@ public class SystemUIListener extends XposedModPack {
 						lp.width = FrameLayout.LayoutParams.MATCH_PARENT;
 						lp.gravity = Gravity.CENTER;
 						myIcon.setLayoutParams(lp);
-						rootView.setScaleX(1.3f);
-						rootView.setScaleY(1.3f);
+						if (Build.PRODUCT.equals("flame")) {
+							rootView.setScaleX(1.1f);
+							rootView.setScaleY(1.1f);
+						} else {
+							rootView.setScaleX(1.3f);
+							rootView.setScaleY(1.3f);
+						}
 					}
 				});
 			}
