@@ -25,6 +25,9 @@ import sh.siava.AOSPMods.XPrefs
 
 object Helper {
 
+    // From System UI
+    val below_clock_padding_start_icons = 31.px
+
     private val appListItems: MutableSet<Pair<String, Drawable>> = mutableSetOf()
 
     private fun loadAppIcons(context: Context, postAction: () -> Unit) {
@@ -99,8 +102,6 @@ object Helper {
             (imageView.parent as? View)?.apply {
                 scaleX = rootScaleFactor
                 scaleY = rootScaleFactor
-                // From System UI
-                val below_clock_padding_start_icons = 31.px
                 setPadding(
                     (below_clock_padding_start_icons * (iconScaleFactor + rootScaleFactor)).toInt() + 3,
                     paddingTop,

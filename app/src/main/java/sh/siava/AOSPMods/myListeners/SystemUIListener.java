@@ -646,6 +646,18 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("keyguardSliceViewLineagePadding", false)) {
+			Class<?> KeyguardSliceView = findClassIfExists("com.android.keyguard.KeyguardSliceView", lpparam.classLoader);
+			if (KeyguardSliceView != null) {
+				tryHookAllConstructors(KeyguardSliceView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						LinearLayout keyguardSliceView = (LinearLayout) param.thisObject;
+						keyguardSliceView.setPadding(Helper.INSTANCE.getPx(3), keyguardSliceView.getPaddingTop(), keyguardSliceView.getPaddingRight(), keyguardSliceView.getPaddingBottom());
+					}
+				});
+			}
+		}
 		if (Xprefs.getBoolean("keyguardSliceViewAlarmPadding", false)) {
 			Class<?> KeyguardSliceView = findClassIfExists("com.android.keyguard.KeyguardSliceView", lpparam.classLoader);
 			if (KeyguardSliceView != null) {
