@@ -139,6 +139,12 @@ public class SystemUIListener extends XposedModPack {
 						param.setResult(false);
 					}
 				});
+				tryHookAllConstructors(PrivacyConfig, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						setObjectField(param.thisObject, "locationAvailable", false);
+					}
+				});
 			}
 		}
 		if (Xprefs.getBoolean("disableLockScreenBounce", false)) {
