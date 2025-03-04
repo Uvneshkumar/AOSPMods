@@ -105,7 +105,7 @@ object Helper {
                 scaleX = rootScaleFactor + differenceInRootScale
                 scaleY = rootScaleFactor + differenceInRootScale
                 setPadding(
-                    (below_clock_padding_start_icons * (iconScaleFactor + rootScaleFactor + (differenceInRootScale * 3))).toInt() + 3,
+                    (below_clock_padding_start_icons * (iconScaleFactor + rootScaleFactor + (differenceInRootScale * 4))).toInt() + 3,
                     paddingTop,
                     paddingRight,
                     paddingBottom
