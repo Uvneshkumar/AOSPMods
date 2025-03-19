@@ -329,7 +329,11 @@ public class SystemUIListener extends XposedModPack {
 						if (Build.PRODUCT.equals("flame")) {
 							rootView.setScaleX(1.1f);
 							rootView.setScaleY(1.1f);
-						} else {
+						} else if (Build.PRODUCT.equals("OnePlus9Pro")) {
+							rootView.setScaleX(1f);
+							rootView.setScaleY(1f);
+						}
+						else {
 							rootView.setScaleX(1.3f);
 							rootView.setScaleY(1.3f);
 						}
