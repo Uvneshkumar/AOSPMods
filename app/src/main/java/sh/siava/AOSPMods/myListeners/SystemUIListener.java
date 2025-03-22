@@ -206,6 +206,26 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("delayFirstNotificationIconInAod", false)) {
+			Class<?> NotificationIconContainer = findClassIfExists("com.android.systemui.statusbar.phone.NotificationIconContainer", lpparam.classLoader);
+			if (NotificationIconContainer != null) {
+				tryHookAllMethods(NotificationIconContainer, "onViewAdded", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						ViewGroup viewGroup = (ViewGroup) param.thisObject;
+						if (isOnLockScreen(viewGroup.getParent().toString())) {
+							if (viewGroup.getChildCount() == 1) {
+								isAodIconVisible = false;
+								new Handler(Looper.getMainLooper()).postDelayed(() -> {
+									isAodIconVisible = true;
+									Helper.INSTANCE.setNotificationIcon((ImageView) param.args[0], (StatusBarNotification) getObjectField(param.args[0], "mNotification"), true);
+								}, 1000);
+							}
+						}
+					}
+				});
+			}
+		}
 		if (Xprefs.getBoolean("hookUnlockAnim", false)) {
 			Class<?> KeyguardUnlockAnimationController = findClassIfExists("com.android.systemui.keyguard.KeyguardUnlockAnimationController", lpparam.classLoader);
 			if (KeyguardUnlockAnimationController != null) {
@@ -499,24 +519,6 @@ public class SystemUIListener extends XposedModPack {
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						if (Objects.equals(param.args[1].toString(), "FINISH")) {
 							handler.removeCallbacks(runnable);
-						}
-					}
-				});
-			}
-			Class<?> NotificationIconContainer = findClassIfExists("com.android.systemui.statusbar.phone.NotificationIconContainer", lpparam.classLoader);
-			if (NotificationIconContainer != null) {
-				tryHookAllMethods(NotificationIconContainer, "onViewAdded", new XC_MethodHook() {
-					@Override
-					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-						ViewGroup viewGroup = (ViewGroup) param.thisObject;
-						if (isOnLockScreen(viewGroup.getParent().toString())) {
-							if (viewGroup.getChildCount() == 1) {
-								isAodIconVisible = false;
-								new Handler(Looper.getMainLooper()).postDelayed(() -> {
-									isAodIconVisible = true;
-									Helper.INSTANCE.setNotificationIcon((ImageView) param.args[0], (StatusBarNotification) getObjectField(param.args[0], "mNotification"), true);
-								}, 1000);
-							}
 						}
 					}
 				});
