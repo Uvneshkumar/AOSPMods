@@ -4,6 +4,7 @@ import static android.content.pm.PackageManager.GET_ACTIVITIES;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
+import static de.robv.android.xposed.XposedHelpers.setObjectField;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
@@ -276,6 +277,17 @@ public class LauncherListener extends XposedModPack {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						param.setResult(((int) param.getResult()) * 3);
+					}
+				});
+			}
+		}
+		if (XPrefs.Xprefs.getBoolean("launcherIncrease_numRows", false)) {
+			Class<?> InvariantDeviceProfile = findClassIfExists("com.android.launcher3.InvariantDeviceProfile", lpparam.classLoader);
+			if (InvariantDeviceProfile != null) {
+				tryHookAllMethods(InvariantDeviceProfile, "initGrid", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						setObjectField(param.thisObject, "numRows", 6);
 					}
 				});
 			}
