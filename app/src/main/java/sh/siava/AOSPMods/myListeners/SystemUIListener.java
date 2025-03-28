@@ -664,6 +664,18 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("bcSmartspaceViewPadding", false)) {
+			Class<?> BcSmartspaceView = findClassIfExists("com.google.android.systemui.smartspace.BcSmartspaceView", lpparam.classLoader);
+			if (BcSmartspaceView != null) {
+				tryHookAllConstructors(BcSmartspaceView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						FrameLayout bcSmartspaceView = (FrameLayout) param.thisObject;
+						bcSmartspaceView.setPaddingRelative(Helper.INSTANCE.getBcSmartspaceViewPadding(), 0, Helper.INSTANCE.getBcSmartspaceViewPadding(), 0);
+					}
+				});
+			}
+		}
 		if (Xprefs.getBoolean("keyguardSliceViewAlarmPadding", false)) {
 			Class<?> KeyguardSliceView = findClassIfExists("com.android.keyguard.KeyguardSliceView", lpparam.classLoader);
 			if (KeyguardSliceView != null) {

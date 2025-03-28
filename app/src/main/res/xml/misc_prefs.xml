@@ -96,6 +96,10 @@
 			android:title="KeyguardSliceView Lineage Padding Start" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="bcSmartspaceViewPadding"
+			android:title="BcSmartspaceView Padding" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="keyguardSliceViewAlarmPadding"
 			android:title="KeyguardSliceView Alarm Padding" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference

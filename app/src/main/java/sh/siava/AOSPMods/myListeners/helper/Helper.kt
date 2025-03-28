@@ -28,6 +28,7 @@ object Helper {
 
     // From System UI
     val below_clock_padding_start_icons = 31.px
+    val bcSmartspaceViewPadding = 17.px
 
     private val appListItems: MutableSet<Pair<String, Drawable>> = mutableSetOf()
 
