@@ -21,6 +21,7 @@ import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.widget.FrameLayout;
 
@@ -57,6 +58,7 @@ public class LauncherListener extends XposedModPack {
 	private Boolean canLock = false;
 
 	private boolean isHomeTriggered = false;
+	private View stashedHandleView = null;
 
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -288,6 +290,39 @@ public class LauncherListener extends XposedModPack {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						setObjectField(param.thisObject, "numRows", 6);
+					}
+				});
+			}
+		}
+		if (XPrefs.Xprefs.getBoolean("enable_taskbar_on_phones", false)) {
+			Class<?> StashedHandleView = findClassIfExists("com.android.launcher3.taskbar.StashedHandleView", lpparam.classLoader);
+			if (StashedHandleView != null) {
+				tryHookAllConstructors(StashedHandleView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						stashedHandleView = (View) param.thisObject;
+					}
+				});
+			}
+			Class<?> TaskbarKeyguardController = findClassIfExists("com.android.launcher3.taskbar.TaskbarKeyguardController", lpparam.classLoader);
+			if (TaskbarKeyguardController != null) {
+				ViewTreeObserver.OnPreDrawListener stashedHandleViewPreDrawListener = () -> {
+					if (stashedHandleView.getAlpha() == 1f) {
+						stashedHandleView.setAlpha(0f);
+					}
+					return true;
+				};
+				tryHookAllMethods(TaskbarKeyguardController, "updateStateForSysuiFlags", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						if ((Long) param.args[0] == 537001984 && stashedHandleView != null) {
+							ViewTreeObserver viewTreeObserver = stashedHandleView.getViewTreeObserver();
+							viewTreeObserver.addOnPreDrawListener(stashedHandleViewPreDrawListener);
+							Helper.INSTANCE.animateAlphaReverse(stashedHandleView);
+							new Handler(Looper.getMainLooper()).postDelayed(() -> {
+								viewTreeObserver.removeOnPreDrawListener(stashedHandleViewPreDrawListener);
+							}, 400);
+						}
 					}
 				});
 			}

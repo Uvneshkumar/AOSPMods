@@ -158,5 +158,9 @@ object Helper {
         view.animate().alpha(0.99999f).setDuration(500).start()
     }
 
+    fun animateAlphaReverse(view: View) {
+        view.animate().alpha(0f).setDuration(100).start()
+    }
+
     val Int.px: Int get() = (this * getSystem().displayMetrics.density).toInt()
 }
