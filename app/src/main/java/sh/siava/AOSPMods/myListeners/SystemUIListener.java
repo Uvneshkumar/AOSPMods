@@ -347,8 +347,8 @@ public class SystemUIListener extends XposedModPack {
 						lp.gravity = Gravity.CENTER;
 						myIcon.setLayoutParams(lp);
 						if (Build.PRODUCT.equals("flame")) {
-							rootView.setScaleX(1.1f);
-							rootView.setScaleY(1.1f);
+							rootView.setScaleX(1f);
+							rootView.setScaleY(1f);
 						} else if (Build.PRODUCT.equals("OnePlus9Pro")) {
 							rootView.setScaleX(1f);
 							rootView.setScaleY(1f);
