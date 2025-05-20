@@ -17,11 +17,19 @@
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="nothingLockIcon"
-			android:title="Nothing Style Lock Icon" />
+			android:title="Nothing Lock Icon" />
+		<sh.siava.AOSPMods.ui.MaterialEditTextPreference
+			android:key="nothingLockIconScale"
+			android:title="Nothing Lock Icon Scale Factor"
+			app:defaultValue="1" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="nothingFpIcon"
-			android:title="Nothing Style FP Icon" />
+			android:title="Nothing FP Icon" />
+		<sh.siava.AOSPMods.ui.MaterialEditTextPreference
+			android:key="nothingFpIconPadding"
+			android:title="Nothing FP Icon Padding"
+			app:defaultValue="10" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="hideExtendUnlockMessage"

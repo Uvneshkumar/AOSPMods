@@ -14,7 +14,6 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.VibrationAttributes;
@@ -347,17 +346,9 @@ public class SystemUIListener extends XposedModPack {
 						lp.width = FrameLayout.LayoutParams.MATCH_PARENT;
 						lp.gravity = Gravity.CENTER;
 						myIcon.setLayoutParams(lp);
-						if (Build.PRODUCT.equals("flame")) {
-							rootView.setScaleX(1f);
-							rootView.setScaleY(1f);
-						} else if (Build.PRODUCT.equals("OnePlus9Pro")) {
-							rootView.setScaleX(1f);
-							rootView.setScaleY(1f);
-						}
-						else {
-							rootView.setScaleX(1.3f);
-							rootView.setScaleY(1.3f);
-						}
+						float nothingLockIconScale = Float.parseFloat(Xprefs.getString("nothingLockIconScale", "1"));
+						rootView.setScaleX(nothingLockIconScale);
+						rootView.setScaleY(nothingLockIconScale);
 					}
 				});
 			}
@@ -371,8 +362,8 @@ public class SystemUIListener extends XposedModPack {
 						FrameLayout rootView = (FrameLayout) param.thisObject;
 						ImageView myIcon = (ImageView) rootView.getChildAt(0);
 						myIcon.setImageDrawable(Helper.INSTANCE.createOvalDrawable());
-						int iconPadding = 10;
-						myIcon.setPadding(iconPadding, iconPadding, iconPadding, iconPadding);
+						int nothingFpIconPadding = (int) Float.parseFloat(Xprefs.getString("nothingFpIconPadding", "10"));
+						myIcon.setPadding(nothingFpIconPadding, nothingFpIconPadding, nothingFpIconPadding, nothingFpIconPadding);
 						new Handler(Looper.getMainLooper()).postDelayed(() -> {
 							int whiteColor = Color.parseColor("#FFFFFF");
 							myIcon.setImageTintList(ColorStateList.valueOf(whiteColor));
