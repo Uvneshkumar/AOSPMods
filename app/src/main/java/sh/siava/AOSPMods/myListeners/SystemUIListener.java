@@ -107,7 +107,8 @@ public class SystemUIListener extends XposedModPack {
 	private void adjustClockMargin(XC_MethodHook.MethodHookParam param) {
 		TextView textView = (TextView) param.thisObject;
 		if (!textView.isSingleLine()) {
-			textView.setPadding(0, 0, 0, Helper.INSTANCE.getPx(80));
+			float largeClockTopMarginDynamic = Float.parseFloat(Xprefs.getString("largeClockTopMarginDynamic", "80"));
+			textView.setPadding(0, 0, 0, Helper.INSTANCE.getPx((int) largeClockTopMarginDynamic));
 		}
 	}
 

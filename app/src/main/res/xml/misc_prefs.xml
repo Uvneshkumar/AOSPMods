@@ -198,7 +198,11 @@
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="largeClockTopMargin"
-			android:title="Move Large Clock a little up" />
+			android:title="Move Large Clock Up (Large Clock Margin)" />
+		<sh.siava.AOSPMods.ui.MaterialEditTextPreference
+			android:key="largeClockTopMarginDynamic"
+			android:title="Large Clock Margin"
+			app:defaultValue="80" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="hideLockScreenStatusBar"
