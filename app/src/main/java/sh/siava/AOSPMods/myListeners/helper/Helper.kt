@@ -102,11 +102,14 @@ object Helper {
                     setImageDrawable(iconDrawable)
                 }
             }
+            val aodIconsCenterMargin: Float =
+                XPrefs.Xprefs.getString("aodIconsCenterMargin", "-2").orEmpty().ifEmpty { "-2" }
+                    .toFloat()
             (imageView.parent as? View)?.apply {
                 scaleX = rootScaleFactor + differenceInRootScale
                 scaleY = rootScaleFactor + differenceInRootScale
                 setPadding(
-                    (below_clock_padding_start_icons * (iconScaleFactor + rootScaleFactor + (differenceInRootScale * 4))).toInt() - 2,
+                    ((below_clock_padding_start_icons * (iconScaleFactor + rootScaleFactor + (differenceInRootScale * 4))).toInt() + aodIconsCenterMargin).toInt(),
                     paddingTop,
                     paddingRight,
                     paddingBottom
