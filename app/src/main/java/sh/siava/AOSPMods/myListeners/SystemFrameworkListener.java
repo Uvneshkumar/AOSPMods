@@ -199,7 +199,7 @@ public class SystemFrameworkListener extends XposedModPack {
 					if (!screenIsOn) {
 						launchAction();
 						param.setResult(null);
-					} else if (Xprefs.getBoolean("holdPowerForTorchOnMyAOD", false)) {
+					} else {
 						@SuppressLint("SdCardPath") File myaod_active = new File("/sdcard/myaod_active");
 						if (myaod_active.exists()) {
 							ToggleFlash();
