@@ -61,6 +61,9 @@ public class SystemFrameworkListener extends XposedModPack {
 	private boolean isVolDown = false;
 	private long mWakeTime = 0;
 
+	@SuppressLint("SdCardPath")
+	File myaod_active = new File("/sdcard/myaod_active");
+
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
 		if (Xprefs.getBoolean("killSystemUi", false)) {
@@ -168,7 +171,7 @@ public class SystemFrameworkListener extends XposedModPack {
 										}
 										return;
 									case KeyEvent.ACTION_DOWN:
-										if (!SystemUtils.PowerManager().isInteractive() && (Keycode == KeyEvent.KEYCODE_VOLUME_DOWN || Keycode == KeyEvent.KEYCODE_VOLUME_UP) && SystemUtils.AudioManager().isMusicActive()) {
+										if ((!SystemUtils.PowerManager().isInteractive() || myaod_active.exists()) && (Keycode == KeyEvent.KEYCODE_VOLUME_DOWN || Keycode == KeyEvent.KEYCODE_VOLUME_UP) && SystemUtils.AudioManager().isMusicActive()) {
 											isVolDown = (Keycode == KeyEvent.KEYCODE_VOLUME_DOWN);
 											mHandler.postDelayed(mVolumeLongPress, ViewConfiguration.getLongPressTimeout());
 											param.setResult(0);
@@ -200,7 +203,6 @@ public class SystemFrameworkListener extends XposedModPack {
 						launchAction();
 						param.setResult(null);
 					} else {
-						@SuppressLint("SdCardPath") File myaod_active = new File("/sdcard/myaod_active");
 						if (myaod_active.exists()) {
 							ToggleFlash();
 							vibrate(EFFECT_TICK, USAGE_ACCESSIBILITY);

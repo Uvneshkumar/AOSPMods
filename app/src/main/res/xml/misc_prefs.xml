@@ -262,7 +262,7 @@
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="holdVolumeToSkipMusic"
-			android:title="Long Press Volume Buttons to Skip Music" />
+			android:title="Long Press Volume Buttons to Skip Music\n(Locked Screen and MyAOD)" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="holdPowerForTorch"
