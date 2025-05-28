@@ -199,7 +199,7 @@ public class LauncherListener extends XposedModPack {
 										Runtime.getRuntime().exec("su -c am start -n uvnesh.myaod/.MainActivity");
 									} catch (Throwable ignored) {
 									}
-								}, (long) (animDuration - (animDuration / 1.25)));
+								}, (long) (animDuration - (animDuration / 1.75)));
 							}
 						}
 					}
