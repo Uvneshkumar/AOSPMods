@@ -153,6 +153,10 @@
 			android:title="Launcher Page 1 as Default" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="enableLauncherQQS"
+			android:title="Launcher - Open QQS Directly on Swiping on 35% of the Screen from the Right" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="enableLauncherExtraPadding"
 			android:title="Launcher Extra Side Padding" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference

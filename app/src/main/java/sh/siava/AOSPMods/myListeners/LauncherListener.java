@@ -327,5 +327,33 @@ public class LauncherListener extends XposedModPack {
 				});
 			}
 		}
+		if (XPrefs.Xprefs.getBoolean("enableLauncherQQS", false)) {
+			Class<?> SystemUiProxy = findClassIfExists("com.android.quickstep.SystemUiProxy", lpparam.classLoader);
+			if (SystemUiProxy != null) {
+				final boolean[] shouldExpandQQS = {false};
+				tryHookAllMethods(SystemUiProxy, "onStatusBarTouchEvent", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						MotionEvent event = (MotionEvent) param.args[0];
+						if (event.getAction() == MotionEvent.ACTION_DOWN) {
+							int w = mContext.getResources().getDisplayMetrics().widthPixels;
+							shouldExpandQQS[0] = event.getX() >= w * 0.65;
+							if (shouldExpandQQS[0]) {
+								param.setResult(null);
+								try {
+									Runtime.getRuntime().exec("su -c cmd statusbar expand-settings");
+								} catch (Throwable ignored) {
+								}
+							}
+						}
+						if (event.getAction() == MotionEvent.ACTION_UP) {
+							if (shouldExpandQQS[0]) {
+								param.setResult(null);
+							}
+						}
+					}
+				});
+			}
+		}
 	}
 }
