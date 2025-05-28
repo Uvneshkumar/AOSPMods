@@ -14,6 +14,7 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 import static sh.siava.AOSPMods.utils.SystemUtils.ToggleFlash;
 import static sh.siava.AOSPMods.utils.SystemUtils.vibrate;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -26,6 +27,7 @@ import android.view.ViewConfiguration;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 
@@ -197,10 +199,13 @@ public class SystemFrameworkListener extends XposedModPack {
 					if (!screenIsOn) {
 						launchAction();
 						param.setResult(null);
-					} else if (Xprefs.getBoolean("holdPowerForTorchEverywhere", false)) {
-						ToggleFlash();
-						vibrate(EFFECT_TICK, USAGE_ACCESSIBILITY);
-						param.setResult(null);
+					} else if (Xprefs.getBoolean("holdPowerForTorchOnMyAOD", false)) {
+						@SuppressLint("SdCardPath") File myaod_active = new File("/sdcard/myaod_active");
+						if (myaod_active.exists()) {
+							ToggleFlash();
+							vibrate(EFFECT_TICK, USAGE_ACCESSIBILITY);
+							param.setResult(null);
+						}
 					}
 				}
 			});
