@@ -779,6 +779,19 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+
+//        Class<?> ExpandableNotificationRow = findClassIfExists("com.android.systemui.statusbar.notification.row.ExpandableNotificationRow", lpparam.classLoader);
+//        if (ExpandableNotificationRow != null) {
+//            tryHookAllMethods(ExpandableNotificationRow, "isExpanded", new XC_MethodHook() {
+//                @Override
+//                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//                    if (!getBooleanField(param.thisObject, "mOnKeyguard")) {
+//                        param.setResult(true);
+//                    }
+//                }
+//            });
+//        }
+
 //		Class<?> BackPanel = findClassIfExists("com.android.systemui.navigationbar.gestural.BackPanel", lpparam.classLoader);
 //        if (BackPanel != null) {
 //            tryHookAllConstructors(BackPanel, new XC_MethodHook() {
