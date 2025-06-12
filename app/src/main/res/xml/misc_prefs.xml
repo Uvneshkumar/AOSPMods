@@ -52,6 +52,10 @@
 			android:title="Enable Launcher Status Bar Vibration" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="enableHapticTextHandle"
+			android:title="Enable Haptic Text Handle" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="vibrationTouchAlways"
 			android:title="USAGE_TOUCH always for Vibration" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference

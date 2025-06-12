@@ -9,7 +9,9 @@ import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.findMethodExactIfExists;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
+import static de.robv.android.xposed.XposedHelpers.setObjectField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
+import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 import static sh.siava.AOSPMods.utils.SystemUtils.ToggleFlash;
 import static sh.siava.AOSPMods.utils.SystemUtils.vibrate;
@@ -219,6 +221,26 @@ public class SystemFrameworkListener extends XposedModPack {
 					@Override
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						param.args[0] = USAGE_TOUCH;
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("enableHapticTextHandle", false)) {
+			Class<?> HapticFeedbackVibrationProvider = findClassIfExists("com.android.server.vibrator.HapticFeedbackVibrationProvider", lpparam.classLoader);
+			if (HapticFeedbackVibrationProvider != null) {
+				tryHookAllConstructors(HapticFeedbackVibrationProvider, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						setObjectField(param.thisObject, "mHapticTextHandleEnabled", true);
+					}
+				});
+			}
+			Class<?> Editor = findClassIfExists("android.widget.Editor", lpparam.classLoader);
+			if (Editor != null) {
+				tryHookAllConstructors(Editor, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						setObjectField(param.thisObject, "mHapticTextHandleEnabled", true);
 					}
 				});
 			}
