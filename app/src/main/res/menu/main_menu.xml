@@ -26,4 +26,7 @@
     <item
         android:id="@+id/menu_restartSysUI"
         android:title="@string/menu_restartSysUI" />
+    <item
+        android:id="@+id/menu_restartLauncher"
+        android:title="@string/menu_restartLauncher" />
 </menu>

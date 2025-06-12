@@ -231,6 +231,8 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			SystemUtils.Restart();
 		} else if (itemID == R.id.menu_restartSysUI) {
 			SystemUtils.RestartSystemUI();
+		} else if (itemID == R.id.menu_restartLauncher) {
+			SystemUtils.RestartLauncher();
 		} else if (itemID == R.id.menu_Updates) {
 			startActivity(new Intent(this, UpdateActivity.class));
 		}

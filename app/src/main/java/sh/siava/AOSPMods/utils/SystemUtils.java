@@ -72,6 +72,10 @@ public class SystemUtils {
 		cmd("killall com.android.systemui").submit();
 	}
 
+	public static void RestartLauncher() {
+		cmd("killall com.android.launcher3; killall com.google.android.apps.nexuslauncher").submit();
+	}
+
 	public static void Restart() {
 		cmd("am start -a android.intent.action.REBOOT").submit();
 	}

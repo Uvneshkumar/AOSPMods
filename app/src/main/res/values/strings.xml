@@ -369,6 +369,7 @@
     <string name="menu_netstat_clear">Reset network statistics</string>
     <string name="menu_restart">Reboot</string>
     <string name="menu_restartSysUI">Restart SystemUI</string>
+    <string name="menu_restartLauncher">Restart Launcher</string>
     <string name="menu_updates">App Updates</string>
 
     <string name="nestat_caution_title">Caution!</string>
