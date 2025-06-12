@@ -173,6 +173,10 @@
 			android:title="Launcher Search UI Fix" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="launcherClearAllFix"
+			android:title="Launcher CLEAR ALL Fix" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="enable_taskbar_on_phones"
 			android:title="enable_taskbar_on_phones Nav Fix" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
