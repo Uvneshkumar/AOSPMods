@@ -779,6 +779,20 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+//		Class<?> BackPanel = findClassIfExists("com.android.systemui.navigationbar.gestural.BackPanel", lpparam.classLoader);
+//        if (BackPanel != null) {
+//            tryHookAllConstructors(BackPanel, new XC_MethodHook() {
+//                @Override
+//                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//					new Handler(Looper.getMainLooper()).postDelayed(() -> {
+//                        Paint arrowBackgroundPaint = (Paint) getObjectField(param.thisObject, "arrowBackgroundPaint");
+//                        arrowBackgroundPaint.setARGB(100, 100, 100, 100);
+//						View view = (View) param.thisObject;
+//						view.setAlpha(0.5f);
+//                    }, 5000);
+//                }
+//            });
+//        }
 	}
 
 	private void setQSFooterText() {
