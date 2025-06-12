@@ -19,10 +19,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
+import android.text.Selection;
+import android.text.SpannableStringBuilder;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.Window;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 
 import androidx.core.content.ContextCompat;
@@ -351,6 +354,21 @@ public class LauncherListener extends XposedModPack {
 								param.setResult(null);
 							}
 						}
+					}
+				});
+			}
+		}
+		if (XPrefs.Xprefs.getBoolean("launcherSearchUIFix", false)) {
+			Class<?> AppsSearchContainerLayout = findClassIfExists("com.android.launcher3.allapps.search.AppsSearchContainerLayout", lpparam.classLoader);
+			if (AppsSearchContainerLayout != null) {
+				tryHookAllConstructors(AppsSearchContainerLayout, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						EditText editText = (EditText) param.thisObject;
+						editText.setHint("Search apps");
+						SpannableStringBuilder mSearchQueryBuilder = (SpannableStringBuilder) getObjectField(param.thisObject, "mSearchQueryBuilder");
+						Selection.removeSelection(mSearchQueryBuilder);
+						editText.setIncludeFontPadding(false);
 					}
 				});
 			}
