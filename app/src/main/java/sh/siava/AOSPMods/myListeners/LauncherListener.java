@@ -79,7 +79,7 @@ public class LauncherListener extends XposedModPack {
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						if (!((View) (param.thisObject)).canScrollVertically(1) || !((View) (param.thisObject)).canScrollVertically(-1)) {
 							if (!hasVibrated[0]) {
-								SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_TOUCH);
+								SystemUtils.vibrate(VibrationEffect.EFFECT_CLICK, VibrationAttributes.USAGE_TOUCH);
 								hasVibrated[0] = true;
 							}
 						} else {
@@ -98,7 +98,7 @@ public class LauncherListener extends XposedModPack {
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						if (((MotionEvent) (param.args[0])).getActionMasked() == MotionEvent.ACTION_MOVE && canVibrate[0]) {
 							canVibrate[0] = false;
-							SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_TOUCH);
+							SystemUtils.vibrate(VibrationEffect.EFFECT_CLICK, VibrationAttributes.USAGE_TOUCH);
 						}
 						new Handler(Looper.getMainLooper()).postDelayed(() -> {
 							canVibrate[0] = true;
