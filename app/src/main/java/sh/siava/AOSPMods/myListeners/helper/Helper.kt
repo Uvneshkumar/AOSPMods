@@ -161,6 +161,13 @@ object Helper {
         view.animate().alpha(0.99999f).setDuration(500).start()
     }
 
+    fun animateAlphaHandle(view: View, runnable: Runnable) {
+        val duration = 200L
+        view.alpha = 0f
+        view.animate().alpha(0.99999f).setDuration(duration).start()
+        Handler(Looper.getMainLooper()).postDelayed(runnable, duration)
+    }
+
     fun animateAlphaReverse(view: View) {
         view.animate().alpha(0f).setDuration(100).start()
     }

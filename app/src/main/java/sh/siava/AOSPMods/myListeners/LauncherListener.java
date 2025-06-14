@@ -63,6 +63,7 @@ public class LauncherListener extends XposedModPack {
 
 	private boolean isHomeTriggered = false;
 	private View stashedHandleView = null;
+	private ViewTreeObserver stashedHandleViewViewTreeObserver = null;
 
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -319,13 +320,22 @@ public class LauncherListener extends XposedModPack {
 				tryHookAllMethods(TaskbarKeyguardController, "updateStateForSysuiFlags", new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						if ((Long) param.args[0] == 537001984 && stashedHandleView != null) {
-							ViewTreeObserver viewTreeObserver = stashedHandleView.getViewTreeObserver();
-							viewTreeObserver.addOnPreDrawListener(stashedHandleViewPreDrawListener);
+						Long systemUiStateFlags = (Long) param.args[0];
+						if (systemUiStateFlags == 537001984L && stashedHandleView != null) {
+							if (stashedHandleViewViewTreeObserver != null) {
+								stashedHandleViewViewTreeObserver.removeOnPreDrawListener(stashedHandleViewPreDrawListener);
+								stashedHandleViewViewTreeObserver = null;
+							}
+							stashedHandleViewViewTreeObserver = stashedHandleView.getViewTreeObserver();
+							stashedHandleViewViewTreeObserver.addOnPreDrawListener(stashedHandleViewPreDrawListener);
 							Helper.INSTANCE.animateAlphaReverse(stashedHandleView);
-							new Handler(Looper.getMainLooper()).postDelayed(() -> {
-								viewTreeObserver.removeOnPreDrawListener(stashedHandleViewPreDrawListener);
-							}, 400);
+						}
+						if ((systemUiStateFlags == 3489661124L || systemUiStateFlags == 1342177348L || systemUiStateFlags == 2415919304L)
+								&& stashedHandleViewViewTreeObserver != null && stashedHandleView != null) {
+							Helper.INSTANCE.animateAlphaHandle(stashedHandleView, () -> {
+								stashedHandleViewViewTreeObserver.removeOnPreDrawListener(stashedHandleViewPreDrawListener);
+								stashedHandleViewViewTreeObserver = null;
+							});
 						}
 					}
 				});
