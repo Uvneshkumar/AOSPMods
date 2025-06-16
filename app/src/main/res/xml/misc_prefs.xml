@@ -169,6 +169,14 @@
 			android:title="Launcher 6 Rows" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="launcherHideOverviewActions"
+			android:title="Launcher Hide Overview Actions" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="launcherScrimColorFix"
+			android:title="Launcher AllAppsScrimColor Fix" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="launcherSearchUIFix"
 			android:title="Launcher Search UI Fix" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference

@@ -14,6 +14,8 @@ import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -295,6 +297,38 @@ public class LauncherListener extends XposedModPack {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						setObjectField(param.thisObject, "numRows", 6);
+					}
+				});
+			}
+		}
+		if (XPrefs.Xprefs.getBoolean("launcherHideOverviewActions", false)) {
+			Class<?> OverviewActionsView = findClassIfExists("com.android.quickstep.views.OverviewActionsView", lpparam.classLoader);
+			if (OverviewActionsView != null) {
+				tryHookAllMethods(OverviewActionsView, "onFinishInflate", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						view.setVisibility(View.GONE);
+					}
+				});
+			}
+		}
+		if (XPrefs.Xprefs.getBoolean("launcherScrimColorFix", false)) {
+			Class<?> ActivityAllAppsContainerView = findClassIfExists("com.android.launcher3.allapps.ActivityAllAppsContainerView", lpparam.classLoader);
+			if (ActivityAllAppsContainerView != null) {
+				tryHookAllMethods(ActivityAllAppsContainerView, "onFinishInflate", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						boolean isLightMode = (mContext.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO;
+						int bgColor = isLightMode ? 0xFFDADADA : 0xFF131313;
+						int searchColor = isLightMode ? 0xFFFFFFFF : 0xFF363636;
+						setObjectField(param.thisObject, "mBottomSheetBackgroundColorBlurFallback", bgColor);
+//						setObjectField(param.thisObject, "mBottomSheetBackgroundColorLegacy", 0xFFFFFFFF);
+//						setObjectField(param.thisObject, "mBottomSheetBackgroundColorOverBlur", 0xFFFFFFFF);
+						new Handler(Looper.getMainLooper()).postDelayed(() -> {
+							View mSearchContainer = (View) getObjectField(param.thisObject, "mSearchContainer");
+							mSearchContainer.setBackgroundTintList(ColorStateList.valueOf(searchColor));
+						}, 1000);
 					}
 				});
 			}
