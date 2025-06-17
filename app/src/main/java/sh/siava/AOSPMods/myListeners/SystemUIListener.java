@@ -303,6 +303,8 @@ public class SystemUIListener extends XposedModPack {
 					}
 				});
 			}
+		}
+		if (Xprefs.getBoolean("largeClockTopMarginA16", false)) {
 			Class<?> KeyguardRootView = findClassIfExists("com.android.systemui.keyguard.ui.view.KeyguardRootView", lpparam.classLoader);
 			if (KeyguardRootView != null) {
 				tryHookAllConstructors(KeyguardRootView, new XC_MethodHook() {
