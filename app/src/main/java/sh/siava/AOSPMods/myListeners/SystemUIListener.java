@@ -50,10 +50,10 @@ public class SystemUIListener extends XposedModPack {
 	public static final String listenPackage = AOSPMods.SYSTEM_UI_PACKAGE;
 
 	long pulseDelay = 1000;
-	final Handler handler = new Handler(Looper.myLooper());
+	final Handler handler = new Handler(Looper.getMainLooper());
 	Runnable runnable = null;
 
-	final Handler handler2 = new Handler(Looper.myLooper());
+	final Handler handler2 = new Handler(Looper.getMainLooper());
 	Runnable runnable2 = null;
 
 	float previousY = 0;
