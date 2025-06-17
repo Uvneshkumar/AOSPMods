@@ -297,10 +297,6 @@
 			android:title="DT2S Status Bar" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
-			android:key="dt2sLockScreen"
-			android:title="DT2S Lock Screen" />
-		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
-			android:defaultValue="false"
 			android:key="holdVolumeToSkipMusic"
 			android:title="Long Press Volume Buttons to Skip Music\n(Locked Screen and MyAOD)" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
