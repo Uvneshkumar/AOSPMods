@@ -173,6 +173,10 @@
 			android:title="Launcher Hide Overview Actions" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="launcherOverviewActionsHeight0"
+			android:title="Launcher Overview Actions Height 0" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="launcherScrimColorFix"
 			android:title="Launcher AllAppsScrimColor Fix" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
