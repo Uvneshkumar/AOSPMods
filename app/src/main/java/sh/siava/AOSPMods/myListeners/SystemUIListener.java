@@ -303,6 +303,34 @@ public class SystemUIListener extends XposedModPack {
 					}
 				});
 			}
+			Class<?> KeyguardRootView = findClassIfExists("com.android.systemui.keyguard.ui.view.KeyguardRootView", lpparam.classLoader);
+			if (KeyguardRootView != null) {
+				tryHookAllConstructors(KeyguardRootView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						ViewGroup view = (ViewGroup) param.thisObject;
+						float largeClockTopMarginDynamic = Float.parseFloat(Xprefs.getString("largeClockTopMarginDynamic", "80"));
+						ViewTreeObserver viewTreeObserver = view.getViewTreeObserver();
+						viewTreeObserver.addOnPreDrawListener(() -> {
+							int childCount = view.getChildCount();
+							View burn_in_layer = null;
+							View flex_clock_view = null;
+							for (int i = 0; i < childCount; i++) {
+								if (view.getChildAt(i).toString().contains("app:id/burn_in_layer")) {
+									burn_in_layer = view.getChildAt(i);
+								}
+								if (view.getChildAt(i).toString().contains("com.android.systemui.shared.clocks.view.FlexClockView")) {
+									flex_clock_view = view.getChildAt(i);
+								}
+							}
+							if (burn_in_layer != null && flex_clock_view != null) {
+								flex_clock_view.setTranslationY(burn_in_layer.getTranslationY() - largeClockTopMarginDynamic);
+							}
+							return true;
+						});
+					}
+				});
+			}
 		}
 		if (Xprefs.getBoolean("hideLockScreenStatusBar", false)) {
 			Class<?> KeyguardStatusBarView = findClassIfExists("com.android.systemui.statusbar.phone.KeyguardStatusBarView", lpparam.classLoader);
