@@ -262,6 +262,25 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("whiteLockClockAOD", false)) {
+			Class<?> SimpleDigitalClockTextView = findClassIfExists("com.android.systemui.shared.clocks.view.SimpleDigitalClockTextView", lpparam.classLoader);
+			if (SimpleDigitalClockTextView != null) {
+				tryHookAllConstructors(SimpleDigitalClockTextView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						setObjectField(view, "aodColor", 0xFFFFFFFF);
+					}
+				});
+				tryHookAllMethods(SimpleDigitalClockTextView, "updateColor", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						setObjectField(view, "aodColor", 0xFFFFFFFF);
+					}
+				});
+			}
+		}
 		if (Xprefs.getBoolean("largeClockTopMargin", false)) {
 			Class<?> AnimatableClockView = findClassIfExists("com.android.systemui.shared.clocks.AnimatableClockView", lpparam.classLoader);
 			if (AnimatableClockView != null) {
