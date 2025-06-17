@@ -24,6 +24,10 @@
 			app:defaultValue="1" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="nothingLockIconLongPress"
+			android:title="Nothing Lock Icon always trigger LongPress on Tap\nWorks with Nothing Lock Icon" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="nothingFpIcon"
 			android:title="Nothing FP Icon" />
 		<sh.siava.AOSPMods.ui.MaterialEditTextPreference

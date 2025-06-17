@@ -11,6 +11,7 @@ import static sh.siava.AOSPMods.XPrefs.Xprefs;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -61,6 +62,7 @@ public class SystemUIListener extends XposedModPack {
 	boolean shouldAnimate = false;
 
 	boolean isAodIconVisible = true;
+	boolean isTouchHandlingViewLongPressed = false;
 
 	private void initializeRunnable(Object thisObject) {
 		handler.removeCallbacks(runnable);
@@ -333,6 +335,7 @@ public class SystemUIListener extends XposedModPack {
 			Class<?> DeviceEntryIconView = findClassIfExists("com.android.systemui.keyguard.ui.view.DeviceEntryIconView", lpparam.classLoader);
 			if (DeviceEntryIconView != null) {
 				tryHookAllConstructors(DeviceEntryIconView, new XC_MethodHook() {
+					@SuppressLint("ClickableViewAccessibility")
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						FrameLayout rootView = (FrameLayout) param.thisObject;
@@ -349,6 +352,27 @@ public class SystemUIListener extends XposedModPack {
 						float nothingLockIconScale = Float.parseFloat(Xprefs.getString("nothingLockIconScale", "1"));
 						rootView.setScaleX(nothingLockIconScale);
 						rootView.setScaleY(nothingLockIconScale);
+						if (Xprefs.getBoolean("nothingLockIconLongPress", false)) {
+							new Handler(Looper.getMainLooper()).postDelayed(() -> {
+								View touchHandlingView = (View) getObjectField(param.thisObject, "touchHandlingView");
+								Object listener = getObjectField(touchHandlingView, "listener");
+								tryHookAllMethods(listener.getClass(), "onLongPressDetected", new XC_MethodHook() {
+									@Override
+									protected void beforeHookedMethod(MethodHookParam param1) throws Throwable {
+										if (isTouchHandlingViewLongPressed) {
+											param1.setResult(null);
+										} else {
+											isTouchHandlingViewLongPressed = true;
+											new Handler(Looper.getMainLooper()).postDelayed(() -> isTouchHandlingViewLongPressed = false, 100);
+										}
+									}
+								});
+								myIcon.setOnTouchListener((view, motionEvent) -> {
+									callMethod(listener, "onLongPressDetected", touchHandlingView, false);
+									return false;
+								});
+							}, 1000);
+						}
 					}
 				});
 			}
