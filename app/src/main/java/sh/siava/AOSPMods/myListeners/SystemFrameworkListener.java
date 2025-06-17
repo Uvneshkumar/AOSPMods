@@ -59,6 +59,7 @@ public class SystemFrameworkListener extends XposedModPack {
 
 	public final int PERMISSION = 4;
 	public static final int WAKE_REASON_POWER_BUTTON = 1;
+	public static final int ACTION_COMPLETE = 1; // SingleKeyGestureEvent
 
 	private boolean isVolDown = false;
 	private long mWakeTime = 0;
@@ -200,6 +201,12 @@ public class SystemFrameworkListener extends XposedModPack {
 			hookAllMethods(PowerKeyRuleClass, "onLongPress", new XC_MethodHook() {
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+					try {
+						if ((int) callMethod(param.args[0], "getAction") != ACTION_COMPLETE) {
+							return;
+						}
+					} catch (Throwable ignored) {
+					}
 					boolean screenIsOn = screenIsOn();
 					if (!screenIsOn) {
 						launchAction();
