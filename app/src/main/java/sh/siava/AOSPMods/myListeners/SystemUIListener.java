@@ -38,6 +38,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.AOSPMods;
 import sh.siava.AOSPMods.XposedModPack;
+import sh.siava.AOSPMods.myListeners.helper.CustomDateAlarmLayout;
 import sh.siava.AOSPMods.myListeners.helper.Helper;
 import sh.siava.AOSPMods.utils.StringFormatter;
 import sh.siava.AOSPMods.utils.SystemUtils;
@@ -733,6 +734,18 @@ public class SystemUIListener extends XposedModPack {
 						LinearLayout keyguardSliceView = (LinearLayout) param.thisObject;
 						keyguardSliceView.removeOnLayoutChangeListener(keyguardSliceViewLayoutChangeListener);
 						keyguardSliceView.addOnLayoutChangeListener(keyguardSliceViewLayoutChangeListener);
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("keyguardSliceViewCustomA16", false)) {
+			Class<?> KeyguardSliceView = findClassIfExists("com.android.keyguard.KeyguardSliceView", lpparam.classLoader);
+			if (KeyguardSliceView != null) {
+				tryHookAllConstructors(KeyguardSliceView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						ViewGroup viewGroup = (ViewGroup) param.thisObject;
+						viewGroup.addView(new CustomDateAlarmLayout(mContext));
 					}
 				});
 			}

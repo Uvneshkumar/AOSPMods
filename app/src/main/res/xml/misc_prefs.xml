@@ -120,6 +120,10 @@
 			android:title="KeyguardSliceView Alarm Padding" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="keyguardSliceViewCustomA16"
+			android:title="KeyguardSliceView Custom (for A16)" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="keyguardSliceViewBurnIn"
 			android:title="KeyguardSliceView Burn In" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
