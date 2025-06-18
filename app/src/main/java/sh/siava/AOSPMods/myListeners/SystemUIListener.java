@@ -774,7 +774,7 @@ public class SystemUIListener extends XposedModPack {
 								if (view.getChildAt(i).toString().contains("app:id/aod_notification_icon_container")) {
 									aod_notification_icon_container = (ViewGroup) view.getChildAt(i);
 								}
-								if (view.getChildAt(i).toString().contains("app:id/lockscreen_clock_view_large")) {
+								if (view.getChildAt(i).toString().contains("app:id/lockscreen_clock_view_large") || view.getChildAt(i).toString().contains("com.android.systemui.shared.clocks.view.FlexClockView")) {
 									lockscreen_clock_view_large = view.getChildAt(i);
 								}
 							}
