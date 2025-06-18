@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -48,6 +49,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
         }
         addView(dateTextView, dateParams)
         alarmLayout = LinearLayout(context).apply {
+            gravity = Gravity.CENTER_VERTICAL
             orientation = HORIZONTAL
             visibility = View.INVISIBLE
         }
