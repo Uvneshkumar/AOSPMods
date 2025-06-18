@@ -127,7 +127,10 @@ public class AOSPMods implements IXposedHookLoadPackage {
 
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
-		isChildProcess = lpparam.processName.contains(":");
+		try {
+			isChildProcess = lpparam.processName.contains(":");
+		} catch (Exception ignored) {
+		}
 
 		//If example class isn't found, user is using an older version. Don't load the module at all
 		if (lpparam.packageName.equals(SYSTEM_UI_PACKAGE)) {
