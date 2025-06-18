@@ -10,6 +10,9 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
+import sh.siava.AOSPMods.R
+import sh.siava.AOSPMods.XPrefs
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -49,7 +52,13 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
             visibility = View.INVISIBLE
         }
         alarmIcon = ImageView(context).apply {
-            setImageResource(android.R.drawable.ic_lock_idle_alarm)
+            setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    XPrefs.modRes,
+                    R.drawable.ic_alarm,
+                    null
+                )
+            )
         }
         val iconParams = LayoutParams(dpToPx(20), dpToPx(20)).apply {
             rightMargin = dpToPx(8)
