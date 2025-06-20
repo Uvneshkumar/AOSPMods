@@ -42,10 +42,11 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
         dateTextView = TextView(context).apply {
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
             setTextColor(Color.WHITE)
+            typeface = XPrefs.modRes.getFont(R.font.google_sans_text_500)
             includeFontPadding = false
         }
         val dateParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
-            bottomMargin = dpToPx(8)
+            bottomMargin = dpToPx(4)
         }
         addView(dateTextView, dateParams)
         alarmLayout = LinearLayout(context).apply {
@@ -69,6 +70,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
         alarmTextView = TextView(context).apply {
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
             setTextColor(Color.WHITE)
+            typeface = XPrefs.modRes.getFont(R.font.google_sans_text_500)
             includeFontPadding = false
         }
         alarmLayout.addView(alarmTextView)
