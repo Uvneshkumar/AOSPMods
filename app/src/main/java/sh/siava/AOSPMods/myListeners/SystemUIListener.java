@@ -667,6 +667,20 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("noNotificationsAllCapsFix", false)) {
+			Class<?> EmptyShadeView = findClassIfExists("com.android.systemui.statusbar.notification.emptyshade.ui.view.EmptyShadeView", lpparam.classLoader);
+			if (EmptyShadeView != null) {
+				tryHookAllMethods(EmptyShadeView, "onFinishInflate", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						TextView mEmptyText = (TextView) getObjectField(param.thisObject, "mEmptyText");
+						if (mEmptyText != null) {
+							mEmptyText.setAllCaps(false);
+						}
+					}
+				});
+			}
+		}
 		if (Xprefs.getBoolean("powerButtonRevealScrimBottom", false)) {
 			Class<?> PowerButtonReveal = findClassIfExists("com.android.systemui.statusbar.PowerButtonReveal", lpparam.classLoader);
 			float OFF_SCREEN_START_AMOUNT = 0.05f;
