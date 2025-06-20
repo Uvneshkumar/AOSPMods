@@ -95,13 +95,6 @@ object Helper {
                 setNotificationIcon(imageView, statusBarNotification, false)
                 return@loadAppIcons
             }
-            imageView.apply {
-                post {
-                    scaleX = iconScaleFactor
-                    scaleY = iconScaleFactor
-                    setImageDrawable(iconDrawable)
-                }
-            }
             val aodIconsCenterMargin: Float =
                 XPrefs.Xprefs.getString("aodIconsCenterMargin", "-2").orEmpty().ifEmpty { "-2" }
                     .toFloat()
@@ -114,6 +107,13 @@ object Helper {
                     paddingRight,
                     paddingBottom
                 )
+                imageView.apply {
+                    setImageDrawable(iconDrawable)
+                    post {
+                        scaleX = iconScaleFactor
+                        scaleY = iconScaleFactor
+                    }
+                }
             }
         }
     }
