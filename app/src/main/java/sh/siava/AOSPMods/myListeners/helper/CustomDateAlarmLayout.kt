@@ -34,7 +34,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
 
     private var lastShownDate = ""
     private var lastShownAlarmTime = ""
-    private var lastShownAlarmVisibility = View.INVISIBLE
+    private var lastShownAlarmVisibility = View.GONE
 
     init {
         orientation = VERTICAL
@@ -45,14 +45,11 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
             typeface = XPrefs.modRes.getFont(R.font.google_sans_text_500)
             includeFontPadding = false
         }
-        val dateParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
-            bottomMargin = dpToPx(4)
-        }
-        addView(dateTextView, dateParams)
+        addView(dateTextView)
         alarmLayout = LinearLayout(context).apply {
             gravity = Gravity.CENTER_VERTICAL
             orientation = HORIZONTAL
-            visibility = View.INVISIBLE
+            visibility = View.GONE
         }
         alarmIcon = ImageView(context).apply {
             setImageDrawable(
@@ -74,7 +71,10 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
             includeFontPadding = false
         }
         alarmLayout.addView(alarmTextView)
-        addView(alarmLayout)
+        val alarmParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
+            topMargin = dpToPx(4)
+        }
+        addView(alarmLayout, alarmParams)
         timeRunnable = object : Runnable {
             override fun run() {
                 showCurrentDate()
@@ -96,7 +96,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     private fun showNextAlarmIfExists() {
         val nextAlarm = alarmManager?.nextAlarmClock
         var timeToShow = ""
-        var alarmVisibility = View.INVISIBLE
+        var alarmVisibility = View.GONE
         if (nextAlarm != null) {
             val alarmTimeMillis = nextAlarm.triggerTime
             val calendar = Calendar.getInstance()
