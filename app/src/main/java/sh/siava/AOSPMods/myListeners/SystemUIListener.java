@@ -2,6 +2,7 @@ package sh.siava.AOSPMods.myListeners;
 
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
+import static de.robv.android.xposed.XposedHelpers.getBooleanField;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.setBooleanField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
@@ -862,18 +863,21 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
-
-//        Class<?> ExpandableNotificationRow = findClassIfExists("com.android.systemui.statusbar.notification.row.ExpandableNotificationRow", lpparam.classLoader);
-//        if (ExpandableNotificationRow != null) {
-//            tryHookAllMethods(ExpandableNotificationRow, "isExpanded", new XC_MethodHook() {
-//                @Override
-//                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-//                    if (!getBooleanField(param.thisObject, "mOnKeyguard")) {
-//                        param.setResult(true);
-//                    }
-//                }
-//            });
-//        }
+		if (Xprefs.getBoolean("expandFirstNotification", false)) {
+			Class<?> ExpandableNotificationRow = findClassIfExists("com.android.systemui.statusbar.notification.row.ExpandableNotificationRow", lpparam.classLoader);
+			if (ExpandableNotificationRow != null) {
+				tryHookAllMethods(ExpandableNotificationRow, "isExpanded", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						ViewGroup viewGroup = (ViewGroup) view.getParent();
+						if (view != null && viewGroup != null && viewGroup.indexOfChild(view) == 0 && !getBooleanField(param.thisObject, "mOnKeyguard")) {
+							param.setResult(true);
+						}
+					}
+				});
+			}
+		}
 
 //		Class<?> BackPanel = findClassIfExists("com.android.systemui.navigationbar.gestural.BackPanel", lpparam.classLoader);
 //        if (BackPanel != null) {

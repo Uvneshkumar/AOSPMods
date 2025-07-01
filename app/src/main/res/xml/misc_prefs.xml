@@ -140,6 +140,10 @@
 			android:title="Disable Burn In" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="expandFirstNotification"
+			android:title="Always Expand First Notification" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="aodIconsCenter"
 			android:title="App Icon for Notifications in AOD" />
 		<sh.siava.AOSPMods.ui.MaterialEditTextPreference
