@@ -221,6 +221,10 @@
 			android:title="Hide FP Icon in Biometric Prompt" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="hideFpIconButtonBar"
+			android:title="Also Hide Bottom Button Bar" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="hideFpDwellAnimation"
 			android:title="Hide UDFPS Dwell Animation" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference

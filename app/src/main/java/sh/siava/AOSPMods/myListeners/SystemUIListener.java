@@ -662,6 +662,29 @@ public class SystemUIListener extends XposedModPack {
 					}
 				});
 			}
+			Class<?> BiometricViewBinder = findClassIfExists("com.android.systemui.biometrics.ui.binder.BiometricViewBinder", lpparam.classLoader);
+			if (BiometricViewBinder != null) {
+				tryHookAllMethods(BiometricViewBinder, "bind", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						ViewGroup rootView = (ViewGroup) param.args[0];
+						for (int i = 0; i < rootView.getChildCount(); i++) {
+							String currentView = rootView.getChildAt(i).toString();
+							if (currentView.contains("id/button_bar")) {
+								if (Xprefs.getBoolean("hideFpIconButtonBar", false)) {
+									ViewGroup buttonBar = (ViewGroup) rootView.getChildAt(i);
+									ViewGroup.LayoutParams layoutParams = buttonBar.getLayoutParams();
+									layoutParams.height = -100;
+									buttonBar.setLayoutParams(layoutParams);
+								}
+							} else if (currentView.contains("id/biometric_icon")) {
+								View biometricIcon = rootView.getChildAt(i);
+								biometricIcon.setVisibility(View.GONE);
+							}
+						}
+					}
+				});
+			}
 		}
 		if (Xprefs.getBoolean("hideFpDwellAnimation", false)) {
 			Class<?> DwellRippleShader = findClassIfExists("com.android.systemui.biometrics.DwellRippleShader", lpparam.classLoader);
