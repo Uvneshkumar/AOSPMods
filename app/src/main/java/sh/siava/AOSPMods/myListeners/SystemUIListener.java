@@ -400,7 +400,13 @@ public class SystemUIListener extends XposedModPack {
 						rootView.setScaleY(nothingLockIconScale);
 						if (Xprefs.getBoolean("nothingLockIconLongPress", false)) {
 							new Handler(Looper.getMainLooper()).postDelayed(() -> {
-								View touchHandlingView = (View) getObjectField(param.thisObject, "touchHandlingView");
+								String viewName;
+								if (Xprefs.getBoolean("nothingLockIconLongPressCrashFix", false)) {
+									viewName = "longPressHandlingView";
+								} else {
+									viewName = "touchHandlingView";
+								}
+								View touchHandlingView = (View) getObjectField(param.thisObject, viewName);
 								Object listener = getObjectField(touchHandlingView, "listener");
 								tryHookAllMethods(listener.getClass(), "onLongPressDetected", new XC_MethodHook() {
 									@Override

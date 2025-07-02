@@ -28,6 +28,10 @@
 			android:title="Nothing Lock Icon always trigger LongPress on Tap\nWorks with Nothing Lock Icon" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="nothingLockIconLongPressCrashFix"
+			android:title="Nothing Lock Icon LongPress Crash Fix" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="nothingFpIcon"
 			android:title="Nothing FP Icon" />
 		<sh.siava.AOSPMods.ui.MaterialEditTextPreference
