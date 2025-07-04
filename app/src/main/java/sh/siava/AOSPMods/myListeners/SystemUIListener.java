@@ -441,10 +441,10 @@ public class SystemUIListener extends XposedModPack {
 						myIcon.setImageDrawable(Helper.INSTANCE.createOvalDrawable());
 						int nothingFpIconPadding = (int) Float.parseFloat(Xprefs.getString("nothingFpIconPadding", "10"));
 						myIcon.setPadding(nothingFpIconPadding, nothingFpIconPadding, nothingFpIconPadding, nothingFpIconPadding);
-						new Handler(Looper.getMainLooper()).postDelayed(() -> {
-							int whiteColor = Color.parseColor("#FFFFFF");
-							myIcon.setImageTintList(ColorStateList.valueOf(whiteColor));
-						}, 1000);
+						ViewTreeObserver viewTreeObserver = myIcon.getViewTreeObserver();
+						viewTreeObserver.addOnDrawListener(() -> {
+							myIcon.setImageTintList(ColorStateList.valueOf(Color.WHITE));
+						});
 					}
 				});
 			}
