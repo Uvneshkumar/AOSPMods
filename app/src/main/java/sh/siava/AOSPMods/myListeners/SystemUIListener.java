@@ -686,6 +686,39 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("fpIconShifting", false)) {
+			int pixelsToShift = Integer.parseInt(Xprefs.getString("fpIconShiftingTranslationY", "80"));
+			Class<?> BiometricViewBinder = findClassIfExists("com.android.systemui.biometrics.ui.binder.BiometricViewBinder", lpparam.classLoader);
+			if (BiometricViewBinder != null) {
+				tryHookAllMethods(BiometricViewBinder, "bind", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						ViewGroup rootView = (ViewGroup) param.args[0];
+						for (int i = 0; i < rootView.getChildCount(); i++) {
+							String currentView = rootView.getChildAt(i).toString();
+							if (currentView.contains("id/button_bar")) {
+								ViewGroup buttonBar = (ViewGroup) rootView.getChildAt(i);
+								buttonBar.setTranslationY(-(pixelsToShift));
+							}
+						}
+						rootView.setTranslationY(pixelsToShift);
+					}
+				});
+			}
+			Class<?> DeviceEntryIconView = findClassIfExists("com.android.systemui.keyguard.ui.view.DeviceEntryIconView", lpparam.classLoader);
+			if (DeviceEntryIconView != null) {
+				tryHookAllConstructors(DeviceEntryIconView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						FrameLayout rootView = (FrameLayout) param.thisObject;
+						ViewTreeObserver viewTreeObserver = rootView.getViewTreeObserver();
+						viewTreeObserver.addOnDrawListener(() -> {
+							rootView.setTranslationY(pixelsToShift);
+						});
+					}
+				});
+			}
+		}
 		if (Xprefs.getBoolean("hideFpDwellAnimation", false)) {
 			Class<?> DwellRippleShader = findClassIfExists("com.android.systemui.biometrics.DwellRippleShader", lpparam.classLoader);
 			if (DwellRippleShader != null) {

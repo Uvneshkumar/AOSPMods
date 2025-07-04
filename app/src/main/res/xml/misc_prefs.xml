@@ -40,6 +40,14 @@
 			app:defaultValue="10" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="fpIconShifting"
+			android:title="FP Icon Shifting" />
+		<sh.siava.AOSPMods.ui.MaterialEditTextPreference
+			android:key="fpIconShiftingTranslationY"
+			android:title="FP Icon TranslationY"
+			app:defaultValue="80" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="hideExtendUnlockMessage"
 			android:title="Hide - Kept unlocked by Extend Unlock" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
