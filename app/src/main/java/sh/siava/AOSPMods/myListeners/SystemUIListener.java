@@ -14,6 +14,7 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
@@ -693,15 +694,22 @@ public class SystemUIListener extends XposedModPack {
 				tryHookAllMethods(BiometricViewBinder, "bind", new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						boolean isLandscape = mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 						ViewGroup rootView = (ViewGroup) param.args[0];
 						for (int i = 0; i < rootView.getChildCount(); i++) {
 							String currentView = rootView.getChildAt(i).toString();
 							if (currentView.contains("id/button_bar")) {
 								ViewGroup buttonBar = (ViewGroup) rootView.getChildAt(i);
-								buttonBar.setTranslationY(-(pixelsToShift));
+								if (!isLandscape) {
+									buttonBar.setTranslationY(-(pixelsToShift));
+								}
 							}
 						}
-						rootView.setTranslationY(pixelsToShift);
+						if (isLandscape) {
+							rootView.setTranslationX(pixelsToShift);
+						} else {
+							rootView.setTranslationY(pixelsToShift);
+						}
 					}
 				});
 			}
@@ -710,10 +718,15 @@ public class SystemUIListener extends XposedModPack {
 				tryHookAllConstructors(DeviceEntryIconView, new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						boolean isLandscape = mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 						FrameLayout rootView = (FrameLayout) param.thisObject;
 						ViewTreeObserver viewTreeObserver = rootView.getViewTreeObserver();
 						viewTreeObserver.addOnDrawListener(() -> {
-							rootView.setTranslationY(pixelsToShift);
+							if (isLandscape) {
+								rootView.setTranslationX(pixelsToShift);
+							} else {
+								rootView.setTranslationY(pixelsToShift);
+							}
 						});
 					}
 				});
