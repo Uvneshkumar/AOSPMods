@@ -27,7 +27,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 
@@ -429,17 +428,17 @@ public class LauncherListener extends XposedModPack {
 				});
 			}
 		}
-		if (XPrefs.Xprefs.getBoolean("launcherClearAllFix", false)) {
-			Class<?> RecentsView = findClassIfExists("com.android.quickstep.views.RecentsView", lpparam.classLoader);
-			if (RecentsView != null) {
-				tryHookAllConstructors(RecentsView, new XC_MethodHook() {
-					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						Button mClearAllButton = (Button) getObjectField(param.thisObject, "mClearAllButton");
-						mClearAllButton.setAllCaps(false);
-					}
-				});
-			}
-		}
+//		if (XPrefs.Xprefs.getBoolean("launcherClearAllFix", false)) {
+//			Class<?> RecentsView = findClassIfExists("com.android.quickstep.views.RecentsView", lpparam.classLoader);
+//			if (RecentsView != null) {
+//				tryHookAllConstructors(RecentsView, new XC_MethodHook() {
+//					@Override
+//					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//						Button mClearAllButton = (Button) getObjectField(param.thisObject, "mClearAllButton");
+//						mClearAllButton.setAllCaps(false);
+//					}
+//				});
+//			}
+//		}
 	}
 }
