@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import sh.siava.AOSPMods.XPrefs
+import sh.siava.AOSPMods.utils.Helpers.myLog
 
 object Helper {
 
@@ -170,5 +171,29 @@ object Helper {
         view.animate().alpha(0f).setDuration(100).start()
     }
 
+    private fun logViewDetails(view: View, indent: String) {
+        myLog("$indent- ${view::class.java.simpleName} (id: ${view.id}) ${view.layoutParams}")
+    }
+
+    private fun getAllViews(view: View, indent: String = ""): List<View> {
+        val result = mutableListOf<View>()
+        if (view is ViewGroup) {
+            result.add(view)
+            logViewDetails(view, indent)
+            for (i in 0 until view.childCount) {
+                val child = view.getChildAt(i)
+                result.addAll(getAllViews(child, "$indent "))
+            }
+        } else {
+            logViewDetails(view, indent)
+            result.add(view)
+        }
+        return result
+    }
+
+    fun debugView(view: View) {
+        getAllViews(view)
+    }
+    
     val Int.px: Int get() = (this * getSystem().displayMetrics.density).toInt()
 }
