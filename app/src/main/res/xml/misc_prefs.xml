@@ -100,6 +100,15 @@
 			android:title="Disallow AOD 2 (Stay on LS)" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="pixelAODBrightness"
+			android:title="Change Pixel AOD Brightness if overlay doesn't work" />
+		<sh.siava.AOSPMods.ui.MaterialEditTextPreference
+			android:key="pixelAODBrightnessFloat"
+			android:title="Pixel AOD Brightness"
+			app:defaultValue="0.03"
+			app:summary="0.0 to 1.0" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="requireStrongAuth"
 			android:title="Don't auto-lock Trusted Agents" />
 		<!--		<sh.siava.AOSPMods.ui.MaterialSwitchPreference-->

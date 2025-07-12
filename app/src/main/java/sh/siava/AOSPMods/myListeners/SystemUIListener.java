@@ -635,6 +635,18 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("pixelAODBrightness", false)) {
+			float pixelAODBrightness = Float.parseFloat(Xprefs.getString("pixelAODBrightnessFloat", "0.03"));
+			Class<?> DozeService = findClassIfExists("com.android.systemui.doze.DozeService", lpparam.classLoader);
+			if (DozeService != null) {
+				tryHookAllMethods(DozeService, "setDozeScreenBrightnessFloat", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.args[0] = pixelAODBrightness;
+					}
+				});
+			}
+		}
 		if (Xprefs.getBoolean("disableNewBackAffordance", false)) {
 			Class<?> EdgeBackGestureHandler = findClassIfExists("com.android.systemui.navigationbar.gestural.EdgeBackGestureHandler", lpparam.classLoader);
 			if (EdgeBackGestureHandler != null) {
