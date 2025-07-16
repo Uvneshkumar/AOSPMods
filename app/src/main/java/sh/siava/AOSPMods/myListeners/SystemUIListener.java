@@ -21,6 +21,7 @@ import android.os.Looper;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.service.notification.StatusBarNotification;
+import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -585,7 +586,8 @@ public class SystemUIListener extends XposedModPack {
 			XC_MethodHook noDozeHook = new XC_MethodHook() {
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-					if ((int) param.args[0] == 3) {
+					int dozeState = (int) param.args[0];
+					if (dozeState == Display.STATE_DOZE || dozeState == Display.STATE_DOZE_SUSPEND) {
 						param.setResult(null);
 					}
 				}
