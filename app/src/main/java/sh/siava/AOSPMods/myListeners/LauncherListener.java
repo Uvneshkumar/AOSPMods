@@ -13,6 +13,8 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
@@ -25,7 +27,6 @@ import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -40,6 +41,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.XPrefs;
 import sh.siava.AOSPMods.XposedModPack;
 import sh.siava.AOSPMods.myListeners.helper.Helper;
+import sh.siava.AOSPMods.myListeners.helper.ScreenReceiver;
 import sh.siava.AOSPMods.utils.SystemUtils;
 
 @SuppressWarnings("RedundantThrows")
@@ -63,8 +65,6 @@ public class LauncherListener extends XposedModPack {
 	private Boolean canLock = false;
 
 	private boolean isHomeTriggered = false;
-	private View stashedHandleView = null;
-	private ViewTreeObserver stashedHandleViewViewTreeObserver = null;
 
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -349,38 +349,11 @@ public class LauncherListener extends XposedModPack {
 				tryHookAllConstructors(StashedHandleView, new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						stashedHandleView = (View) param.thisObject;
-					}
-				});
-			}
-			Class<?> TaskbarKeyguardController = findClassIfExists("com.android.launcher3.taskbar.TaskbarKeyguardController", lpparam.classLoader);
-			if (TaskbarKeyguardController != null) {
-				ViewTreeObserver.OnPreDrawListener stashedHandleViewPreDrawListener = () -> {
-					if (stashedHandleView.getAlpha() == 1f) {
-						stashedHandleView.setAlpha(0f);
-					}
-					return true;
-				};
-				tryHookAllMethods(TaskbarKeyguardController, "updateStateForSysuiFlags", new XC_MethodHook() {
-					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						Long systemUiStateFlags = (Long) param.args[0];
-						if (systemUiStateFlags == 537001984L && stashedHandleView != null) {
-							if (stashedHandleViewViewTreeObserver != null) {
-								stashedHandleViewViewTreeObserver.removeOnPreDrawListener(stashedHandleViewPreDrawListener);
-								stashedHandleViewViewTreeObserver = null;
-							}
-							stashedHandleViewViewTreeObserver = stashedHandleView.getViewTreeObserver();
-							stashedHandleViewViewTreeObserver.addOnPreDrawListener(stashedHandleViewPreDrawListener);
-							Helper.INSTANCE.animateAlphaReverse(stashedHandleView);
-						}
-						if ((systemUiStateFlags == 3489661124L || systemUiStateFlags == 1342177348L || systemUiStateFlags == 2415919304L)
-								&& stashedHandleViewViewTreeObserver != null && stashedHandleView != null) {
-							Helper.INSTANCE.animateAlphaHandle(stashedHandleView, () -> {
-								stashedHandleViewViewTreeObserver.removeOnPreDrawListener(stashedHandleViewPreDrawListener);
-								stashedHandleViewViewTreeObserver = null;
-							});
-						}
+						ScreenReceiver screenReceiver = new ScreenReceiver((View) param.thisObject);
+						IntentFilter filter = new IntentFilter();
+						filter.addAction(Intent.ACTION_SCREEN_ON);
+						filter.addAction(Intent.ACTION_SCREEN_OFF);
+						mContext.getApplicationContext().registerReceiver(screenReceiver, filter);
 					}
 				});
 			}
