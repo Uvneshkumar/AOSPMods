@@ -262,10 +262,6 @@
 			android:title="Disable Battery Time in Status Bar" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
-			android:key="batteryEndExtraPadding"
-			android:title="Battery Padding End in Landscape" />
-		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
-			android:defaultValue="false"
 			android:key="hookUnlockAnim"
 			android:title="Hook Unlock Animation" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
