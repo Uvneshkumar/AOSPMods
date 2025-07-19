@@ -305,6 +305,7 @@ public class SystemUIListener extends XposedModPack {
 		}
 		if (Xprefs.getBoolean("largeClockTopMarginA16", false)) {
 			Class<?> KeyguardRootView = findClassIfExists("com.android.systemui.keyguard.ui.view.KeyguardRootView", lpparam.classLoader);
+			boolean largeClockDateSmartSpaceTopMarginA16 = Xprefs.getBoolean("largeClockDateSmartSpaceTopMarginA16", false);
 			if (KeyguardRootView != null) {
 				tryHookAllConstructors(KeyguardRootView, new XC_MethodHook() {
 					@Override
@@ -316,16 +317,23 @@ public class SystemUIListener extends XposedModPack {
 							int childCount = view.getChildCount();
 							View burn_in_layer = null;
 							View flex_clock_view = null;
+							View date_smartspace_view_large = null;
 							for (int i = 0; i < childCount; i++) {
 								if (view.getChildAt(i).toString().contains("app:id/burn_in_layer")) {
 									burn_in_layer = view.getChildAt(i);
-								}
-								if (view.getChildAt(i).toString().contains("com.android.systemui.shared.clocks.view.FlexClockView")) {
+								} else if (view.getChildAt(i).toString().contains("com.android.systemui.shared.clocks.view.FlexClockView")) {
 									flex_clock_view = view.getChildAt(i);
+								} else if (view.getChildAt(i).toString().contains("app:id/date_smartspace_view_large")) {
+									date_smartspace_view_large = view.getChildAt(i);
 								}
 							}
-							if (burn_in_layer != null && flex_clock_view != null) {
-								flex_clock_view.setTranslationY(burn_in_layer.getTranslationY() - largeClockTopMarginDynamic);
+							if (burn_in_layer != null) {
+								if (flex_clock_view != null) {
+									flex_clock_view.setTranslationY(burn_in_layer.getTranslationY() - largeClockTopMarginDynamic);
+								}
+								if (largeClockDateSmartSpaceTopMarginA16 && date_smartspace_view_large != null) {
+									date_smartspace_view_large.setTranslationY(burn_in_layer.getTranslationY() - largeClockTopMarginDynamic);
+								}
 							}
 							return true;
 						});

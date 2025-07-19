@@ -146,7 +146,7 @@
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="keyguardSliceViewCustomA16"
-			android:title="KeyguardSliceView Custom (for A16)" />
+			android:title="KeyguardSliceView Custom (A16)" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="keyguardSliceViewBurnIn"
@@ -283,7 +283,11 @@
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="largeClockTopMarginA16"
-			android:title="Move Large Clock Up A16" />
+			android:title="Move Large Clock Up (A16)" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="largeClockDateSmartSpaceTopMarginA16"
+			android:title="Also Move Date Below Clock (A16)" />
 		<sh.siava.AOSPMods.ui.MaterialEditTextPreference
 			android:key="largeClockTopMarginDynamic"
 			android:title="Large Clock Margin"
