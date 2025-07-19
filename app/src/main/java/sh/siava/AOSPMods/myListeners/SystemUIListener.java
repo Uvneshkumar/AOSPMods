@@ -43,7 +43,6 @@ import sh.siava.AOSPMods.AOSPMods;
 import sh.siava.AOSPMods.XposedModPack;
 import sh.siava.AOSPMods.myListeners.helper.CustomDateAlarmLayout;
 import sh.siava.AOSPMods.myListeners.helper.Helper;
-import sh.siava.AOSPMods.utils.StringFormatter;
 import sh.siava.AOSPMods.utils.SystemUtils;
 
 @SuppressWarnings("RedundantThrows")
@@ -92,10 +91,6 @@ public class SystemUIListener extends XposedModPack {
 	@Override
 	public void updatePrefs(String... Key) {
 	}
-
-	private final StringFormatter stringFormatter = new StringFormatter();
-	private Object QSFV;
-	private final StringFormatter.formattedStringCallback refreshCallback = this::setQSFooterText;
 
 	public final String CLIPBOARD_OVERLAY_SHOW_ACTIONS = "clipboard_overlay_show_actions";
 	public final String NAMESPACE_SYSTEMUI = "systemui";
@@ -509,24 +504,6 @@ public class SystemUIListener extends XposedModPack {
 				};
 				tryHookAllMethods(QSTileImplClass, "click", vibrateCallback);
 				tryHookAllMethods(QSTileImplClass, "longClick", longVibrateCallback);
-			}
-		}
-		if (Xprefs.getBoolean("hideBuildNumber", false)) {
-			stringFormatter.registerCallback(refreshCallback);
-			Class<?> QSFooterViewClass = findClassIfExists("com.android.systemui.qs.QSFooterView", lpparam.classLoader);
-			if (QSFooterViewClass != null) {
-				tryHookAllConstructors(QSFooterViewClass, new XC_MethodHook() {
-					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						QSFV = param.thisObject;
-					}
-				});
-				tryHookAllMethods(QSFooterViewClass, "setBuildText", new XC_MethodHook() {
-					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						setQSFooterText();
-					}
-				});
 			}
 		}
 		if (Xprefs.getBoolean("enableClipboardSmartActions", false)) {
@@ -1005,20 +982,6 @@ public class SystemUIListener extends XposedModPack {
 //                }
 //            });
 //        }
-	}
-
-	private void setQSFooterText() {
-		try {
-			if (Xprefs.getBoolean("hideBuildNumber", false)) {
-				TextView mBuildText = (TextView) getObjectField(QSFV, "mBuildText");
-				setObjectField(QSFV, "mShouldShowBuildText", "".trim().length() > 0);
-				mBuildText.setText(stringFormatter.formatString(""));
-				mBuildText.setSelected(true);
-			} else {
-				callMethod(QSFV, "setBuildText");
-			}
-		} catch (Throwable ignored) {
-		} //probably not initiated yet
 	}
 
 	@Override
