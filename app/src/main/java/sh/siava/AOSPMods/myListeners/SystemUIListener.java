@@ -303,9 +303,11 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
-		if (Xprefs.getBoolean("largeClockTopMarginA16", false)) {
+		boolean largeClockTopMarginA16 = Xprefs.getBoolean("largeClockTopMarginA16", false);
+		boolean largeClockDateSmartSpaceTopMarginA16 = Xprefs.getBoolean("largeClockDateSmartSpaceTopMarginA16", false);
+		boolean hideClockDateSmartSpaceA16 = Xprefs.getBoolean("hideClockDateSmartSpaceA16", false);
+		if (largeClockTopMarginA16 || largeClockDateSmartSpaceTopMarginA16 || hideClockDateSmartSpaceA16) {
 			Class<?> KeyguardRootView = findClassIfExists("com.android.systemui.keyguard.ui.view.KeyguardRootView", lpparam.classLoader);
-			boolean largeClockDateSmartSpaceTopMarginA16 = Xprefs.getBoolean("largeClockDateSmartSpaceTopMarginA16", false);
 			if (KeyguardRootView != null) {
 				tryHookAllConstructors(KeyguardRootView, new XC_MethodHook() {
 					@Override
@@ -318,6 +320,7 @@ public class SystemUIListener extends XposedModPack {
 							View burn_in_layer = null;
 							View flex_clock_view = null;
 							View date_smartspace_view_large = null;
+							View date_smartspace_view = null;
 							for (int i = 0; i < childCount; i++) {
 								if (view.getChildAt(i).toString().contains("app:id/burn_in_layer")) {
 									burn_in_layer = view.getChildAt(i);
@@ -325,14 +328,26 @@ public class SystemUIListener extends XposedModPack {
 									flex_clock_view = view.getChildAt(i);
 								} else if (view.getChildAt(i).toString().contains("app:id/date_smartspace_view_large")) {
 									date_smartspace_view_large = view.getChildAt(i);
+								} else if (view.getChildAt(i).toString().contains("app:id/date_smartspace_view")) {
+									date_smartspace_view = view.getChildAt(i);
 								}
 							}
 							if (burn_in_layer != null) {
-								if (flex_clock_view != null) {
+								if (largeClockTopMarginA16 && flex_clock_view != null) {
 									flex_clock_view.setTranslationY(burn_in_layer.getTranslationY() - largeClockTopMarginDynamic);
 								}
 								if (largeClockDateSmartSpaceTopMarginA16 && date_smartspace_view_large != null) {
 									date_smartspace_view_large.setTranslationY(burn_in_layer.getTranslationY() - largeClockTopMarginDynamic);
+								}
+							}
+							if (hideClockDateSmartSpaceA16) {
+								if (date_smartspace_view_large != null) {
+									date_smartspace_view_large.setScaleX(0);
+									date_smartspace_view_large.setAlpha(0);
+								}
+								if (date_smartspace_view != null) {
+									date_smartspace_view.setScaleX(0);
+									date_smartspace_view.setAlpha(0);
 								}
 							}
 							return true;

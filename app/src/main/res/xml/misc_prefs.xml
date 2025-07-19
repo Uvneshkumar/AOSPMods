@@ -287,11 +287,15 @@
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="largeClockDateSmartSpaceTopMarginA16"
-			android:title="Also Move Date Below Clock (A16)" />
+			android:title="Move Date Below Clock (A16)" />
 		<sh.siava.AOSPMods.ui.MaterialEditTextPreference
 			android:key="largeClockTopMarginDynamic"
 			android:title="Large Clock Margin"
 			app:defaultValue="80" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="hideClockDateSmartSpaceA16"
+			android:title="Hide Date SmartSpace (A16)" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="hideLockScreenStatusBar"
