@@ -65,6 +65,7 @@ public class LauncherListener extends XposedModPack {
 	private Boolean canLock = false;
 
 	private boolean isHomeTriggered = false;
+	private Object launcherWorkspaceObject = null;
 
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -219,7 +220,7 @@ public class LauncherListener extends XposedModPack {
 				tryHookAllMethods(Workspace, "moveToDefaultScreen", new XC_MethodHook() {
 					@Override
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-						moveToDefaultScreen(param.thisObject, toPage);
+						moveToDefaultScreen(toPage);
 						param.setResult(null);
 					}
 				});
@@ -231,7 +232,7 @@ public class LauncherListener extends XposedModPack {
 								try {
 									callMethod(param.thisObject, "moveToDefaultScreen");
 								} catch (Throwable ignored) {
-									moveToDefaultScreen(param.thisObject, toPage);
+									moveToDefaultScreen(toPage);
 								}
 							}, 300);
 						}
@@ -244,7 +245,7 @@ public class LauncherListener extends XposedModPack {
 							try {
 								callMethod(param.thisObject, "moveToDefaultScreen");
 							} catch (Throwable ignored) {
-								moveToDefaultScreen(param.thisObject, toPage);
+								moveToDefaultScreen(toPage);
 							}
 						}, 300);
 					}
@@ -252,11 +253,12 @@ public class LauncherListener extends XposedModPack {
 				tryHookAllConstructors(Workspace, new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						launcherWorkspaceObject = param.thisObject;
 						new Handler(Looper.getMainLooper()).postDelayed(() -> {
 							try {
 								callMethod(param.thisObject, "moveToDefaultScreen");
 							} catch (Throwable ignored) {
-								moveToDefaultScreen(param.thisObject, toPage);
+								moveToDefaultScreen(toPage);
 							}
 						}, 300);
 					}
@@ -274,9 +276,8 @@ public class LauncherListener extends XposedModPack {
 //									callMethod(param.thisObject, "snapToPageImmediately", 1);
 //									callMethod(param.thisObject, "snapToPage", 1);
 //								}, 80);
-								moveToDefaultScreen(param.thisObject, toPage);
+								moveToDefaultScreen(toPage);
 							}
-							isHomeTriggered = false;
 						}
 					}
 				});
@@ -288,6 +289,13 @@ public class LauncherListener extends XposedModPack {
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						if (callMethod(param.args[0], "toString").equals("Hint")) {
 							isHomeTriggered = true;
+						} else if (isHomeTriggered && callMethod(param.args[0], "toString").equals("Normal")) {
+							try {
+								callMethod(launcherWorkspaceObject, "moveToDefaultScreen");
+							} catch (Throwable ignored) {
+								moveToDefaultScreen(toPage);
+							}
+							isHomeTriggered = false;
 						}
 					}
 				});
@@ -430,13 +438,15 @@ public class LauncherListener extends XposedModPack {
 //		}
 	}
 
-	private void moveToDefaultScreen(Object object, int toPage) {
-		if (!(boolean) callMethod(object, "workspaceInModalState")) {
-			callMethod(object, "snapToPage", toPage);
-		}
-		View view = (View) callMethod(object, "getChildAt", toPage);
-		if (view != null) {
-			view.requestFocus();
+	private void moveToDefaultScreen(int toPage) {
+		if (launcherWorkspaceObject != null) {
+			if (!(boolean) callMethod(launcherWorkspaceObject, "workspaceInModalState")) {
+				callMethod(launcherWorkspaceObject, "snapToPage", toPage);
+			}
+			View view = (View) callMethod(launcherWorkspaceObject, "getChildAt", toPage);
+			if (view != null) {
+				view.requestFocus();
+			}
 		}
 	}
 }
