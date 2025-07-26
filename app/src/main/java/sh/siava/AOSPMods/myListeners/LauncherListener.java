@@ -91,6 +91,15 @@ public class LauncherListener extends XposedModPack {
 					}
 				});
 			}
+			Class<?> QuickstepLauncher = findClassIfExists("com.android.launcher3.uioverrides.QuickstepLauncher", lpparam.classLoader);
+			if (QuickstepLauncher != null) {
+				tryHookAllMethods(QuickstepLauncher, "onStateSetEnd", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						hasVibrated[0] = true;
+					}
+				});
+			}
 		}
 		if (XPrefs.Xprefs.getBoolean("enableLauncherStatusVibration", false)) {
 			final boolean[] canVibrate = {true};
