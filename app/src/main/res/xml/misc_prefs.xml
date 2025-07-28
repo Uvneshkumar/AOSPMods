@@ -271,7 +271,7 @@
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="whiteLockClockAOD"
-			android:title="White Lock Clock AOD (A16)" />
+			android:title="A16 Clock Fixes\n - White Lock Clock AOD\n - Font Similar to A15" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="largeClockTopMargin"

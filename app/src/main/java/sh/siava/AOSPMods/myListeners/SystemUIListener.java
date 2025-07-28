@@ -258,19 +258,20 @@ public class SystemUIListener extends XposedModPack {
 		}
 		if (Xprefs.getBoolean("whiteLockClockAOD", false)) {
 			Class<?> SimpleDigitalClockTextView = findClassIfExists("com.android.systemui.shared.clocks.view.SimpleDigitalClockTextView", lpparam.classLoader);
+			int aodColor = 0xFFFFFFFF;
+//			float aodFontSizePx = 500; // Detect Large and Small and set separately
+			String lsFontVariation = "'wght' 440, 'wdth' 100, 'ROND' 100, 'slnt' 0";
+			String aodFontVariation = "'wght' 120, 'wdth' 100, 'ROND' 100, 'slnt' 0";
 			if (SimpleDigitalClockTextView != null) {
-				tryHookAllConstructors(SimpleDigitalClockTextView, new XC_MethodHook() {
-					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						View view = (View) param.thisObject;
-						setObjectField(view, "aodColor", 0xFFFFFFFF);
-					}
-				});
 				tryHookAllMethods(SimpleDigitalClockTextView, "updateColor", new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						View view = (View) param.thisObject;
-						setObjectField(view, "aodColor", 0xFFFFFFFF);
+						TextView view = (TextView) param.thisObject;
+						setObjectField(view, "aodColor", aodColor);
+//						setObjectField(view, "aodFontSizePx", aodFontSizePx);
+						setObjectField(view, "lsFontVariation", lsFontVariation);
+						setObjectField(view, "aodFontVariation", aodFontVariation);
+//						setObjectField(view, "fidgetFontVariation", lsFontVariation);
 					}
 				});
 			}
