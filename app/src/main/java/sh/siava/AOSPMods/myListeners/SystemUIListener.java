@@ -158,6 +158,20 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("disableLockScreenBounceAmbient", false)) {
+			Class<?> AmbientIndicationContainer = findClassIfExists("com.google.android.systemui.ambientmusic.AmbientIndicationContainer", lpparam.classLoader);
+			if (AmbientIndicationContainer != null) {
+				tryHookAllConstructors(AmbientIndicationContainer, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						view.addOnLayoutChangeListener((view1, i, i1, i2, i3, i4, i5, i6, i7) -> {
+							view1.setVisibility(View.GONE);
+						});
+					}
+				});
+			}
+		}
 		if (Xprefs.getBoolean("disableBluetoothIcon", false)) {
 			Class<?> PhoneStatusBarPolicy = findClassIfExists("com.android.systemui.statusbar.phone.PhoneStatusBarPolicy", lpparam.classLoader);
 			if (PhoneStatusBarPolicy != null) {

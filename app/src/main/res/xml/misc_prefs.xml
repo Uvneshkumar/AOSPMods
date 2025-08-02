@@ -84,6 +84,10 @@
 			android:title="Disable Lock Screen Bounce" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="disableLockScreenBounceAmbient"
+			android:title="Hide AmbientIndicationContainer - Interferes with ST2S on Lock Screen" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="disallowDeepAOD"
 			android:title="Disallow Deep AOD (Tap to Wake)" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
