@@ -271,7 +271,7 @@ public class SystemUIListener extends XposedModPack {
 //						setObjectField(view, "aodFontSizePx", aodFontSizePx);
 						setObjectField(view, "lsFontVariation", lsFontVariation);
 						setObjectField(view, "aodFontVariation", aodFontVariation);
-//						setObjectField(view, "fidgetFontVariation", lsFontVariation);
+						setObjectField(view, "fidgetFontVariation", lsFontVariation);
 					}
 				});
 			}
