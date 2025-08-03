@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.content.pm.PermissionInfo
 import android.content.res.Resources.getSystem
 import android.graphics.Color
 import android.graphics.Paint
@@ -31,6 +32,25 @@ object Helper {
     val bcSmartspaceViewPadding = 17.px
 
     private val appListItems: MutableSet<Pair<String, Drawable>> = mutableSetOf()
+
+    @Suppress("LocalVariableName", "UNCHECKED_CAST")
+    fun getPlatformPermissionsOfGroup(
+        platformPermissionGroups: Any,
+        pm: PackageManager,
+        group: String
+    ): List<PermissionInfo> {
+        val PLATFORM_PERMISSION_GROUPS: MutableMap<String, MutableList<String>> =
+            platformPermissionGroups as MutableMap<String, MutableList<String>>
+        val permInfos = mutableListOf<PermissionInfo>()
+        for (permName in PLATFORM_PERMISSION_GROUPS[group] ?: emptyList()) {
+            try {
+                val permInfo: PermissionInfo = pm.getPermissionInfo(permName, 0)
+                permInfos.add(permInfo)
+            } catch (ignored: PackageManager.NameNotFoundException) {
+            }
+        }
+        return permInfos
+    }
 
     private fun loadAppIcons(context: Context, postAction: () -> Unit) {
         if (appListItems.isEmpty()) {
@@ -194,6 +214,6 @@ object Helper {
     fun debugView(view: View) {
         getAllViews(view)
     }
-    
+
     val Int.px: Int get() = (this * getSystem().displayMetrics.density).toInt()
 }

@@ -8,6 +8,10 @@
 			android:title="Disable All Other Mods" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="oneUiPermCrashFix"
+			android:title="Fix Stupid Crash on One UI Permission Controller" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="killSystemUi"
 			android:title="Long press Power Button to kill System UI" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference

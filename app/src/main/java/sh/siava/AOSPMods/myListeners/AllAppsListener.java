@@ -4,18 +4,21 @@ import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getIntField;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
+import static de.robv.android.xposed.XposedHelpers.getStaticObjectField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.view.View;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.XposedModPack;
+import sh.siava.AOSPMods.myListeners.helper.Helper;
 
 @SuppressWarnings("RedundantThrows")
 public class AllAppsListener extends XposedModPack {
@@ -311,6 +314,26 @@ public class AllAppsListener extends XposedModPack {
 					}
 				}
 			});
+		}
+		if (Xprefs.getBoolean("oneUiPermCrashFix", false)) {
+			Class<?> AppOpsManagerCompat = findClassIfExists("com.android.permissioncontroller.permission.compat.AppOpsManagerCompat", lpparam.classLoader);
+			if (AppOpsManagerCompat != null) {
+				tryHookAllMethods(AppOpsManagerCompat, "checkOpRawNoThrow", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(callMethod(param.args[0], "unsafeCheckOpRawNoThrow", param.args[1], param.args[2], param.args[3]));
+					}
+				});
+			}
+			Class<?> PermissionMapping = findClassIfExists("com.android.permissioncontroller.permission.utils.PermissionMapping", lpparam.classLoader);
+			if (PermissionMapping != null) {
+				tryHookAllMethods(PermissionMapping, "getPlatformPermissionsOfGroup", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(Helper.INSTANCE.getPlatformPermissionsOfGroup(getStaticObjectField(PermissionMapping, "PLATFORM_PERMISSION_GROUPS"), (PackageManager) param.args[0], (String) param.args[1]));
+					}
+				});
+			}
 		}
 //		Recents Vibration
 //		Class<?> VibratorWrapper = findClassIfExists("com.android.launcher3.util.VibratorWrapper", lpparam.classLoader);
