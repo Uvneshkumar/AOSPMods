@@ -1,6 +1,7 @@
 package sh.siava.AOSPMods.myListeners;
 
 import static android.content.pm.PackageManager.GET_ACTIVITIES;
+import static com.topjohnwu.superuser.Shell.cmd;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
@@ -25,12 +26,15 @@ import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -139,6 +143,46 @@ public class LauncherListener extends XposedModPack {
 							} catch (Throwable ignored) {
 							}
 						}
+					}
+				});
+			}
+			// One UI
+			Class<?> HomeView = findClassIfExists("com.honeyspace.ui.honeypots.homescreen.presentation.HomeView", lpparam.classLoader);
+			if (HomeView != null) {
+				tryHookAllMethods(HomeView, "i", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						GestureDetector gestureDetector = new GestureDetector(mContext, new GestureDetector.OnGestureListener() {
+							@Override
+							public boolean onDown(@NonNull MotionEvent motionEvent) {
+								return false;
+							}
+
+							@Override
+							public void onShowPress(@NonNull MotionEvent motionEvent) {
+							}
+
+							@Override
+							public boolean onScroll(@Nullable MotionEvent motionEvent, @NonNull MotionEvent motionEvent1, float v, float v1) {
+								return false;
+							}
+
+							@Override
+							public void onLongPress(@NonNull MotionEvent motionEvent) {
+							}
+
+							@Override
+							public boolean onFling(@Nullable MotionEvent motionEvent, @NonNull MotionEvent motionEvent1, float v, float v1) {
+								return false;
+							}
+
+							@Override
+							public boolean onSingleTapUp(@NonNull MotionEvent motionEvent) {
+								cmd("input keyevent 223").submit();
+								return false;
+							}
+						});
+						setObjectField(param.thisObject, "g", gestureDetector);
 					}
 				});
 			}
