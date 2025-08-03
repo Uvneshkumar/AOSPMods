@@ -476,6 +476,42 @@ public class LauncherListener extends XposedModPack {
 					}
 				});
 			}
+			Class<?> HomeView = findClassIfExists("com.honeyspace.ui.honeypots.homescreen.presentation.HomeView", lpparam.classLoader);
+			if (HomeView != null) {
+				final float[] startY = {-1};
+				final boolean[] isPulled = {false};
+				final boolean[] canBePulled = {false};
+				tryHookAllMethods(HomeView, "onTouchEvent", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						MotionEvent event = (MotionEvent) param.args[0];
+						if (event.getAction() == MotionEvent.ACTION_MOVE) {
+							if (startY[0] == -1) {
+								startY[0] = event.getY();
+								int w = mContext.getResources().getDisplayMetrics().widthPixels;
+								canBePulled[0] = event.getX() >= w * 0.65;
+							} else {
+								float endY = event.getY();
+								float deltaY = endY - startY[0];
+								if (deltaY < 0) {
+									canBePulled[0] = false;
+								}
+								if (deltaY > 0 && !isPulled[0] && canBePulled[0]) {
+									isPulled[0] = true;
+									cmd("cmd statusbar expand-settings").submit();
+								}
+							}
+						} else {
+							if (isPulled[0]) {
+								cmd("cmd statusbar expand-settings").submit();
+							}
+							startY[0] = -1;
+							isPulled[0] = false;
+							canBePulled[0] = false;
+						}
+					}
+				});
+			}
 		}
 		if (XPrefs.Xprefs.getBoolean("launcherSearchUIFix", false)) {
 			Class<?> AppsSearchContainerLayout = findClassIfExists("com.android.launcher3.allapps.search.AppsSearchContainerLayout", lpparam.classLoader);
