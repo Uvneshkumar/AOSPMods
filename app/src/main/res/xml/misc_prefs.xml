@@ -89,7 +89,12 @@
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="disableLockScreenBounce"
-			android:title="Disable Lock Screen Bounce" />
+			android:title="Disable Lock Screen Bounce\nST2S on Lock Screen" />
+		<sh.siava.AOSPMods.ui.MaterialEditTextPreference
+			android:key="disableLockScreenBounceFPLocation"
+			android:title="FP Icon Location to avoid ST2S in that region - X, Y, Diameter"
+			app:defaultValue="540, 1762, 280"
+			app:summary="Ex: 540, 1762, 280" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="disableLockScreenBounceAmbient"

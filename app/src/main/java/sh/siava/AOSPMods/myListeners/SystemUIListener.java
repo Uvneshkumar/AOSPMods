@@ -158,6 +158,38 @@ public class SystemUIListener extends XposedModPack {
 					}
 				});
 			}
+			// One UI
+			Class<?> KeyguardTouchAnimator = findClassIfExists("com.android.systemui.keyguard.animator.KeyguardTouchAnimator", lpparam.classLoader);
+			if (KeyguardTouchAnimator != null) {
+				String disableLockScreenBounceFPLocation = Xprefs.getString("disableLockScreenBounceFPLocation", "540, 1762, 280");
+				String[] split = disableLockScreenBounceFPLocation.split(",");
+				int x = Integer.parseInt(split[0].trim());
+				int y = Integer.parseInt(split[1].trim());
+				int radius = Integer.parseInt(split[2].trim()) / 2;
+				final float[] initialX = {-1};
+				final float[] initialY = {-1};
+				final long[] initialTime = {-1};
+				tryHookAllMethods(KeyguardTouchAnimator, "onTouchEvent", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						MotionEvent event = (MotionEvent) param.args[0];
+						if (event.getAction() == MotionEvent.ACTION_DOWN) {
+							initialX[0] = event.getX();
+							initialY[0] = event.getY();
+							initialTime[0] = System.currentTimeMillis();
+						} else if (event.getAction() == MotionEvent.ACTION_UP) {
+							float currentX = event.getX();
+							float currentY = event.getY();
+							long currentTime = System.currentTimeMillis();
+							if (!(initialX[0] >= (x - radius) && initialX[0] <= (x + radius) && initialY[0] >= (y - radius) && initialY[0] <= (y + radius))) {
+								if (Math.abs(currentX - initialX[0]) < 10 && Math.abs(currentY - initialY[0]) < 10 && Math.abs(currentTime - initialTime[0]) < 100) {
+									SystemUtils.Sleep();
+								}
+							}
+						}
+					}
+				});
+			}
 		}
 		if (Xprefs.getBoolean("disableLockScreenBounceAmbient", false)) {
 			Class<?> AmbientIndicationContainer = findClassIfExists("com.google.android.systemui.ambientmusic.AmbientIndicationContainer", lpparam.classLoader);
