@@ -378,6 +378,20 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("hideAODBatteryIconOneUI", false)) {
+			Class<?> BatteryMeterView = findClassIfExists("com.android.systemui.battery.BatteryMeterView", lpparam.classLoader);
+			if (BatteryMeterView != null) {
+				tryHookAllConstructors(BatteryMeterView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						if (view.getId() == -1) {
+							view.setScaleX(0);
+						}
+					}
+				});
+			}
+		}
 		if (Xprefs.getBoolean("forceSmallClock", false)) {
 			Class<?> KeyguardClockSwitch = findClassIfExists("com.android.keyguard.KeyguardClockSwitch", lpparam.classLoader);
 			if (KeyguardClockSwitch != null) {
