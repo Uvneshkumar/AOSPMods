@@ -122,6 +122,21 @@ public class LauncherListener extends XposedModPack {
 					}
 				});
 			}
+			Class<?> HomeView = findClassIfExists("com.honeyspace.ui.honeypots.homescreen.presentation.HomeView", lpparam.classLoader);
+			if (HomeView != null) {
+				tryHookAllMethods(HomeView, "onTouchEvent", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						if (((MotionEvent) (param.args[0])).getActionMasked() == MotionEvent.ACTION_MOVE && canVibrate[0]) {
+							canVibrate[0] = false;
+							SystemUtils.vibrate(VibrationEffect.EFFECT_CLICK, VibrationAttributes.USAGE_TOUCH);
+						}
+						new Handler(Looper.getMainLooper()).postDelayed(() -> {
+							canVibrate[0] = true;
+						}, 100);
+					}
+				});
+			}
 		}
 		if (XPrefs.Xprefs.getBoolean("enableST2SLock", false)) {
 			Class<?> WorkspaceTouchListener = findClassIfExists("com.android.launcher3.touch.WorkspaceTouchListener", lpparam.classLoader);
