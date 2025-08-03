@@ -12,6 +12,10 @@
 			android:title="Fix Stupid Crash on One UI Permission Controller" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="st2wOneUiAOD"
+			android:title="ST2W on One UI AOD" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="killSystemUi"
 			android:title="Long press Power Button to kill System UI" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference

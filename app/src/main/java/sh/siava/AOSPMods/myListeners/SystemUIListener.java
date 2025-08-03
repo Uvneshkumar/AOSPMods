@@ -18,6 +18,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.service.notification.StatusBarNotification;
@@ -662,6 +663,18 @@ public class SystemUIListener extends XposedModPack {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						setObjectField(param.thisObject, "lockScreenWeightInternal", getObjectField(param.thisObject, "dozingWeightInternal"));
+					}
+				});
+			}
+		}
+		if (Xprefs.getBoolean("st2wOneUiAOD", false)) {
+			Class<?> SecLightRevealScrimHelper = findClassIfExists("com.android.systemui.statusbar.SecLightRevealScrimHelper$start$broadcastReceiver$1", lpparam.classLoader);
+			if (SecLightRevealScrimHelper != null) {
+				tryHookAllMethods(SecLightRevealScrimHelper, "onReceive", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//						Intent paramIntent = (Intent) param.args[1];
+						callMethod(SystemUtils.PowerManager(), "wakeUp", SystemClock.uptimeMillis());
 					}
 				});
 			}
