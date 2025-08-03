@@ -73,7 +73,7 @@ public class SystemUtils {
 	}
 
 	public static void RestartLauncher() {
-		cmd("killall com.android.launcher3; killall com.google.android.apps.nexuslauncher").submit();
+		cmd("killall com.android.launcher3; killall com.google.android.apps.nexuslauncher; killall com.sec.android.app.launcher").submit();
 	}
 
 	public static void Restart() {
