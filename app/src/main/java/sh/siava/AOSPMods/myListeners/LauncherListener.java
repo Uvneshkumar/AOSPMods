@@ -139,6 +139,19 @@ public class LauncherListener extends XposedModPack {
 				});
 			}
 		}
+		if (XPrefs.Xprefs.getBoolean("oneUiLauncherIconsPadding", false)) {
+			Class<?> IconViewImpl = findClassIfExists("com.honeyspace.ui.common.iconview.IconViewImpl", lpparam.classLoader);
+			if (IconViewImpl != null) {
+				int textPadding = 24;
+				tryHookAllMethods(IconViewImpl, "onLayout", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						view.setPadding(textPadding, view.getPaddingTop(), textPadding, view.getPaddingBottom());
+					}
+				});
+			}
+		}
 		if (XPrefs.Xprefs.getBoolean("enableST2SLock", false)) {
 			Class<?> WorkspaceTouchListener = findClassIfExists("com.android.launcher3.touch.WorkspaceTouchListener", lpparam.classLoader);
 			if (WorkspaceTouchListener != null) {
