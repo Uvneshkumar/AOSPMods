@@ -165,12 +165,14 @@ public class LauncherListener extends XposedModPack {
 			// One UI
 			Class<?> HomeView = findClassIfExists("com.honeyspace.ui.honeypots.homescreen.presentation.HomeView", lpparam.classLoader);
 			if (HomeView != null) {
+				final long[] initialTime = {-1};
 				tryHookAllMethods(HomeView, "i", new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						GestureDetector gestureDetector = new GestureDetector(mContext, new GestureDetector.OnGestureListener() {
 							@Override
 							public boolean onDown(@NonNull MotionEvent motionEvent) {
+								initialTime[0] = System.currentTimeMillis();
 								return false;
 							}
 
@@ -194,7 +196,9 @@ public class LauncherListener extends XposedModPack {
 
 							@Override
 							public boolean onSingleTapUp(@NonNull MotionEvent motionEvent) {
-								cmd("input keyevent 223").submit();
+								if (System.currentTimeMillis() - initialTime[0] < 100) {
+									cmd("input keyevent 223").submit();
+								}
 								return false;
 							}
 						});
