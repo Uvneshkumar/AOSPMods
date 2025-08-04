@@ -29,6 +29,7 @@ import android.text.SpannableStringBuilder;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -198,6 +199,24 @@ public class LauncherListener extends XposedModPack {
 							}
 						});
 						setObjectField(param.thisObject, "g", gestureDetector);
+					}
+				});
+			}
+			Class<?> PageIndicatorView = findClassIfExists("com.honeyspace.ui.common.pageindicator.PageIndicatorView", lpparam.classLoader);
+			if (PageIndicatorView != null) {
+				tryHookAllConstructors(PageIndicatorView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						ViewGroup viewGroup = (ViewGroup) param.thisObject;
+						View touchBlock = new View(viewGroup.getContext());
+						touchBlock.setOnTouchListener(new View.OnTouchListener() {
+							@SuppressLint("ClickableViewAccessibility")
+							@Override
+							public boolean onTouch(View view, MotionEvent motionEvent) {
+								return true;
+							}
+						});
+						viewGroup.addView(touchBlock);
 					}
 				});
 			}
