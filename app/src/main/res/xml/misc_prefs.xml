@@ -21,6 +21,10 @@
 			app:summary="0.0 to 100.0" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="hideOneUiLauncherFastScroller"
+			android:title="Hide One UI Launcher Fast Scroller" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="killSystemUi"
 			android:title="Long press Power Button to kill System UI" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference

@@ -171,6 +171,18 @@ public class LauncherListener extends XposedModPack {
 				});
 			}
 		}
+		if (XPrefs.Xprefs.getBoolean("hideOneUiLauncherFastScroller", false)) {
+			Class<?> CustomApplistFastScroller = findClassIfExists("com.honeyspace.ui.honeypots.customapplist.presentation.CustomApplistFastScroller", lpparam.classLoader);
+			if (CustomApplistFastScroller != null) {
+				tryHookAllConstructors(CustomApplistFastScroller, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						view.setTranslationX(500);
+					}
+				});
+			}
+		}
 		if (XPrefs.Xprefs.getBoolean("enableST2SLock", false)) {
 			Class<?> WorkspaceTouchListener = findClassIfExists("com.android.launcher3.touch.WorkspaceTouchListener", lpparam.classLoader);
 			if (WorkspaceTouchListener != null) {
