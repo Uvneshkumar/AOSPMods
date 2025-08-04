@@ -169,6 +169,7 @@ public class SystemUIListener extends XposedModPack {
 				final float[] initialX = {-1};
 				final float[] initialY = {-1};
 				final long[] initialTime = {-1};
+				int tapDiff = 50;
 				tryHookAllMethods(KeyguardTouchAnimator, "onTouchEvent", new XC_MethodHook() {
 					@Override
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -182,7 +183,7 @@ public class SystemUIListener extends XposedModPack {
 							float currentY = event.getY();
 							long currentTime = System.currentTimeMillis();
 							if (!(initialX[0] >= (x - radius) && initialX[0] <= (x + radius) && initialY[0] >= (y - radius) && initialY[0] <= (y + radius))) {
-								if (Math.abs(currentX - initialX[0]) < 10 && Math.abs(currentY - initialY[0]) < 10 && Math.abs(currentTime - initialTime[0]) < 100) {
+								if (Math.abs(currentX - initialX[0]) < tapDiff && Math.abs(currentY - initialY[0]) < tapDiff && Math.abs(currentTime - initialTime[0]) < 100) {
 									SystemUtils.Sleep();
 								}
 							}
