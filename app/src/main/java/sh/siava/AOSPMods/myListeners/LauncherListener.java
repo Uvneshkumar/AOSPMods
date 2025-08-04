@@ -6,6 +6,7 @@ import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
+import static sh.siava.AOSPMods.XPrefs.Xprefs;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
@@ -19,6 +20,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -37,12 +39,14 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import sh.siava.AOSPMods.R;
 import sh.siava.AOSPMods.XPrefs;
 import sh.siava.AOSPMods.XposedModPack;
 import sh.siava.AOSPMods.myListeners.helper.Helper;
@@ -148,6 +152,21 @@ public class LauncherListener extends XposedModPack {
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						View view = (View) param.thisObject;
 						view.setPadding(textPadding, view.getPaddingTop(), textPadding, view.getPaddingBottom());
+					}
+				});
+			}
+		}
+		float oneUiLauncherBgOpacity = Float.parseFloat(Xprefs.getString("oneUiLauncherBgOpacity", "0"));
+		if (oneUiLauncherBgOpacity > 0) {
+			Class<?> CustomApplistContainer = findClassIfExists("com.honeyspace.ui.honeypots.customapplist.presentation.CustomApplistContainer", lpparam.classLoader);
+			if (CustomApplistContainer != null) {
+				tryHookAllConstructors(CustomApplistContainer, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						Drawable drawable = ResourcesCompat.getDrawable(XPrefs.modRes, R.drawable.app_drawer_bg, XPrefs.modRes.newTheme());
+						drawable.setAlpha((int) (255f * (oneUiLauncherBgOpacity / 100f)));
+						view.setBackground(drawable);
 					}
 				});
 			}
