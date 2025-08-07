@@ -820,6 +820,16 @@ public class SystemUIListener extends XposedModPack {
 					}
 				});
 			}
+			Class<?> AuthRippleView = findClassIfExists("com.android.systemui.biometrics.AuthRippleView", lpparam.classLoader);
+			if (AuthRippleView != null) {
+				tryHookAllConstructors(AuthRippleView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						view.setTranslationY(pixelsToShift);
+					}
+				});
+			}
 		}
 		if (Xprefs.getBoolean("hideFpDwellAnimation", false)) {
 			Class<?> DwellRippleShader = findClassIfExists("com.android.systemui.biometrics.DwellRippleShader", lpparam.classLoader);
@@ -828,6 +838,16 @@ public class SystemUIListener extends XposedModPack {
 					@Override
 					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						param.args[0] = 0;
+					}
+				});
+			}
+			Class<?> AuthRippleView = findClassIfExists("com.android.systemui.biometrics.AuthRippleView", lpparam.classLoader);
+			if (AuthRippleView != null) {
+				tryHookAllConstructors(AuthRippleView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						view.setScaleX(0f);
 					}
 				});
 			}
