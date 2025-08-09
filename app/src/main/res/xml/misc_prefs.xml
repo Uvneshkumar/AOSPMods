@@ -15,6 +15,11 @@
 			android:key="st2wOneUiAOD"
 			android:title="ST2W on One UI AOD" />
 		<sh.siava.AOSPMods.ui.MaterialEditTextPreference
+			android:key="oneUiAodBrightness"
+			android:title="One UI AOD Brightness"
+			app:defaultValue="-2"
+			app:summary="-2 = Disable\n-1 = Screen Brightness\n> 0 = Manual Brightness" />
+		<sh.siava.AOSPMods.ui.MaterialEditTextPreference
 			android:key="oneUiLauncherBgOpacity"
 			android:title="One UI Launcher Bg Opacity"
 			app:defaultValue="0"

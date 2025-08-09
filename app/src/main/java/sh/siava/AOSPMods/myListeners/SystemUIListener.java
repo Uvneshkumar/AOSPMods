@@ -277,6 +277,20 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		int oneUiAodBrightness = Integer.parseInt(Xprefs.getString("oneUiAodBrightness", "-2"));
+		if (oneUiAodBrightness > -2) {
+			Class<?> AODMachine = findClassIfExists("com.android.systemui.doze.AODMachine", lpparam.classLoader);
+			if (AODMachine != null) {
+				tryHookAllMethods(AODMachine, "onUpdateDozeBrightness", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						if (param.args.length >= 3) {
+							param.args[2] = oneUiAodBrightness;
+						}
+					}
+				});
+			}
+		}
 		if (Xprefs.getBoolean("delayFirstNotificationIconInAod", false)) {
 			Class<?> NotificationIconContainer = findClassIfExists("com.android.systemui.statusbar.phone.NotificationIconContainer", lpparam.classLoader);
 			if (NotificationIconContainer != null) {
