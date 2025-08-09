@@ -250,6 +250,7 @@ public class SystemUIListener extends XposedModPack {
 					}
 				});
 			}
+			// One UI
 			Class<?> LockscreenNotificationIconsOnlyController = findClassIfExists("com.android.systemui.statusbar.iconsOnly.LockscreenNotificationIconsOnlyController", lpparam.classLoader);
 			if (LockscreenNotificationIconsOnlyController != null) {
 				tryHookAllMethods(LockscreenNotificationIconsOnlyController, "onNotificationInfoUpdated", new XC_MethodHook() {
