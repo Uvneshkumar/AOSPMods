@@ -102,7 +102,8 @@ object Helper {
     fun setNotificationIcon(
         imageView: ImageView,
         statusBarNotification: StatusBarNotification,
-        isFirstTry: Boolean = true
+        isFirstTry: Boolean = true,
+        isFromOneUi: Boolean = false
     ) {
         val iconScaleFactor = 1.2f
         val rootScaleFactor = 1.3f
@@ -111,26 +112,31 @@ object Helper {
                 appListItems.find { it.first == statusBarNotification.packageName }?.second
             if (iconDrawable == null && isFirstTry) {
                 appListItems.clear()
-                setNotificationIcon(imageView, statusBarNotification, false)
+                setNotificationIcon(imageView, statusBarNotification, false, isFromOneUi)
                 return@loadAppIcons
             }
-            val aodIconsCenterMargin: Float =
-                XPrefs.Xprefs.getString("aodIconsCenterMargin", "-2").orEmpty().ifEmpty { "-2" }
-                    .toFloat()
             (imageView.parent as? View)?.apply {
-                scaleX = rootScaleFactor
-                scaleY = rootScaleFactor
-                setPadding(
-                    ((below_clock_padding_start_icons * (iconScaleFactor + rootScaleFactor)) + aodIconsCenterMargin).toInt(),
-                    paddingTop,
-                    paddingRight,
-                    paddingBottom
-                )
+                if (!isFromOneUi) {
+                    val aodIconsCenterMargin: Float =
+                        XPrefs.Xprefs.getString("aodIconsCenterMargin", "-2").orEmpty()
+                            .ifEmpty { "-2" }
+                            .toFloat()
+                    scaleX = rootScaleFactor
+                    scaleY = rootScaleFactor
+                    setPadding(
+                        ((below_clock_padding_start_icons * (iconScaleFactor + rootScaleFactor)) + aodIconsCenterMargin).toInt(),
+                        paddingTop,
+                        paddingRight,
+                        paddingBottom
+                    )
+                }
                 imageView.apply {
                     setImageDrawable(iconDrawable)
-                    viewTreeObserver.addOnDrawListener {
-                        scaleX = iconScaleFactor
-                        scaleY = iconScaleFactor
+                    if (!isFromOneUi) {
+                        viewTreeObserver.addOnDrawListener {
+                            scaleX = iconScaleFactor
+                            scaleY = iconScaleFactor
+                        }
                     }
                 }
             }

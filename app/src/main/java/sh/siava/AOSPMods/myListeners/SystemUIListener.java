@@ -36,6 +36,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -238,13 +239,38 @@ public class SystemUIListener extends XposedModPack {
 						try {
 							if (isOnLockScreen(((ImageView) param.thisObject).getParent().getParent().toString())) {
 								if (isAodIconVisible) {
-									Helper.INSTANCE.setNotificationIcon((ImageView) param.thisObject, (StatusBarNotification) getObjectField(param.thisObject, "mNotification"), true);
+									Helper.INSTANCE.setNotificationIcon((ImageView) param.thisObject, (StatusBarNotification) getObjectField(param.thisObject, "mNotification"), true, false);
 								} else {
 									((ImageView) param.thisObject).setImageDrawable(null);
 								}
 								param.setResult(true);
 							}
 						} catch (Exception ignored) {
+						}
+					}
+				});
+			}
+			Class<?> LockscreenNotificationIconsOnlyController = findClassIfExists("com.android.systemui.statusbar.iconsOnly.LockscreenNotificationIconsOnlyController", lpparam.classLoader);
+			if (LockscreenNotificationIconsOnlyController != null) {
+				tryHookAllMethods(LockscreenNotificationIconsOnlyController, "onNotificationInfoUpdated", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(null);
+						ViewGroup viewGroup = (ViewGroup) callMethod(param.thisObject, "getIconContainer");
+						ArrayList<?> paramArrayList = (ArrayList<?>) param.args[0];
+						if (viewGroup != null && viewGroup.getChildCount() > 0) {
+							ViewGroup notificationIconsOnlyContainer = (ViewGroup) viewGroup.getChildAt(0);
+							notificationIconsOnlyContainer.removeAllViews();
+							if (!paramArrayList.isEmpty()) {
+								notificationIconsOnlyContainer.setScaleX(1.5f);
+								notificationIconsOnlyContainer.setScaleY(1.5f);
+								for (int i = 0; i < paramArrayList.size(); i++) {
+									notificationIconsOnlyContainer.addView(new ImageView(notificationIconsOnlyContainer.getContext()));
+								}
+								for (int i = 0; i < notificationIconsOnlyContainer.getChildCount(); i++) {
+									Helper.INSTANCE.setNotificationIcon((ImageView) notificationIconsOnlyContainer.getChildAt(i), (StatusBarNotification) getObjectField(paramArrayList.get(i), "mSbn"), true, true);
+								}
+							}
 						}
 					}
 				});
@@ -262,7 +288,7 @@ public class SystemUIListener extends XposedModPack {
 								isAodIconVisible = false;
 								new Handler(Looper.getMainLooper()).postDelayed(() -> {
 									isAodIconVisible = true;
-									Helper.INSTANCE.setNotificationIcon((ImageView) param.args[0], (StatusBarNotification) getObjectField(param.args[0], "mNotification"), true);
+									Helper.INSTANCE.setNotificationIcon((ImageView) param.args[0], (StatusBarNotification) getObjectField(param.args[0], "mNotification"), true, false);
 								}, 1000);
 							}
 						}
