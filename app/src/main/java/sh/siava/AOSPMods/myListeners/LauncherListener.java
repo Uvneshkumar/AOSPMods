@@ -158,29 +158,39 @@ public class LauncherListener extends XposedModPack {
 		}
 		float oneUiLauncherBgOpacity = Float.parseFloat(Xprefs.getString("oneUiLauncherBgOpacity", "0"));
 		if (oneUiLauncherBgOpacity > 0) {
+			XC_MethodHook oneUiLauncherBgOpacityHook = new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+					View view = (View) param.thisObject;
+					Drawable drawable = ResourcesCompat.getDrawable(XPrefs.modRes, R.drawable.app_drawer_bg, XPrefs.modRes.newTheme());
+					drawable.setAlpha((int) (255f * (oneUiLauncherBgOpacity / 100f)));
+					view.setBackground(drawable);
+				}
+			};
 			Class<?> CustomApplistContainer = findClassIfExists("com.honeyspace.ui.honeypots.customapplist.presentation.CustomApplistContainer", lpparam.classLoader);
 			if (CustomApplistContainer != null) {
-				tryHookAllConstructors(CustomApplistContainer, new XC_MethodHook() {
-					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						View view = (View) param.thisObject;
-						Drawable drawable = ResourcesCompat.getDrawable(XPrefs.modRes, R.drawable.app_drawer_bg, XPrefs.modRes.newTheme());
-						drawable.setAlpha((int) (255f * (oneUiLauncherBgOpacity / 100f)));
-						view.setBackground(drawable);
-					}
-				});
+				tryHookAllConstructors(CustomApplistContainer, oneUiLauncherBgOpacityHook);
+			}
+			Class<?> VerticalApplistContainer = findClassIfExists("com.honeyspace.ui.honeypots.verticalapplist.presentation.VerticalApplistContainer", lpparam.classLoader);
+			if (VerticalApplistContainer != null) {
+				tryHookAllConstructors(VerticalApplistContainer, oneUiLauncherBgOpacityHook);
 			}
 		}
 		if (XPrefs.Xprefs.getBoolean("hideOneUiLauncherFastScroller", false)) {
+			XC_MethodHook hideOneUiLauncherFastScroller = new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+					View view = (View) param.thisObject;
+					view.setTranslationX(500);
+				}
+			};
 			Class<?> CustomApplistFastScroller = findClassIfExists("com.honeyspace.ui.honeypots.customapplist.presentation.CustomApplistFastScroller", lpparam.classLoader);
 			if (CustomApplistFastScroller != null) {
-				tryHookAllConstructors(CustomApplistFastScroller, new XC_MethodHook() {
-					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						View view = (View) param.thisObject;
-						view.setTranslationX(500);
-					}
-				});
+				tryHookAllConstructors(CustomApplistFastScroller, hideOneUiLauncherFastScroller);
+			}
+			Class<?> VerticalApplistFastScroller = findClassIfExists("com.honeyspace.ui.honeypots.verticalapplist.presentation.VerticalApplistFastScroller", lpparam.classLoader);
+			if (VerticalApplistFastScroller != null) {
+				tryHookAllConstructors(VerticalApplistFastScroller, hideOneUiLauncherFastScroller);
 			}
 		}
 		if (XPrefs.Xprefs.getBoolean("enableST2SLock", false)) {
@@ -246,7 +256,11 @@ public class LauncherListener extends XposedModPack {
 								return false;
 							}
 						});
-						setObjectField(param.thisObject, "g", gestureDetector);
+						try {
+							setObjectField(param.thisObject, "g", gestureDetector);
+						} catch (Exception e) {
+							setObjectField(param.thisObject, "e", gestureDetector);
+						}
 					}
 				});
 			}
@@ -525,6 +539,10 @@ public class LauncherListener extends XposedModPack {
 			Class<?> SystemUiProxyOneUI = findClassIfExists("L1.t", lpparam.classLoader);
 			if (SystemUiProxyOneUI != null) {
 				tryHookAllMethods(SystemUiProxyOneUI, "onStatusBarTouchEvent", onStatusBarTouchEvent);
+			}
+			Class<?> SystemUiProxyOneUI8 = findClassIfExists("X1.t", lpparam.classLoader);
+			if (SystemUiProxyOneUI8 != null) {
+				tryHookAllMethods(SystemUiProxyOneUI8, "onStatusBarTouchEvent", onStatusBarTouchEvent);
 			}
 		}
 		if (XPrefs.Xprefs.getBoolean("launcherSearchUIFix", false)) {
