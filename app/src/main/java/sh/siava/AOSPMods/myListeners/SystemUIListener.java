@@ -444,13 +444,15 @@ public class SystemUIListener extends XposedModPack {
 		if (Xprefs.getBoolean("hideLockScreenStatusBar", false)) {
 			Class<?> KeyguardStatusBarView = findClassIfExists("com.android.systemui.statusbar.phone.KeyguardStatusBarView", lpparam.classLoader);
 			if (KeyguardStatusBarView != null) {
-				tryHookAllMethods(KeyguardStatusBarView, "loadDimens", new XC_MethodHook() {
+				XC_MethodHook hideLockScreenStatusBarCallback = new XC_MethodHook() {
 					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 						View mSystemIconsContainer = (View) getObjectField(param.thisObject, "mSystemIconsContainer");
 						callMethod(mSystemIconsContainer, "setVisibility", View.INVISIBLE);
 					}
-				});
+				};
+				tryHookAllMethods(KeyguardStatusBarView, "loadDimens", hideLockScreenStatusBarCallback);
+				tryHookAllMethods(KeyguardStatusBarView, "onLayout", hideLockScreenStatusBarCallback);
 			}
 		}
 		if (Xprefs.getBoolean("hideAODBatteryIconOneUI", false)) {
