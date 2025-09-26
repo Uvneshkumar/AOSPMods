@@ -593,6 +593,18 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("hideAllUnlockMessage", false)) {
+			Class<?> KeyguardIndicationTextView = findClassIfExists("com.android.systemui.statusbar.phone.KeyguardIndicationTextView", lpparam.classLoader);
+			if (KeyguardIndicationTextView != null) {
+				tryHookAllMethods(KeyguardIndicationTextView, "switchIndication", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						TextView textView = (TextView) param.thisObject;
+						textView.setScaleY(0f);
+					}
+				});
+			}
+		}
 		if (Xprefs.getBoolean("qsTileVibrate", false)) {
 			Class<?> QSTileImplClass = findClassIfExists("com.android.systemui.qs.tileimpl.QSTileImpl", lpparam.classLoader);
 			if (QSTileImplClass != null) {
