@@ -44,6 +44,8 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import java.util.Objects;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.R;
@@ -75,6 +77,7 @@ public class LauncherListener extends XposedModPack {
 
 	private boolean isHomeTriggered = false;
 	private Object launcherWorkspaceObject = null;
+	private Object mLauncherOneUi = null;
 
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -201,10 +204,14 @@ public class LauncherListener extends XposedModPack {
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						MotionEvent event = (MotionEvent) param.args[1];
 						if (event.getAction() == MotionEvent.ACTION_DOWN) {
-							canLock = true;
-							new Handler(Looper.getMainLooper()).postDelayed(() -> {
-								canLock = false;
-							}, 200);
+							Object mLauncher = getObjectField(param.thisObject, "mLauncher");
+							Object mStateManager = getObjectField(mLauncher, "mStateManager");
+							if (Objects.equals(getObjectField(mStateManager, "mCurrentStableState").toString(), "Normal")) {
+								canLock = true;
+								new Handler(Looper.getMainLooper()).postDelayed(() -> {
+									canLock = false;
+								}, 200);
+							}
 						}
 						if ((event.getAction() == MotionEvent.ACTION_UP) && canLock && ((boolean) (param.getResult()))) {
 							canLock = false;
@@ -217,6 +224,15 @@ public class LauncherListener extends XposedModPack {
 				});
 			}
 			// One UI
+			Class<?> Launcher = findClassIfExists("com.sec.android.app.launcher.Launcher", lpparam.classLoader);
+			if (Launcher != null) {
+				tryHookAllConstructors(Launcher, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						mLauncherOneUi = param.thisObject;
+					}
+				});
+			}
 			Class<?> HomeView = findClassIfExists("com.honeyspace.ui.honeypots.homescreen.presentation.HomeView", lpparam.classLoader);
 			if (HomeView != null) {
 				final long[] initialTime = {-1};
@@ -251,7 +267,14 @@ public class LauncherListener extends XposedModPack {
 							@Override
 							public boolean onSingleTapUp(@NonNull MotionEvent motionEvent) {
 								if (System.currentTimeMillis() - initialTime[0] < 100) {
+									Window window = (Window) callMethod(mLauncherOneUi, "getWindow");
+									WindowInsetsControllerCompat windowInsetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+									windowInsetsController.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_TOUCH);
+									windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
 									cmd("input keyevent 223").submit();
+									new Handler(Looper.getMainLooper()).postDelayed(() -> {
+										windowInsetsController.show(WindowInsetsCompat.Type.systemBars());
+									}, 400);
 								}
 								return false;
 							}
