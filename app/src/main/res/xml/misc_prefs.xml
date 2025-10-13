@@ -68,6 +68,10 @@
 			android:defaultValue="false"
 			android:key="fpIconShifting"
 			android:title="FP Icon Shifting" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="fpIconShifting2"
+			android:title="FP Icon Shifting - Extra" />
 		<sh.siava.AOSPMods.ui.MaterialEditTextPreference
 			android:key="fpIconShiftingTranslationY"
 			android:title="FP Icon TranslationY"

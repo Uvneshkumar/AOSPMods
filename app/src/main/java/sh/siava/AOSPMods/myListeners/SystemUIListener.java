@@ -833,30 +833,6 @@ public class SystemUIListener extends XposedModPack {
 		}
 		if (Xprefs.getBoolean("fpIconShifting", false)) {
 			int pixelsToShift = Integer.parseInt(Xprefs.getString("fpIconShiftingTranslationY", "80"));
-			Class<?> BiometricViewBinder = findClassIfExists("com.android.systemui.biometrics.ui.binder.BiometricViewBinder", lpparam.classLoader);
-			if (BiometricViewBinder != null) {
-				tryHookAllMethods(BiometricViewBinder, "bind", new XC_MethodHook() {
-					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						boolean isLandscape = mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-						ViewGroup rootView = (ViewGroup) param.args[0];
-						for (int i = 0; i < rootView.getChildCount(); i++) {
-							String currentView = rootView.getChildAt(i).toString();
-							if (currentView.contains("id/button_bar")) {
-								ViewGroup buttonBar = (ViewGroup) rootView.getChildAt(i);
-								if (!isLandscape) {
-									buttonBar.setTranslationY(-(pixelsToShift));
-								}
-							}
-						}
-						if (isLandscape) {
-							rootView.setTranslationX(pixelsToShift);
-						} else {
-							rootView.setTranslationY(pixelsToShift);
-						}
-					}
-				});
-			}
 			Class<?> DeviceEntryIconView = findClassIfExists("com.android.systemui.keyguard.ui.view.DeviceEntryIconView", lpparam.classLoader);
 			if (DeviceEntryIconView != null) {
 				tryHookAllConstructors(DeviceEntryIconView, new XC_MethodHook() {
@@ -875,15 +851,41 @@ public class SystemUIListener extends XposedModPack {
 					}
 				});
 			}
-			Class<?> AuthRippleView = findClassIfExists("com.android.systemui.biometrics.AuthRippleView", lpparam.classLoader);
-			if (AuthRippleView != null) {
-				tryHookAllConstructors(AuthRippleView, new XC_MethodHook() {
-					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						View view = (View) param.thisObject;
-						view.setTranslationY(pixelsToShift);
-					}
-				});
+			if (Xprefs.getBoolean("fpIconShifting2", false)) {
+				Class<?> BiometricViewBinder = findClassIfExists("com.android.systemui.biometrics.ui.binder.BiometricViewBinder", lpparam.classLoader);
+				if (BiometricViewBinder != null) {
+					tryHookAllMethods(BiometricViewBinder, "bind", new XC_MethodHook() {
+						@Override
+						protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+							boolean isLandscape = mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+							ViewGroup rootView = (ViewGroup) param.args[0];
+							for (int i = 0; i < rootView.getChildCount(); i++) {
+								String currentView = rootView.getChildAt(i).toString();
+								if (currentView.contains("id/button_bar")) {
+									ViewGroup buttonBar = (ViewGroup) rootView.getChildAt(i);
+									if (!isLandscape) {
+										buttonBar.setTranslationY(-(pixelsToShift));
+									}
+								}
+							}
+							if (isLandscape) {
+								rootView.setTranslationX(pixelsToShift);
+							} else {
+								rootView.setTranslationY(pixelsToShift);
+							}
+						}
+					});
+				}
+				Class<?> AuthRippleView = findClassIfExists("com.android.systemui.biometrics.AuthRippleView", lpparam.classLoader);
+				if (AuthRippleView != null) {
+					tryHookAllConstructors(AuthRippleView, new XC_MethodHook() {
+						@Override
+						protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+							View view = (View) param.thisObject;
+							view.setTranslationY(pixelsToShift);
+						}
+					});
+				}
 			}
 		}
 		if (Xprefs.getBoolean("hideFpDwellAnimation", false)) {
