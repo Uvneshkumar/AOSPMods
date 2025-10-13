@@ -6,6 +6,8 @@ import static de.robv.android.xposed.XposedBridge.log;
 import static de.robv.android.xposed.XposedHelpers.findClass;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 
+import android.media.AudioManager;
+import android.os.FileObserver;
 import android.os.FileUtils;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -18,8 +20,10 @@ import androidx.annotation.Nullable;
 
 import com.topjohnwu.superuser.Shell;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -31,6 +35,7 @@ import java.util.zip.ZipFile;
 
 import de.robv.android.xposed.XC_MethodHook;
 import sh.siava.AOSPMods.AOSPMods;
+import sh.siava.AOSPMods.XPrefs;
 
 @SuppressWarnings("CommentedOutCode")
 public class Helpers {
@@ -254,12 +259,55 @@ public class Helpers {
 		}
 	}
 
+	private static FileObserver fileObserver;
+	private static final File tri_state = new File("/proc/tristatekey/tri_state");
+	private static String currentState = null;
+
+	private static void observeAlertSlider() {
+		if (!XPrefs.Xprefs.getBoolean("hookAlertSlider", false)) {
+			return;
+		}
+		if (fileObserver != null) {
+			fileObserver.stopWatching();
+		}
+		fileObserver = new FileObserver(tri_state) {
+			@Override
+			public void onEvent(int i, @Nullable String s) {
+                try {
+					BufferedReader reader = new BufferedReader(new FileReader(tri_state));
+					String state = reader.readLine().trim();
+					if (!state.equals(currentState)) {
+						currentState = state;
+						AudioManager audioManager = SystemUtils.AudioManager();
+						if (audioManager == null) return;
+						int mode;
+						switch (state) {
+							case "1":
+								mode = AudioManager.RINGER_MODE_SILENT;
+								break;
+							case "2":
+								mode = AudioManager.RINGER_MODE_VIBRATE;
+								break;
+							case "3":
+								mode = AudioManager.RINGER_MODE_NORMAL;
+								break;
+							default:
+								return;
+						}
+						audioManager.setRingerMode(mode);
+					}
+                } catch (Exception ignored) {}
+			}
+		};
+		fileObserver.startWatching();
+	}
 
 	public static void tryHookAllMethods(Class<?> clazz, String method, XC_MethodHook hook) {
 		try {
 			hookAllMethods(clazz, method, hook);
 		} catch (Throwable ignored) {
 		}
+		observeAlertSlider();
 	}
 
 	public static void tryHookAllConstructors(Class<?> clazz, XC_MethodHook hook) {
@@ -267,6 +315,7 @@ public class Helpers {
 			hookAllConstructors(clazz, hook);
 		} catch (Throwable ignored) {
 		}
+		observeAlertSlider();
 	}
 
 	public static String removeItemFromCommaString(String string, String key)
