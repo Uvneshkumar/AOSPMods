@@ -322,45 +322,56 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
-		if (Xprefs.getBoolean("whiteLockClock", false)) {
-			Class<?> AnimatableClockView = findClassIfExists("com.android.systemui.shared.clocks.AnimatableClockView", lpparam.classLoader);
-			if (AnimatableClockView != null) {
-				tryHookAllMethods(AnimatableClockView, "animateAppearOnLockscreen", new XC_MethodHook() {
-					@Override
-					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-						setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
-					}
-				});
-				tryHookAllMethods(AnimatableClockView, "animateFoldAppear", new XC_MethodHook() {
-					@Override
-					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-						setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
-					}
-				});
-				tryHookAllMethods(AnimatableClockView, "animateDoze", new XC_MethodHook() {
-					@Override
-					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-						setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
-					}
-				});
+		boolean whiteLockClock = Xprefs.getBoolean("whiteLockClock", false);
+		boolean whiteLockClockAOD = Xprefs.getBoolean("whiteLockClockAOD", false);
+		if (whiteLockClock || whiteLockClockAOD) {
+			if (whiteLockClock) {
+				Class<?> AnimatableClockView = findClassIfExists("com.android.systemui.shared.clocks.AnimatableClockView", lpparam.classLoader);
+				if (AnimatableClockView != null) {
+					tryHookAllMethods(AnimatableClockView, "animateAppearOnLockscreen", new XC_MethodHook() {
+						@Override
+						protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+							setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
+						}
+					});
+					tryHookAllMethods(AnimatableClockView, "animateFoldAppear", new XC_MethodHook() {
+						@Override
+						protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+							setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
+						}
+					});
+					tryHookAllMethods(AnimatableClockView, "animateDoze", new XC_MethodHook() {
+						@Override
+						protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+							setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
+						}
+					});
+				}
 			}
-		}
-		if (Xprefs.getBoolean("whiteLockClockAOD", false)) {
 			Class<?> SimpleDigitalClockTextView = findClassIfExists("com.android.systemui.shared.clocks.view.SimpleDigitalClockTextView", lpparam.classLoader);
-			int aodColor = 0xFFFFFFFF;
-//			float aodFontSizePx = 500; // Detect Large and Small and set separately
-			String lsFontVariation = "'wght' 440, 'wdth' 100, 'ROND' 100, 'slnt' 0";
-			String aodFontVariation = "'wght' 120, 'wdth' 100, 'ROND' 100, 'slnt' 0";
 			if (SimpleDigitalClockTextView != null) {
+				int aodColor = Color.WHITE;
+//				float aodFontSizePx = 500; // Detect Large and Small and set separately
+				String lsFontVariation = "'wght' 440, 'wdth' 100, 'ROND' 100, 'slnt' 0";
+				String aodFontVariation = "'wght' 120, 'wdth' 100, 'ROND' 100, 'slnt' 0";
 				tryHookAllMethods(SimpleDigitalClockTextView, "updateColor", new XC_MethodHook() {
 					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						if (whiteLockClock) {
+							param.args[0] = Color.WHITE;
+						}
+					}
+
+					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						TextView view = (TextView) param.thisObject;
-						setObjectField(view, "aodColor", aodColor);
-//						setObjectField(view, "aodFontSizePx", aodFontSizePx);
-						setObjectField(view, "lsFontVariation", lsFontVariation);
-						setObjectField(view, "aodFontVariation", aodFontVariation);
-						setObjectField(view, "fidgetFontVariation", lsFontVariation);
+						if (whiteLockClockAOD) {
+							TextView view = (TextView) param.thisObject;
+							setObjectField(view, "aodColor", aodColor);
+//							setObjectField(view, "aodFontSizePx", aodFontSizePx);
+							setObjectField(view, "lsFontVariation", lsFontVariation);
+							setObjectField(view, "aodFontVariation", aodFontVariation);
+							setObjectField(view, "fidgetFontVariation", lsFontVariation);
+						}
 					}
 				});
 			}
