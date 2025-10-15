@@ -123,6 +123,10 @@
 			app:summary="Ex: 540, 1762, 280" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="directUnlockOnTouchInFpRegion"
+			android:title="Direct Unlock on ST2W in FP Region" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="disableLockScreenBounceAmbient"
 			android:title="Hide AmbientIndicationContainer - Interferes with ST2S on Lock Screen" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference

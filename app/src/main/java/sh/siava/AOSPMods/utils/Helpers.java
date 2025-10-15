@@ -6,6 +6,7 @@ import static de.robv.android.xposed.XposedBridge.log;
 import static de.robv.android.xposed.XposedHelpers.findClass;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 
+import android.graphics.RectF;
 import android.media.AudioManager;
 import android.os.FileObserver;
 import android.os.FileUtils;
@@ -336,6 +337,22 @@ public class Helpers {
 	public static void myLog(Object text) {
 //		log("- " + text + " -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 		log("Uvnesh: " + text);
+	}
+
+	public static RectF getRectF(String fp) {
+		String[] split = fp.split(",");
+		int x = Integer.parseInt(split[0].trim());
+		int y = Integer.parseInt(split[1].trim());
+		int radius = Integer.parseInt(split[2].trim()) / 2;
+		return new RectF(x - radius, y - radius, x + radius, y + radius);
+	}
+
+	public static String getFpLocation() {
+		return XPrefs.Xprefs.getString("disableLockScreenBounceFPLocation", "540, 1762, 280");
+	}
+
+	public static RectF getFpRect() {
+		return getRectF(getFpLocation());
 	}
 
 }

@@ -8,6 +8,7 @@ import static de.robv.android.xposed.XposedHelpers.setBooleanField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
+import static sh.siava.AOSPMods.utils.Helpers.getFpRect;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
@@ -16,6 +17,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.RectF;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -101,6 +103,9 @@ public class SystemUIListener extends XposedModPack {
 	GestureDetector mDoubleTapToSleep; // event callback for double tap to sleep detection of statusbar only
 	private Object NotificationPanelViewController;
 
+	View touchHandlingView;
+	Object touchHandlingViewListener;
+
 	private void adjustClockMargin(XC_MethodHook.MethodHookParam param) {
 		TextView textView = (TextView) param.thisObject;
 		if (!textView.isSingleLine()) {
@@ -162,11 +167,7 @@ public class SystemUIListener extends XposedModPack {
 			// One UI
 			Class<?> KeyguardTouchAnimator = findClassIfExists("com.android.systemui.keyguard.animator.KeyguardTouchAnimator", lpparam.classLoader);
 			if (KeyguardTouchAnimator != null) {
-				String disableLockScreenBounceFPLocation = Xprefs.getString("disableLockScreenBounceFPLocation", "540, 1762, 280");
-				String[] split = disableLockScreenBounceFPLocation.split(",");
-				int x = Integer.parseInt(split[0].trim());
-				int y = Integer.parseInt(split[1].trim());
-				int radius = Integer.parseInt(split[2].trim()) / 2;
+				RectF fpRect = getFpRect();
 				final float[] initialX = {-1};
 				final float[] initialY = {-1};
 				final long[] initialTime = {-1};
@@ -183,7 +184,7 @@ public class SystemUIListener extends XposedModPack {
 							float currentX = event.getX();
 							float currentY = event.getY();
 							long currentTime = System.currentTimeMillis();
-							if (!(initialX[0] >= (x - radius) && initialX[0] <= (x + radius) && initialY[0] >= (y - radius) && initialY[0] <= (y + radius))) {
+							if (!(fpRect.contains(initialX[0], initialY[0]))) {
 								if (Math.abs(currentX - initialX[0]) < tapDiff && Math.abs(currentY - initialY[0]) < tapDiff && Math.abs(currentTime - initialTime[0]) < 100) {
 									SystemUtils.Sleep();
 								}
@@ -543,9 +544,9 @@ public class SystemUIListener extends XposedModPack {
 								} else {
 									viewName = "touchHandlingView";
 								}
-								View touchHandlingView = (View) getObjectField(param.thisObject, viewName);
-								Object listener = getObjectField(touchHandlingView, "listener");
-								tryHookAllMethods(listener.getClass(), "onLongPressDetected", new XC_MethodHook() {
+								touchHandlingView = (View) getObjectField(param.thisObject, viewName);
+								touchHandlingViewListener = getObjectField(touchHandlingView, "listener");
+								tryHookAllMethods(touchHandlingViewListener.getClass(), "onLongPressDetected", new XC_MethodHook() {
 									@Override
 									protected void beforeHookedMethod(MethodHookParam param1) throws Throwable {
 										if (isTouchHandlingViewLongPressed) {
@@ -557,7 +558,7 @@ public class SystemUIListener extends XposedModPack {
 									}
 								});
 								myIcon.setOnTouchListener((view, motionEvent) -> {
-									callMethod(listener, "onLongPressDetected", touchHandlingView, false);
+									callMethod(touchHandlingViewListener, "onLongPressDetected", touchHandlingView, false);
 									return false;
 								});
 							}, 1000);
@@ -732,6 +733,23 @@ public class SystemUIListener extends XposedModPack {
 			Class<?> DozeScreenState = findClassIfExists("com.android.systemui.doze.DozeScreenState", lpparam.classLoader);
 			if (DozeScreenState != null) {
 				tryHookAllMethods(DozeScreenState, "applyScreenState", noDozeHook);
+			}
+		}
+		if (Xprefs.getBoolean("directUnlockOnTouchInFpRegion", false)) {
+			Class<?> PulsingGestureListener = findClassIfExists("com.android.systemui.shade.PulsingGestureListener", lpparam.classLoader);
+			if (PulsingGestureListener != null) {
+				RectF fpRect = getFpRect();
+				tryHookAllMethods(PulsingGestureListener, "onSingleTapUp", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						if ((boolean) param.getResult()) {
+							MotionEvent event = (MotionEvent) param.args[0];
+							if (fpRect.contains(event.getX(), event.getY())) {
+								callMethod(touchHandlingViewListener, "onLongPressDetected", touchHandlingView, false);
+							}
+						}
+					}
+				});
 			}
 		}
 		if (Xprefs.getBoolean("disallowDeepAOD1", false)) {
