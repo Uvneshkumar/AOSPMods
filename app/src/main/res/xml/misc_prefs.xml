@@ -38,6 +38,10 @@
 			android:title="Oxygen OS Launcher Fixes" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
+			android:key="oxygenOsSystemUiFixes"
+			android:title="Oxygen OS System UI Fixes" />
+		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
+			android:defaultValue="false"
 			android:key="killSystemUi"
 			android:title="Long press Power Button to kill System UI" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference

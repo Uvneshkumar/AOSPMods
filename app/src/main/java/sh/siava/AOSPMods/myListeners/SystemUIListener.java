@@ -1148,6 +1148,47 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+		if (Xprefs.getBoolean("oxygenOsSystemUiFixes", false)) {
+			Class<?> AodRootLayout = findClassIfExists("com.oplus.systemui.aod.aodclock.off.AodRootLayout", lpparam.classLoader);
+			if (AodRootLayout != null) {
+				tryHookAllMethods(AodRootLayout, "onTouchEvent", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						MotionEvent event = (MotionEvent) param.args[0];
+						if (event.getAction() == MotionEvent.ACTION_UP) {
+							callMethod(SystemUtils.PowerManager(), "wakeUp", SystemClock.uptimeMillis());
+						}
+					}
+				});
+			}
+			Class<?> KeyguardFpUnlockHelper = findClassIfExists("com.oplus.systemui.biometrics.finger.KeyguardFpUnlockHelper", lpparam.classLoader);
+			if (KeyguardFpUnlockHelper != null) {
+				tryHookAllMethods(KeyguardFpUnlockHelper, "notifyShowFp", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						callMethod(SystemUtils.PowerManager(), "wakeUp", SystemClock.uptimeMillis());
+					}
+				});
+			}
+			Class<?> OplusKeyguardBottomAreaController = findClassIfExists("com.oplus.systemui.keyguard.OplusKeyguardBottomAreaController", lpparam.classLoader);
+			if (OplusKeyguardBottomAreaController != null) {
+				tryHookAllMethods(OplusKeyguardBottomAreaController, "showKeyguardGlideTipImmediate", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						callMethod(SystemUtils.PowerManager(), "goToSleep", SystemClock.uptimeMillis());
+					}
+				});
+			}
+			Class<?> FingerprintTipsController = findClassIfExists("com.oplus.systemui.keyguard.tips.FingerprintTipsController", lpparam.classLoader);
+			if (FingerprintTipsController != null) {
+				tryHookAllMethods(FingerprintTipsController, "displayKeyguardTips", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(null);
+					}
+				});
+			}
+		}
 
 //		Class<?> BackPanel = findClassIfExists("com.android.systemui.navigationbar.gestural.BackPanel", lpparam.classLoader);
 //        if (BackPanel != null) {
