@@ -32,6 +32,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -579,6 +580,73 @@ public class LauncherListener extends XposedModPack {
 						SpannableStringBuilder mSearchQueryBuilder = (SpannableStringBuilder) getObjectField(param.thisObject, "mSearchQueryBuilder");
 						Selection.removeSelection(mSearchQueryBuilder);
 						editText.setIncludeFontPadding(false);
+					}
+				});
+			}
+		}
+		if (XPrefs.Xprefs.getBoolean("oxygenOsLauncherFixes", false)) {
+			Class<?> OplusFastScrollLayout = findClassIfExists("com.android.launcher3.allapps.OplusFastScrollLayout", lpparam.classLoader);
+			if (OplusFastScrollLayout != null) {
+				tryHookAllConstructors(OplusFastScrollLayout, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						view.setVisibility(View.GONE);
+					}
+				});
+			}
+			Class<?> LauncherAppsSearchContainerLayout = findClassIfExists("com.android.launcher3.allapps.search.LauncherAppsSearchContainerLayout", lpparam.classLoader);
+			if (LauncherAppsSearchContainerLayout != null) {
+				tryHookAllConstructors(LauncherAppsSearchContainerLayout, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						new Handler(Looper.getMainLooper()).postDelayed(() -> {
+							try {
+								ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+								marginLayoutParams.setMarginStart(100);
+								marginLayoutParams.setMarginEnd(100);
+							} catch (Exception ignored) {}
+						}, 1000);
+					}
+				});
+			}
+			Class<?> OplusAllAppsRecyclerView = findClassIfExists("com.android.launcher3.allapps.OplusAllAppsRecyclerView", lpparam.classLoader);
+			if (OplusAllAppsRecyclerView != null) {
+				int horizontalPadding = 128;
+				tryHookAllConstructors(OplusAllAppsRecyclerView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+									marginLayoutParams.topMargin = 230;
+								} catch (Exception ignored) {}
+							}
+						}, 1000);
+						ViewTreeObserver viewTreeObserver = view.getViewTreeObserver();
+						viewTreeObserver.addOnDrawListener(new ViewTreeObserver.OnDrawListener() {
+							@Override
+							public void onDraw() {
+								view.setPadding(horizontalPadding, view.getPaddingTop(), horizontalPadding, view.getPaddingBottom());
+							}
+						});
+						viewTreeObserver.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+							@Override
+							public boolean onPreDraw() {
+								view.setPadding(horizontalPadding, view.getPaddingTop(), horizontalPadding, view.getPaddingBottom());
+								return true;
+							}
+						});
+						view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+							@Override
+							public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+								view.setPadding(horizontalPadding, view.getPaddingTop(), horizontalPadding, view.getPaddingBottom());
+							}
+						});
 					}
 				});
 			}
