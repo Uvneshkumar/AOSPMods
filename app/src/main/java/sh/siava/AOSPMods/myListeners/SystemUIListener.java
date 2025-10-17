@@ -1212,6 +1212,10 @@ public class SystemUIListener extends XposedModPack {
 					}
 				});
 			}
+			// SideGestureNavView
+			// SideGestureViewManager
+			// OplusNavigationHandle
+			// SideGestureDetector
 		}
 
 //		Class<?> BackPanel = findClassIfExists("com.android.systemui.navigationbar.gestural.BackPanel", lpparam.classLoader);
