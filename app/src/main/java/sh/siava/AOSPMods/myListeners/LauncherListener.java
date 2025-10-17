@@ -595,6 +595,47 @@ public class LauncherListener extends XposedModPack {
 					}
 				});
 			}
+			Class<?> OplusBubbleTextView = findClassIfExists("com.android.launcher3.OplusBubbleTextView", lpparam.classLoader);
+			if (OplusBubbleTextView != null) {
+				int textPadding = 24;
+				tryHookAllConstructors(OplusBubbleTextView, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						view.addOnLayoutChangeListener((view1, i, i1, i2, i3, i4, i5, i6, i7) -> {
+							view.setPadding(textPadding, view.getPaddingTop(), textPadding, view.getPaddingBottom());
+						});
+					}
+				});
+			}
+			Class<?> OplusWorkspace = findClassIfExists("com.android.launcher3.OplusWorkspace", lpparam.classLoader);
+			if (OplusWorkspace != null) {
+				int padding = 74;
+				tryHookAllConstructors(OplusWorkspace, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						View view = (View) param.thisObject;
+						view.addOnLayoutChangeListener((view1, i, i1, i2, i3, i4, i5, i6, i7) -> {
+							view.setPadding(padding, view.getPaddingTop(), padding, view.getPaddingBottom());
+						});
+					}
+				});
+			}
+			Class<?> OplusHotseat = findClassIfExists("com.android.launcher3.OplusHotseat", lpparam.classLoader);
+			if (OplusHotseat != null) {
+				tryHookAllMethods(OplusHotseat, "calculateHotseatCellWidth", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(298);
+					}
+				});
+				tryHookAllMethods(OplusHotseat, "getScreenWidth", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(1586);
+					}
+				});
+			}
 			Class<?> LauncherAppsSearchContainerLayout = findClassIfExists("com.android.launcher3.allapps.search.LauncherAppsSearchContainerLayout", lpparam.classLoader);
 			if (LauncherAppsSearchContainerLayout != null) {
 				tryHookAllConstructors(LauncherAppsSearchContainerLayout, new XC_MethodHook() {
