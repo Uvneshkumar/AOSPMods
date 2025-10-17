@@ -1188,6 +1188,30 @@ public class SystemUIListener extends XposedModPack {
 					}
 				});
 			}
+			Class<?> OneHandedBackgroundPanelEx = findClassIfExists("com.oplus.onehanded.OneHandedBackgroundPanelEx", lpparam.classLoader);
+			if (OneHandedBackgroundPanelEx != null) {
+				tryHookAllMethods(OneHandedBackgroundPanelEx, "setCustomBackgroundDrawable", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(null);
+					}
+				});
+			}
+			Class<?> BackgroundWindowManager = findClassIfExists("com.android.wm.shell.onehanded.BackgroundWindowManager", lpparam.classLoader);
+			if (BackgroundWindowManager != null) {
+				tryHookAllMethods(BackgroundWindowManager, "showBackgroundLayer", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(null);
+					}
+				});
+				tryHookAllMethods(BackgroundWindowManager, "removeBackgroundLayer", new XC_MethodHook() {
+					@Override
+					protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						param.setResult(null);
+					}
+				});
+			}
 		}
 
 //		Class<?> BackPanel = findClassIfExists("com.android.systemui.navigationbar.gestural.BackPanel", lpparam.classLoader);
