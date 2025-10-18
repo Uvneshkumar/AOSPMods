@@ -16,6 +16,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.RectF;
 import android.os.Handler;
@@ -736,16 +737,19 @@ public class SystemUIListener extends XposedModPack {
 				tryHookAllMethods(DozeScreenState, "applyScreenState", noDozeHook);
 			}
 		}
-		if (Xprefs.getBoolean("directUnlockOnTouchInFpRegion", false)) {
+		boolean directUnlockOnTouchInFpRegion = Xprefs.getBoolean("directUnlockOnTouchInFpRegion", false);
+		boolean directUnlockOnTouchIn1By3Region = Xprefs.getBoolean("directUnlockOnTouchIn1By3Region", false);
+		if (directUnlockOnTouchInFpRegion || directUnlockOnTouchIn1By3Region) {
 			Class<?> PulsingGestureListener = findClassIfExists("com.android.systemui.shade.PulsingGestureListener", lpparam.classLoader);
 			if (PulsingGestureListener != null) {
 				RectF fpRect = getFpRect();
+				float twoThirdScreenHeight = Resources.getSystem().getDisplayMetrics().heightPixels * 0.67f;
 				tryHookAllMethods(PulsingGestureListener, "onSingleTapUp", new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						if ((boolean) param.getResult()) {
 							MotionEvent event = (MotionEvent) param.args[0];
-							if (fpRect.contains(event.getX(), event.getY())) {
+							if (fpRect.contains(event.getX(), event.getY()) || (directUnlockOnTouchIn1By3Region && event.getY() > twoThirdScreenHeight)) {
 								myIcon.setVisibility(View.INVISIBLE);
 								new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
 									@Override
