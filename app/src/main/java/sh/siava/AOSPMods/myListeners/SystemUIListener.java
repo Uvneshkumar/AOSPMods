@@ -105,6 +105,7 @@ public class SystemUIListener extends XposedModPack {
 
 	View touchHandlingView;
 	Object touchHandlingViewListener;
+	ImageView myIcon;
 
 	private void adjustClockMargin(XC_MethodHook.MethodHookParam param) {
 		TextView textView = (TextView) param.thisObject;
@@ -523,7 +524,7 @@ public class SystemUIListener extends XposedModPack {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						FrameLayout rootView = (FrameLayout) param.thisObject;
-						ImageView myIcon = new ImageView(mContext);
+						myIcon = new ImageView(mContext);
 						myIcon.setImageDrawable(Helper.INSTANCE.createOvalDrawable());
 						int iconPadding = 5;
 						myIcon.setPadding(iconPadding, iconPadding, iconPadding, iconPadding);
@@ -745,7 +746,14 @@ public class SystemUIListener extends XposedModPack {
 						if ((boolean) param.getResult()) {
 							MotionEvent event = (MotionEvent) param.args[0];
 							if (fpRect.contains(event.getX(), event.getY())) {
-								callMethod(touchHandlingViewListener, "onLongPressDetected", touchHandlingView, false);
+								myIcon.setVisibility(View.INVISIBLE);
+								new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+									@Override
+									public void run() {
+										callMethod(touchHandlingViewListener, "onLongPressDetected", touchHandlingView, false);
+										myIcon.setVisibility(View.VISIBLE);
+									}
+								}, 100);
 							}
 						}
 					}
