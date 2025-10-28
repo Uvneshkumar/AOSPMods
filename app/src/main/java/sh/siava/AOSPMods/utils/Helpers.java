@@ -108,6 +108,34 @@ public class Helpers {
 		log("End dump");
 	}
 
+	public static void hookEverything(Class<?> ourClass) {
+		Method[] ms = ourClass.getDeclaredMethods();
+        tryHookAllConstructors(ourClass, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) {
+                myLog("-------------------------");
+                myLog("Constructor");
+                for (Object arg : param.args) {
+                    myLog(arg);
+                }
+				myLog(param.getResult());
+            }
+        });
+        for (Method m: ms) {
+            tryHookAllMethods(ourClass, m.getName(), new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) {
+                    myLog("-------------------------");
+                    myLog(m.getName());
+                    for (Object arg: param.args) {
+                        myLog(arg);
+                    }
+					myLog(param.getResult());
+                }
+            });
+        }
+    }
+
 	public static void getActiveOverlays() {
 		List<String> result = new ArrayList<>();
 		List<String> lines = com.topjohnwu.superuser.Shell.cmd("cmd overlay list --user 0").exec().getOut();
