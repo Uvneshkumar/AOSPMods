@@ -113,24 +113,26 @@ public class Helpers {
 		tryHookAllConstructors(ourClass, new XC_MethodHook() {
 			@Override
 			protected void afterHookedMethod(MethodHookParam param) {
-				myLog("-------------------------");
-				myLog("Constructor");
+				myLog("");
+				myLog("Class: " + ourClass.getName());
+				myLog("Constructor:");
 				for (Object arg : param.args) {
-					myLog(arg);
+					myLog("    arg: " + arg);
 				}
-				myLog(param.getResult());
+				myLog("    result: " + param.getResult());
 			}
 		});
 		for (Method m : ms) {
 			tryHookAllMethods(ourClass, m.getName(), new XC_MethodHook() {
 				@Override
 				protected void afterHookedMethod(MethodHookParam param) {
-					myLog("-------------------------");
-					myLog(m.getName());
+					myLog("");
+					myLog("Class: " + ourClass.getName());
+					myLog("Method: " + m.getName());
 					for (Object arg : param.args) {
-						myLog(arg);
+						myLog("    arg: " + arg);
 					}
-					myLog(param.getResult());
+					myLog("    result: " + param.getResult());
 				}
 			});
 		}
@@ -364,7 +366,8 @@ public class Helpers {
 
 	public static void myLog(Object text) {
 //		log("- " + text + " -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
-		log("Uvnesh: " + text);
+//		log("Uvnesh: " + text);
+		log("" + text);
 	}
 
 	public static RectF getRectF(String fp) {
