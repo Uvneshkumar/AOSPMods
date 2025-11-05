@@ -110,31 +110,31 @@ public class Helpers {
 
 	public static void hookEverything(Class<?> ourClass) {
 		Method[] ms = ourClass.getDeclaredMethods();
-        tryHookAllConstructors(ourClass, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) {
-                myLog("-------------------------");
-                myLog("Constructor");
-                for (Object arg : param.args) {
-                    myLog(arg);
-                }
+		tryHookAllConstructors(ourClass, new XC_MethodHook() {
+			@Override
+			protected void afterHookedMethod(MethodHookParam param) {
+				myLog("-------------------------");
+				myLog("Constructor");
+				for (Object arg : param.args) {
+					myLog(arg);
+				}
 				myLog(param.getResult());
-            }
-        });
-        for (Method m: ms) {
-            tryHookAllMethods(ourClass, m.getName(), new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) {
-                    myLog("-------------------------");
-                    myLog(m.getName());
-                    for (Object arg: param.args) {
-                        myLog(arg);
-                    }
+			}
+		});
+		for (Method m : ms) {
+			tryHookAllMethods(ourClass, m.getName(), new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) {
+					myLog("-------------------------");
+					myLog(m.getName());
+					for (Object arg : param.args) {
+						myLog(arg);
+					}
 					myLog(param.getResult());
-                }
-            });
-        }
-    }
+				}
+			});
+		}
+	}
 
 	public static void getActiveOverlays() {
 		List<String> result = new ArrayList<>();
