@@ -335,6 +335,119 @@ public class AllAppsListener extends XposedModPack {
 				});
 			}
 		}
+
+//		Vibration
+//		Class<?> SystemVibrator = findClassIfExists("android.os.SystemVibrator", lpparam.classLoader);
+//		hookEverything(SystemVibrator);
+//		Class<?> VibrationAttributes = findClassIfExists("android.os.VibrationAttributes", lpparam.classLoader);
+//		hookEverything(VibrationAttributes);
+//
+//		Class<?> VibrationEffectClass = findClassIfExists("android.os.VibrationEffect", lpparam.classLoader);
+//		hookEverything(VibrationEffectClass);
+//		tryHookAllMethods(VibrationEffectClass, "createPredefined", new XC_MethodHook() {
+//			@Override
+//			protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//				myLog("createPredefined");
+//				if (((int) param.args[0]) == VibrationEffect.EFFECT_CLICK) {
+//					param.args[0] = VibrationEffect.EFFECT_TICK;
+//				}
+//			}
+//		});
+//		tryHookAllMethods(VibrationEffectClass, "createWaveform", new XC_MethodHook() {
+//			@Override
+//			protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//				myLog("createWaveform");
+//			}
+//		});
+//		tryHookAllMethods(VibrationEffectClass, "createOneShot", new XC_MethodHook() {
+//			@Override
+//			protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//				myLog("createOneShot");
+//			}
+//		});
+//		tryHookAllMethods(VibrationEffectClass, "createRepeatingEffect", new XC_MethodHook() {
+//			@Override
+//			protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//				myLog("createRepeatingEffect");
+//			}
+//		});
+//
+//		Class<?> Vibrator = findClassIfExists("android.os.Vibrator", lpparam.classLoader);
+//		hookEverything(Vibrator);
+//		tryHookAllMethods(Vibrator, "arePrimitivesSupported", new XC_MethodHook() {
+//			@Override
+//			protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//				before_arePrimitivesSupported(param);
+//			}
+//		});
+//		tryHookAllMethods(Vibrator, "areAllPrimitivesSupported", new XC_MethodHook() {
+//			@Override
+//			protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//				param.setResult(true);
+//			}
+//		});
+//		tryHookAllMethods(Vibrator, "getPrimitiveDurations", new XC_MethodHook() {
+//			@Override
+//			protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//				before_getPrimitiveDurations(param);
+//			}
+//		});
+//
+//		Class<?> VibratorManager = findClassIfExists("android.os.VibratorManager", lpparam.classLoader);
+//		hookEverything(VibratorManager);
+//		Class<?> SystemVibratorManager = findClassIfExists("android.os.SystemVibratorManager", lpparam.classLoader);
+//		hookEverything(SystemVibratorManager);
+//
+//		Class<?> VibrationEffect$Composition = findClassIfExists("android.os.VibrationEffect$Composition", lpparam.classLoader);
+//		tryHookAllMethods(VibrationEffect$Composition, "compose", new XC_MethodHook() {
+//			@Override
+//			protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//				// noinspection unchecked
+//				ArrayList<Object> mSegments = (ArrayList<Object>) getObjectField(param.thisObject, "mSegments");
+//				myLog(mSegments.size());
+//				double CLICK_AMPLITUDE = 1.0;
+//				double TICK_AMPLITUDE = 1.0;
+//				double LOW_TICK_AMPLITUDE = 1.0;
+//				Pattern pattern = Pattern.compile("Primitive\\{primitive=([A-Z_]+), scale=([\\d.]+), delay=(\\d+), delayType=([A-Z_]+)\\}");
+//				long[] timings = new long[mSegments.size() * 2];
+//				int[] amplitudes = new int[mSegments.size() * 2];
+//				int currentIndex = 0;
+//				for (int i=0; i< mSegments.size(); i++) {
+//					Object mSegment = mSegments.get(i);
+//					myLog(mSegment);
+//					Matcher matcher = pattern.matcher(mSegment.toString().trim());
+//					if (matcher.matches()) {
+//						String primitive = matcher.group(1);
+//						float scale = Float.parseFloat(matcher.group(2));
+//						int delay = Integer.parseInt(matcher.group(3));
+//						timings[currentIndex] = delay;
+//						amplitudes[currentIndex] = 0;
+//						currentIndex++;
+//						if (Objects.equals(primitive, "CLICK")) {
+//							timings[currentIndex] = 20;
+//							amplitudes[currentIndex] = (int) (255 * CLICK_AMPLITUDE * scale);
+//						}
+//						else if (Objects.equals(primitive, "TICK")) {
+//							timings[currentIndex] = 30;
+//							amplitudes[currentIndex] = (int) (255 * TICK_AMPLITUDE * scale);
+//						}
+//						else if (Objects.equals(primitive, "LOW_TICK")) {
+//							timings[currentIndex] = 10;
+//							amplitudes[currentIndex] = (int) (255 * LOW_TICK_AMPLITUDE * scale);
+//						}
+//						currentIndex++;
+//					}
+//				}
+//				if (currentIndex != 0) {
+//					VibrationEffect vibrationEffect = VibrationEffect.createWaveform(timings, amplitudes, -1);
+//					param.setResult(vibrationEffect);
+//				}
+//			}
+//		});
+//
+//		Class<?> VibratorInfo = findClassIfExists("android.os.VibratorInfo", lpparam.classLoader);
+//		hookEverything(VibratorInfo);
+
 //		Recents Vibration
 //		Class<?> VibratorWrapper = findClassIfExists("com.android.launcher3.util.VibratorWrapper", lpparam.classLoader);
 //		if (VibratorWrapper != null) {
@@ -350,4 +463,22 @@ public class AllAppsListener extends XposedModPack {
 //			});
 //		}
 	}
+
+//	public void before_arePrimitivesSupported(XC_MethodHook.MethodHookParam param) {
+//		int[] primitiveIds = (int[]) param.args[0];
+//		boolean[] supported = new boolean[primitiveIds.length];
+//		for (int i = 0; i < primitiveIds.length; i++) {
+//			supported[i] = true;
+//		}
+//		param.setResult(supported);
+//	}
+//
+//	public void before_getPrimitiveDurations(XC_MethodHook.MethodHookParam param) {
+//		int[] primitiveIds = (int[]) param.args[0];
+//		int[] durations = new int[primitiveIds.length];
+//		for (int i = 0; i < primitiveIds.length; i++) {
+//			durations[i] = 1000;
+//		}
+//		param.setResult(durations);
+//	}
 }
