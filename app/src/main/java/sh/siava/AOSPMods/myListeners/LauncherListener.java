@@ -539,13 +539,15 @@ public class LauncherListener extends XposedModPack {
 				});
 			}
 		}
-		if (XPrefs.Xprefs.getBoolean("enable_taskbar_on_phones", false)) {
+		boolean enable_taskbar_on_phones = XPrefs.Xprefs.getBoolean("enable_taskbar_on_phones", false);
+		boolean isBatterySaverOnScreenOff = XPrefs.Xprefs.getBoolean("isBatterySaverOnScreenOff", false);
+		if (enable_taskbar_on_phones || isBatterySaverOnScreenOff) {
 			Class<?> StashedHandleView = findClassIfExists("com.android.launcher3.taskbar.StashedHandleView", lpparam.classLoader);
 			if (StashedHandleView != null) {
 				tryHookAllConstructors(StashedHandleView, new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						ScreenReceiver screenReceiver = new ScreenReceiver((View) param.thisObject);
+						ScreenReceiver screenReceiver = new ScreenReceiver((View) param.thisObject, enable_taskbar_on_phones, isBatterySaverOnScreenOff);
 						IntentFilter filter = new IntentFilter();
 						filter.addAction(Intent.ACTION_SCREEN_ON);
 						filter.addAction(Intent.ACTION_SCREEN_OFF);
