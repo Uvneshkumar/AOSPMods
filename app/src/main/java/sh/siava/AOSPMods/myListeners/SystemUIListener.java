@@ -108,6 +108,12 @@ public class SystemUIListener extends XposedModPack {
 	Object touchHandlingViewListener;
 	ImageView myIcon;
 
+	int colorRed = Color.parseColor("#ffea4234");
+	int colorYellow = Color.parseColor("#fffbbc06");
+	int colorBlue = Color.parseColor("#ff4185f4");
+	int colorGreen = Color.parseColor("#ff3aa853");
+	int currentAssistantColourCount = 0;
+
 	private void adjustClockMargin(XC_MethodHook.MethodHookParam param) {
 		TextView textView = (TextView) param.thisObject;
 		if (!textView.isSingleLine()) {
@@ -1231,6 +1237,31 @@ public class SystemUIListener extends XposedModPack {
 			// SideGestureViewManager
 			// OplusNavigationHandle
 			// SideGestureDetector
+		}
+		if (Xprefs.getBoolean("assistantAnimationColors", false)) {
+			Class<?> EdgeLight = findClassIfExists("com.android.systemui.assist.ui.EdgeLight", lpparam.classLoader);
+			if (EdgeLight != null) {
+				tryHookAllMethods(EdgeLight, "setEndpoints", new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						if (currentAssistantColourCount < 4) {
+							if (currentAssistantColourCount == 0) {
+								setObjectField(param.thisObject, "mColor", colorBlue);
+							}
+							else if (currentAssistantColourCount == 1) {
+								setObjectField(param.thisObject, "mColor", colorRed);
+							}
+							else if (currentAssistantColourCount == 2) {
+								setObjectField(param.thisObject, "mColor", colorYellow);
+							}
+							else {
+								setObjectField(param.thisObject, "mColor", colorGreen);
+							}
+							currentAssistantColourCount++;
+						}
+					}
+				});
+			}
 		}
 
 //		Class<?> BackPanel = findClassIfExists("com.android.systemui.navigationbar.gestural.BackPanel", lpparam.classLoader);
