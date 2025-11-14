@@ -1247,14 +1247,11 @@ public class SystemUIListener extends XposedModPack {
 						if (currentAssistantColourCount < 4) {
 							if (currentAssistantColourCount == 0) {
 								setObjectField(param.thisObject, "mColor", colorBlue);
-							}
-							else if (currentAssistantColourCount == 1) {
+							} else if (currentAssistantColourCount == 1) {
 								setObjectField(param.thisObject, "mColor", colorRed);
-							}
-							else if (currentAssistantColourCount == 2) {
+							} else if (currentAssistantColourCount == 2) {
 								setObjectField(param.thisObject, "mColor", colorYellow);
-							}
-							else {
+							} else {
 								setObjectField(param.thisObject, "mColor", colorGreen);
 							}
 							currentAssistantColourCount++;
