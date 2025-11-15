@@ -80,6 +80,8 @@ public class LauncherListener extends XposedModPack {
 	private Object launcherWorkspaceObject = null;
 	private Object mLauncherOneUi = null;
 
+    private boolean isScreenReceiverRegistered = false;
+
 	@Override
 	public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
 		int statusBarHeight = 0;
@@ -541,21 +543,24 @@ public class LauncherListener extends XposedModPack {
 		}
 		boolean enable_taskbar_on_phones = XPrefs.Xprefs.getBoolean("enable_taskbar_on_phones", false);
 		boolean isBatterySaverOnScreenOff = XPrefs.Xprefs.getBoolean("isBatterySaverOnScreenOff", false);
-		if (enable_taskbar_on_phones || isBatterySaverOnScreenOff) {
-			Class<?> StashedHandleView = findClassIfExists("com.android.launcher3.taskbar.StashedHandleView", lpparam.classLoader);
-			if (StashedHandleView != null) {
-				tryHookAllConstructors(StashedHandleView, new XC_MethodHook() {
-					@Override
-					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-						ScreenReceiver screenReceiver = new ScreenReceiver((View) param.thisObject, enable_taskbar_on_phones, isBatterySaverOnScreenOff);
-						IntentFilter filter = new IntentFilter();
-						filter.addAction(Intent.ACTION_SCREEN_ON);
-						filter.addAction(Intent.ACTION_SCREEN_OFF);
-						mContext.getApplicationContext().registerReceiver(screenReceiver, filter);
-					}
-				});
-			}
-		}
+        if (enable_taskbar_on_phones || isBatterySaverOnScreenOff) {
+            Class<?> StashedHandleView = findClassIfExists("com.android.launcher3.taskbar.StashedHandleView", lpparam.classLoader);
+            if (StashedHandleView != null) {
+                tryHookAllConstructors(StashedHandleView, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!isScreenReceiverRegistered) {
+                            ScreenReceiver screenReceiver = new ScreenReceiver((View) param.thisObject, enable_taskbar_on_phones, isBatterySaverOnScreenOff);
+                            IntentFilter filter = new IntentFilter();
+                            filter.addAction(Intent.ACTION_SCREEN_ON);
+                            filter.addAction(Intent.ACTION_SCREEN_OFF);
+                            mContext.getApplicationContext().registerReceiver(screenReceiver, filter);
+                            isScreenReceiverRegistered = true;
+                        }
+                    }
+                });
+            }
+        }
 		if (XPrefs.Xprefs.getBoolean("enableLauncherQQS", false)) {
 			XC_MethodHook onStatusBarTouchEvent = getOnStatusBarTouchEventHook();
 			Class<?> SystemUiProxy = findClassIfExists("com.android.quickstep.SystemUiProxy", lpparam.classLoader);
