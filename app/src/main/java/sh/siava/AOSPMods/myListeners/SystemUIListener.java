@@ -28,6 +28,7 @@ import android.service.notification.StatusBarNotification;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.topjohnwu.superuser.Shell;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -113,6 +116,8 @@ public class SystemUIListener extends XposedModPack {
 	int colorBlue = Color.parseColor("#ff4185f4");
 	int colorGreen = Color.parseColor("#ff3aa853");
 	int currentAssistantColourCount = 0;
+
+    View mClearAllButton;
 
 	private void adjustClockMargin(XC_MethodHook.MethodHookParam param) {
 		TextView textView = (TextView) param.thisObject;
@@ -1260,6 +1265,55 @@ public class SystemUIListener extends XposedModPack {
 				});
 			}
 		}
+        if (Xprefs.getBoolean("fingerprintNotificationGestures", false)) {
+            Class<?> FooterView = findClassIfExists("com.android.systemui.statusbar.notification.footer.ui.view.FooterView", lpparam.classLoader);
+            if (FooterView != null) {
+                tryHookAllMethods(FooterView, "onFinishInflate", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        mClearAllButton = (View) getObjectField(param.thisObject, "mClearAllButton");
+                    }
+                });
+            }
+            Class<?> CentralSurfacesCommandQueueCallbacks = findClassIfExists("com.android.systemui.statusbar.phone.CentralSurfacesCommandQueueCallbacks", lpparam.classLoader);
+            if (CentralSurfacesCommandQueueCallbacks != null) {
+                tryHookAllMethods(CentralSurfacesCommandQueueCallbacks, "handleSystemKey", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        KeyEvent keyEvent = (KeyEvent) param.args[0];
+                        Object mPanelExpansionInteractor = getObjectField(param.thisObject, "mPanelExpansionInteractor");
+                        boolean isFullyCollapsed = (boolean) callMethod(mPanelExpansionInteractor, "isFullyCollapsed");
+                        Object mQsController = getObjectField(param.thisObject, "mQsController");
+                        boolean getExpanded = (boolean) callMethod(mQsController, "getExpanded");
+                        try {
+                            if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_SYSTEM_NAVIGATION_UP) {
+                                if (!isFullyCollapsed) {
+                                    Shell.cmd("cmd statusbar collapse").exec();
+                                }
+                            } else if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_SYSTEM_NAVIGATION_DOWN) {
+                                if (isFullyCollapsed) {
+                                    Shell.cmd("cmd statusbar expand-notifications").exec();
+                                } else if (!getExpanded) {
+                                    Shell.cmd("input swipe 250 400 250 800 30").submit();
+                                }
+                            } else {
+                                if (mClearAllButton != null) {
+                                    if (!isFullyCollapsed && !getExpanded) {
+                                        if (mClearAllButton.hasOnClickListeners() && mClearAllButton.getVisibility() == View.VISIBLE) {
+                                            mClearAllButton.performClick();
+                                        } else {
+                                            Shell.cmd("cmd statusbar collapse").exec();
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (Throwable ignored) {
+                        }
+                        param.setResult(null);
+                    }
+                });
+            }
+        }
 
 //		Class<?> BackPanel = findClassIfExists("com.android.systemui.navigationbar.gestural.BackPanel", lpparam.classLoader);
 //        if (BackPanel != null) {
