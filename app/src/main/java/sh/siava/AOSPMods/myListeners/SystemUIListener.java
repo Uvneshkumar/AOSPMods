@@ -1052,10 +1052,11 @@ public class SystemUIListener extends XposedModPack {
 		if (Xprefs.getBoolean("keyguardSliceViewCustomA16", false)) {
 			Class<?> KeyguardSliceView = findClassIfExists("com.android.keyguard.KeyguardSliceView", lpparam.classLoader);
 			if (KeyguardSliceView != null) {
-				tryHookAllConstructors(KeyguardSliceView, new XC_MethodHook() {
+				tryHookAllMethods(KeyguardSliceView, "onFinishInflate", new XC_MethodHook() {
 					@Override
 					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 						ViewGroup viewGroup = (ViewGroup) param.thisObject;
+                        viewGroup.removeAllViews();
 						viewGroup.addView(new CustomDateAlarmLayout(mContext));
 					}
 				});
