@@ -35,9 +35,7 @@ object Helper {
 
     @Suppress("LocalVariableName", "UNCHECKED_CAST")
     fun getPlatformPermissionsOfGroup(
-        platformPermissionGroups: Any,
-        pm: PackageManager,
-        group: String
+        platformPermissionGroups: Any, pm: PackageManager, group: String
     ): List<PermissionInfo> {
         val PLATFORM_PERMISSION_GROUPS: MutableMap<String, MutableList<String>> =
             platformPermissionGroups as MutableMap<String, MutableList<String>>
@@ -119,8 +117,7 @@ object Helper {
                 if (!isFromOneUi) {
                     val aodIconsCenterMargin: Float =
                         XPrefs.Xprefs.getString("aodIconsCenterMargin", "-2").orEmpty()
-                            .ifEmpty { "-2" }
-                            .toFloat()
+                            .ifEmpty { "-2" }.toFloat()
                     scaleX = rootScaleFactor
                     scaleY = rootScaleFactor
                     setPadding(

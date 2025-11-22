@@ -40,350 +40,344 @@ import sh.siava.AOSPMods.XPrefs;
 
 @SuppressWarnings("CommentedOutCode")
 public class Helpers {
-	private static final int KB = 1024;
-	private static final int MB = 1024 * KB;
-	private static final int GB = 1024 * MB;
+    private static final int KB = 1024;
+    private static final int MB = 1024 * KB;
+    private static final int GB = 1024 * MB;
 
-	public static List<String> activeOverlays = null;
+    public static List<String> activeOverlays = null;
 
-	@NonNull
-	public static Class<?> findAndDumpClass(String className, ClassLoader classLoader)
-	{
-		dumpClass(className, classLoader);
-		return findClass(className, classLoader);
-	}
+    @NonNull
+    public static Class<?> findAndDumpClass(String className, ClassLoader classLoader) {
+        dumpClass(className, classLoader);
+        return findClass(className, classLoader);
+    }
 
-	public static Class<?> findAndDumpClassIfExists(String className, ClassLoader classLoader)
-	{
-		dumpClass(className, classLoader);
-		return findClassIfExists(className, classLoader);
-	}
-	
-	@SuppressWarnings("unused")
-	public static void dumpClass(String className, ClassLoader classLoader)
-	{
-		Class<?> ourClass = findClassIfExists(className, classLoader);
-		if (ourClass == null) {
-			log("Class: " + className + " not found");
-			return;
-		}
-		dumpClass(ourClass);
-	}
+    public static Class<?> findAndDumpClassIfExists(String className, ClassLoader classLoader) {
+        dumpClass(className, classLoader);
+        return findClassIfExists(className, classLoader);
+    }
 
-	public static void dumpClass(Class<?> ourClass) {
-		Method[] ms = ourClass.getDeclaredMethods();
-		log("Class: " + ourClass.getName());
-		log("extends: " + ourClass.getSuperclass().getName());
-		log("Subclasses:");
-		Class<?>[] scs = ourClass.getClasses();
-		for(Class <?> c : scs)
-		{
-			log(c.getName());
-		}
-		log("Methods:");
+    @SuppressWarnings("unused")
+    public static void dumpClass(String className, ClassLoader classLoader) {
+        Class<?> ourClass = findClassIfExists(className, classLoader);
+        if (ourClass == null) {
+            log("Class: " + className + " not found");
+            return;
+        }
+        dumpClass(ourClass);
+    }
 
-		Constructor<?>[] cons = ourClass.getDeclaredConstructors();
-		for (Constructor<?> m : cons) {
-			log(m.getName() + " - " + " - " + m.getParameterCount());
-			Class<?>[] cs = m.getParameterTypes();
-			for (Class<?> c : cs) {
-				log("\t\t" + c.getTypeName());
-			}
-		}
+    public static void dumpClass(Class<?> ourClass) {
+        Method[] ms = ourClass.getDeclaredMethods();
+        log("Class: " + ourClass.getName());
+        log("extends: " + ourClass.getSuperclass().getName());
+        log("Subclasses:");
+        Class<?>[] scs = ourClass.getClasses();
+        for (Class<?> c : scs) {
+            log(c.getName());
+        }
+        log("Methods:");
+
+        Constructor<?>[] cons = ourClass.getDeclaredConstructors();
+        for (Constructor<?> m : cons) {
+            log(m.getName() + " - " + " - " + m.getParameterCount());
+            Class<?>[] cs = m.getParameterTypes();
+            for (Class<?> c : cs) {
+                log("\t\t" + c.getTypeName());
+            }
+        }
 
 
-		for (Method m : ms) {
-			log(m.getName() + " - " + m.getReturnType() + " - " + m.getParameterCount());
-			Class<?>[] cs = m.getParameterTypes();
-			for (Class<?> c : cs) {
-				log("\t\t" + c.getTypeName());
-			}
-		}
-		log("Fields:");
+        for (Method m : ms) {
+            log(m.getName() + " - " + m.getReturnType() + " - " + m.getParameterCount());
+            Class<?>[] cs = m.getParameterTypes();
+            for (Class<?> c : cs) {
+                log("\t\t" + c.getTypeName());
+            }
+        }
+        log("Fields:");
 
-		Field[] fs = ourClass.getDeclaredFields();
-		for (Field f : fs) {
-			log("\t\t" + f.getName() + "-" + f.getType().getName());
-		}
-		log("End dump");
-	}
+        Field[] fs = ourClass.getDeclaredFields();
+        for (Field f : fs) {
+            log("\t\t" + f.getName() + "-" + f.getType().getName());
+        }
+        log("End dump");
+    }
 
-	public static void hookEverything(Class<?> ourClass) {
-		Method[] ms = ourClass.getDeclaredMethods();
-		tryHookAllConstructors(ourClass, new XC_MethodHook() {
-			@Override
-			protected void afterHookedMethod(MethodHookParam param) {
-				myLog("");
-				myLog("Class: " + ourClass.getName());
-				myLog("Constructor:");
-				for (Object arg : param.args) {
-					myLog("    arg: " + arg);
-				}
-				myLog("    result: " + param.getResult());
-			}
-		});
-		for (Method m : ms) {
-			tryHookAllMethods(ourClass, m.getName(), new XC_MethodHook() {
-				@Override
-				protected void afterHookedMethod(MethodHookParam param) {
-					myLog("");
-					myLog("Class: " + ourClass.getName());
-					myLog("Method: " + m.getName());
-					for (Object arg : param.args) {
-						myLog("    arg: " + arg);
-					}
-					myLog("    result: " + param.getResult());
-				}
-			});
-		}
-	}
+    public static void hookEverything(Class<?> ourClass) {
+        Method[] ms = ourClass.getDeclaredMethods();
+        tryHookAllConstructors(ourClass, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) {
+                myLog("");
+                myLog("Class: " + ourClass.getName());
+                myLog("Constructor:");
+                for (Object arg : param.args) {
+                    myLog("    arg: " + arg);
+                }
+                myLog("    result: " + param.getResult());
+            }
+        });
+        for (Method m : ms) {
+            tryHookAllMethods(ourClass, m.getName(), new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) {
+                    myLog("");
+                    myLog("Class: " + ourClass.getName());
+                    myLog("Method: " + m.getName());
+                    for (Object arg : param.args) {
+                        myLog("    arg: " + arg);
+                    }
+                    myLog("    result: " + param.getResult());
+                }
+            });
+        }
+    }
 
-	public static void getActiveOverlays() {
-		List<String> result = new ArrayList<>();
-		List<String> lines = com.topjohnwu.superuser.Shell.cmd("cmd overlay list --user 0").exec().getOut();
-		//List<String> lines = Shell.sh("cmd overlay list --user 0").exec().getOut();
-		for (String thisLine : lines) {
-			if (thisLine.startsWith("[x]")) {
-				result.add(thisLine.replace("[x] ", ""));
-			}
-		}
-		activeOverlays = result;
-	}
+    public static void getActiveOverlays() {
+        List<String> result = new ArrayList<>();
+        List<String> lines = com.topjohnwu.superuser.Shell.cmd("cmd overlay list --user 0").exec().getOut();
+        //List<String> lines = Shell.sh("cmd overlay list --user 0").exec().getOut();
+        for (String thisLine : lines) {
+            if (thisLine.startsWith("[x]")) {
+                result.add(thisLine.replace("[x] ", ""));
+            }
+        }
+        activeOverlays = result;
+    }
 
-	public static void setOverlay(String Key, boolean enabled, boolean refresh, boolean force) {
-		if (refresh) getActiveOverlays();
-		setOverlay(Key, enabled, force);
-	}
+    public static void setOverlay(String Key, boolean enabled, boolean refresh, boolean force) {
+        if (refresh) getActiveOverlays();
+        setOverlay(Key, enabled, force);
+    }
 
-	public static void setOverlay(String Key, boolean enabled, boolean force) {
-		if (AOSPMods.isChildProcess) return;
+    public static void setOverlay(String Key, boolean enabled, boolean force) {
+        if (AOSPMods.isChildProcess) return;
 
-		if (activeOverlays == null) getActiveOverlays(); //make sure we have a list in hand
+        if (activeOverlays == null) getActiveOverlays(); //make sure we have a list in hand
 
-		String mode = (enabled) ? "enable" : "disable";
-		String packname;
+        String mode = (enabled) ? "enable" : "disable";
+        String packname;
 //        boolean exclusive = false;
 
-		if (Key.endsWith("Overlay")) {
-			Overlays.overlayProp op = (Overlays.overlayProp) Overlays.Overlays.get(Key);
-			//noinspection ConstantConditions
-			packname = op.name;
+        if (Key.endsWith("Overlay")) {
+            Overlays.overlayProp op = (Overlays.overlayProp) Overlays.Overlays.get(Key);
+            //noinspection ConstantConditions
+            packname = op.name;
 //            exclusive = op.exclusive;
-		} else if (Key.endsWith("OverlayG")) //It's a group of overlays to work together as a team
-		{
-			try {
-				setOverlayGroup(Key, enabled, force);
-			} catch (Exception ignored) {
-			}
-			return;
-		} else {
-			packname = Key;
+        } else if (Key.endsWith("OverlayG")) //It's a group of overlays to work together as a team
+        {
+            try {
+                setOverlayGroup(Key, enabled, force);
+            } catch (Exception ignored) {
+            }
+            return;
+        } else {
+            packname = Key;
 //            exclusive = true;
-		}
+        }
 
 /*        if (enabled && exclusive) {
             mode += "-exclusive"; //since we are checking all overlays, we don't need exclusive anymore.
         }*/
 
-		boolean wasEnabled = (activeOverlays.contains(packname));
+        boolean wasEnabled = (activeOverlays.contains(packname));
 
-		if (enabled == wasEnabled && !force) {
-			return; //nothing to do. We're already set
-		}
+        if (enabled == wasEnabled && !force) {
+            return; //nothing to do. We're already set
+        }
 
-		try {
-			com.topjohnwu.superuser.Shell.cmd("cmd overlay " + mode + " --user 0 " + packname).exec();
-		} catch (Throwable t) {
-			t.printStackTrace();
-		}
-	}
+        try {
+            com.topjohnwu.superuser.Shell.cmd("cmd overlay " + mode + " --user 0 " + packname).exec();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
 
-	private static void setOverlayGroup(String key, boolean enabled, boolean force) {
-		Overlays.overlayGroup thisGroup = (Overlays.overlayGroup) Overlays.Overlays.get(key);
+    private static void setOverlayGroup(String key, boolean enabled, boolean force) {
+        Overlays.overlayGroup thisGroup = (Overlays.overlayGroup) Overlays.Overlays.get(key);
 
-		//noinspection ConstantConditions
-		for (Overlays.overlayProp thisProp : thisGroup.members) {
-			Helpers.setOverlay(thisProp.name, enabled, force);
-		}
-	}
+        //noinspection ConstantConditions
+        for (Overlays.overlayProp thisProp : thisGroup.members) {
+            Helpers.setOverlay(thisProp.name, enabled, force);
+        }
+    }
 
-	public static SpannableStringBuilder getHumanizedBytes(long bytes, float unitSizeFactor, String unitSeparator, String indicatorSymbol, @Nullable @ColorInt Integer textColor) {
-		DecimalFormat decimalFormat;
-		CharSequence formattedData;
-		SpannableString spanSizeString;
-		SpannableString spanUnitString;
-		String unit;
-		if (bytes >= GB) {
-			unit = "GB";
-			decimalFormat = new DecimalFormat("0.00");
-			formattedData = decimalFormat.format(bytes / (float) GB);
-		} else if (bytes >= 100 * MB) {
-			decimalFormat = new DecimalFormat("000");
-			unit = "MB";
-			formattedData = decimalFormat.format(bytes / (float) MB);
-		} else if (bytes >= 10 * MB) {
-			decimalFormat = new DecimalFormat("00.0");
-			unit = "MB";
-			formattedData = decimalFormat.format(bytes / (float) MB);
-		} else if (bytes >= MB) {
-			decimalFormat = new DecimalFormat("0.00");
-			unit = "MB";
-			formattedData = decimalFormat.format(bytes / (float) MB);
-		} else if (bytes >= 100 * KB) {
-			decimalFormat = new DecimalFormat("000");
-			unit = "KB";
-			formattedData = decimalFormat.format(bytes / (float) KB);
-		} else if (bytes >= 10 * KB) {
-			decimalFormat = new DecimalFormat("00.0");
-			unit = "KB";
-			formattedData = decimalFormat.format(bytes / (float) KB);
-		} else {
-			decimalFormat = new DecimalFormat("0.00");
-			unit = "KB";
-			formattedData = decimalFormat.format(bytes / (float) KB);
-		}
-		spanSizeString = new SpannableString(formattedData);
+    public static SpannableStringBuilder getHumanizedBytes(long bytes, float unitSizeFactor, String unitSeparator, String indicatorSymbol, @Nullable @ColorInt Integer textColor) {
+        DecimalFormat decimalFormat;
+        CharSequence formattedData;
+        SpannableString spanSizeString;
+        SpannableString spanUnitString;
+        String unit;
+        if (bytes >= GB) {
+            unit = "GB";
+            decimalFormat = new DecimalFormat("0.00");
+            formattedData = decimalFormat.format(bytes / (float) GB);
+        } else if (bytes >= 100 * MB) {
+            decimalFormat = new DecimalFormat("000");
+            unit = "MB";
+            formattedData = decimalFormat.format(bytes / (float) MB);
+        } else if (bytes >= 10 * MB) {
+            decimalFormat = new DecimalFormat("00.0");
+            unit = "MB";
+            formattedData = decimalFormat.format(bytes / (float) MB);
+        } else if (bytes >= MB) {
+            decimalFormat = new DecimalFormat("0.00");
+            unit = "MB";
+            formattedData = decimalFormat.format(bytes / (float) MB);
+        } else if (bytes >= 100 * KB) {
+            decimalFormat = new DecimalFormat("000");
+            unit = "KB";
+            formattedData = decimalFormat.format(bytes / (float) KB);
+        } else if (bytes >= 10 * KB) {
+            decimalFormat = new DecimalFormat("00.0");
+            unit = "KB";
+            formattedData = decimalFormat.format(bytes / (float) KB);
+        } else {
+            decimalFormat = new DecimalFormat("0.00");
+            unit = "KB";
+            formattedData = decimalFormat.format(bytes / (float) KB);
+        }
+        spanSizeString = new SpannableString(formattedData);
 
-		if (textColor != null) {
-			spanSizeString.setSpan(new NetworkTraffic.trafficStyle(textColor), 0, (formattedData).length(),
-					Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-		}
+        if (textColor != null) {
+            spanSizeString.setSpan(new NetworkTraffic.trafficStyle(textColor), 0, (formattedData).length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
 
-		spanUnitString = new SpannableString(unit + indicatorSymbol);
-		spanUnitString.setSpan(new RelativeSizeSpan(unitSizeFactor), 0, (unit + indicatorSymbol).length(),
-				Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-		return new SpannableStringBuilder().append(spanSizeString).append(unitSeparator).append(spanUnitString);
-	}
+        spanUnitString = new SpannableString(unit + indicatorSymbol);
+        spanUnitString.setSpan(new RelativeSizeSpan(unitSizeFactor), 0, (unit + indicatorSymbol).length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return new SpannableStringBuilder().append(spanSizeString).append(unitSeparator).append(spanUnitString);
+    }
 
-	public static boolean installDoubleZip(String DoubleZipped) //installs the zip magisk module. even if it's zipped inside another zip
-	{
-		try {
-			//copy it to somewhere under our control
-			File tempFile = File.createTempFile("doubleZ", ".zip");
-			Shell.cmd(String.format("cp %s %s", DoubleZipped, tempFile.getAbsolutePath())).exec();
+    public static boolean installDoubleZip(String DoubleZipped) //installs the zip magisk module. even if it's zipped inside another zip
+    {
+        try {
+            //copy it to somewhere under our control
+            File tempFile = File.createTempFile("doubleZ", ".zip");
+            Shell.cmd(String.format("cp %s %s", DoubleZipped, tempFile.getAbsolutePath())).exec();
 
-			//unzip once, IF double zipped
-			ZipFile unzipper = new ZipFile(tempFile);
+            //unzip once, IF double zipped
+            ZipFile unzipper = new ZipFile(tempFile);
 
-			File unzippedFile;
-			if (unzipper.stream().count() == 1) {
-				unzippedFile = File.createTempFile("singleZ", "zip");
-				FileOutputStream unzipOutputStream = new FileOutputStream(unzippedFile);
-				FileUtils.copy(unzipper.getInputStream(unzipper.entries().nextElement()), unzipOutputStream);
-				unzipOutputStream.close();
-			} else {
-				unzippedFile = tempFile;
-			}
+            File unzippedFile;
+            if (unzipper.stream().count() == 1) {
+                unzippedFile = File.createTempFile("singleZ", "zip");
+                FileOutputStream unzipOutputStream = new FileOutputStream(unzippedFile);
+                FileUtils.copy(unzipper.getInputStream(unzipper.entries().nextElement()), unzipOutputStream);
+                unzipOutputStream.close();
+            } else {
+                unzippedFile = tempFile;
+            }
 
-			//install
-			Shell.cmd(String.format("magisk --install-module %s", unzippedFile.getAbsolutePath())).exec();
+            //install
+            Shell.cmd(String.format("magisk --install-module %s", unzippedFile.getAbsolutePath())).exec();
 
-			//cleanup
-			//noinspection ResultOfMethodCallIgnored
-			tempFile.delete();
-			//noinspection ResultOfMethodCallIgnored
-			unzippedFile.delete();
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
+            //cleanup
+            //noinspection ResultOfMethodCallIgnored
+            tempFile.delete();
+            //noinspection ResultOfMethodCallIgnored
+            unzippedFile.delete();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-	private static FileObserver fileObserver;
-	private static final File tri_state = new File("/proc/tristatekey/tri_state");
-	private static String currentState = null;
+    private static FileObserver fileObserver;
+    private static final File tri_state = new File("/proc/tristatekey/tri_state");
+    private static String currentState = null;
 
-	private static void observeAlertSlider() {
-		if (!XPrefs.Xprefs.getBoolean("hookAlertSlider", false)) {
-			return;
-		}
-		if (fileObserver != null) {
-			fileObserver.stopWatching();
-		}
-		fileObserver = new FileObserver(tri_state) {
-			@Override
-			public void onEvent(int i, @Nullable String s) {
+    private static void observeAlertSlider() {
+        if (!XPrefs.Xprefs.getBoolean("hookAlertSlider", false)) {
+            return;
+        }
+        if (fileObserver != null) {
+            fileObserver.stopWatching();
+        }
+        fileObserver = new FileObserver(tri_state) {
+            @Override
+            public void onEvent(int i, @Nullable String s) {
                 try {
-					BufferedReader reader = new BufferedReader(new FileReader(tri_state));
-					String state = reader.readLine().trim();
-					if (!state.equals(currentState)) {
-						currentState = state;
-						AudioManager audioManager = SystemUtils.AudioManager();
-						if (audioManager == null) return;
-						int mode;
-						switch (state) {
-							case "1":
-								mode = AudioManager.RINGER_MODE_SILENT;
-								break;
-							case "2":
-								mode = AudioManager.RINGER_MODE_VIBRATE;
-								break;
-							case "3":
-								mode = AudioManager.RINGER_MODE_NORMAL;
-								break;
-							default:
-								return;
-						}
-						audioManager.setRingerMode(mode);
-					}
-                } catch (Exception ignored) {}
-			}
-		};
-		fileObserver.startWatching();
-	}
+                    BufferedReader reader = new BufferedReader(new FileReader(tri_state));
+                    String state = reader.readLine().trim();
+                    if (!state.equals(currentState)) {
+                        currentState = state;
+                        AudioManager audioManager = SystemUtils.AudioManager();
+                        if (audioManager == null) return;
+                        int mode;
+                        switch (state) {
+                            case "1":
+                                mode = AudioManager.RINGER_MODE_SILENT;
+                                break;
+                            case "2":
+                                mode = AudioManager.RINGER_MODE_VIBRATE;
+                                break;
+                            case "3":
+                                mode = AudioManager.RINGER_MODE_NORMAL;
+                                break;
+                            default:
+                                return;
+                        }
+                        audioManager.setRingerMode(mode);
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        };
+        fileObserver.startWatching();
+    }
 
-	public static void tryHookAllMethods(Class<?> clazz, String method, XC_MethodHook hook) {
-		try {
-			hookAllMethods(clazz, method, hook);
-		} catch (Throwable ignored) {
-		}
-		observeAlertSlider();
-	}
+    public static void tryHookAllMethods(Class<?> clazz, String method, XC_MethodHook hook) {
+        try {
+            hookAllMethods(clazz, method, hook);
+        } catch (Throwable ignored) {
+        }
+        observeAlertSlider();
+    }
 
-	public static void tryHookAllConstructors(Class<?> clazz, XC_MethodHook hook) {
-		try {
-			hookAllConstructors(clazz, hook);
-		} catch (Throwable ignored) {
-		}
-		observeAlertSlider();
-	}
+    public static void tryHookAllConstructors(Class<?> clazz, XC_MethodHook hook) {
+        try {
+            hookAllConstructors(clazz, hook);
+        } catch (Throwable ignored) {
+        }
+        observeAlertSlider();
+    }
 
-	public static String removeItemFromCommaString(String string, String key)
-	{
-		return string.replaceAll(getCommaSearchPattern(key), "$2$3$5");
-	}
+    public static String removeItemFromCommaString(String string, String key) {
+        return string.replaceAll(getCommaSearchPattern(key), "$2$3$5");
+    }
 
-	public static String addItemToCommaStringIfNotPresent(String string, String key)
-	{
-		if(Pattern.matches(getCommaSearchPattern(key), string)) return string;
+    public static String addItemToCommaStringIfNotPresent(String string, String key) {
+        if (Pattern.matches(getCommaSearchPattern(key), string)) return string;
 
-		return String.format("%s%s%s", key, (string.length() > 0) ? "," : "", string);
-	}
-	private static String getCommaSearchPattern(String tile) {
-		return String.format("^(%s,)(.+)|(.+)(,%s)(,.+|$)", tile, tile);
-	}
+        return String.format("%s%s%s", key, (string.length() > 0) ? "," : "", string);
+    }
 
-	public static void myLog(Object text) {
+    private static String getCommaSearchPattern(String tile) {
+        return String.format("^(%s,)(.+)|(.+)(,%s)(,.+|$)", tile, tile);
+    }
+
+    public static void myLog(Object text) {
 //		log("- " + text + " -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 //		log("Uvnesh: " + text);
-		log("" + text);
-	}
+        log("" + text);
+    }
 
-	public static RectF getRectF(String fp) {
-		String[] split = fp.split(",");
-		int x = Integer.parseInt(split[0].trim());
-		int y = Integer.parseInt(split[1].trim());
-		int radius = Integer.parseInt(split[2].trim()) / 2;
-		return new RectF(x - radius, y - radius, x + radius, y + radius);
-	}
+    public static RectF getRectF(String fp) {
+        String[] split = fp.split(",");
+        int x = Integer.parseInt(split[0].trim());
+        int y = Integer.parseInt(split[1].trim());
+        int radius = Integer.parseInt(split[2].trim()) / 2;
+        return new RectF(x - radius, y - radius, x + radius, y + radius);
+    }
 
-	public static String getFpLocation() {
-		return XPrefs.Xprefs.getString("disableLockScreenBounceFPLocation", "540, 1762, 280");
-	}
+    public static String getFpLocation() {
+        return XPrefs.Xprefs.getString("disableLockScreenBounceFPLocation", "540, 1762, 280");
+    }
 
-	public static RectF getFpRect() {
-		return getRectF(getFpLocation());
-	}
+    public static RectF getFpRect() {
+        return getRectF(getFpLocation());
+    }
 
 }

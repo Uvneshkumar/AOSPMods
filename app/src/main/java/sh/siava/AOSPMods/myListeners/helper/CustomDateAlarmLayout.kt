@@ -54,9 +54,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
         alarmIcon = ImageView(context).apply {
             setImageDrawable(
                 ResourcesCompat.getDrawable(
-                    XPrefs.modRes,
-                    R.drawable.ic_alarm,
-                    null
+                    XPrefs.modRes, R.drawable.ic_alarm, null
                 )
             )
         }
@@ -119,6 +117,5 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
         }
     }
 
-    private fun dpToPx(dp: Int): Int =
-        (dp * context.resources.displayMetrics.density).toInt()
+    private fun dpToPx(dp: Int): Int = (dp * context.resources.displayMetrics.density).toInt()
 }
