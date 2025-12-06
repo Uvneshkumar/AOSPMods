@@ -556,6 +556,14 @@ public class LauncherListener extends XposedModPack {
                             filter.addAction(Intent.ACTION_SCREEN_OFF);
                             mContext.getApplicationContext().registerReceiver(screenReceiver, filter);
                             isScreenReceiverRegistered = true;
+                        } else {
+                            if (enable_taskbar_on_phones) {
+                                ScreenReceiver screenReceiver = new ScreenReceiver((View) param.thisObject, true, false);
+                                IntentFilter filter = new IntentFilter();
+                                filter.addAction(Intent.ACTION_SCREEN_ON);
+                                filter.addAction(Intent.ACTION_SCREEN_OFF);
+                                mContext.getApplicationContext().registerReceiver(screenReceiver, filter);
+                            }
                         }
                     }
                 });
