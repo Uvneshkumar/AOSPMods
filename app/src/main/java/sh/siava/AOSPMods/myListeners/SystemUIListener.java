@@ -19,6 +19,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -48,6 +49,8 @@ import java.util.Objects;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.AOSPMods;
+import sh.siava.AOSPMods.R;
+import sh.siava.AOSPMods.XPrefs;
 import sh.siava.AOSPMods.XposedModPack;
 import sh.siava.AOSPMods.myListeners.helper.CustomDateAlarmLayout;
 import sh.siava.AOSPMods.myListeners.helper.Helper;
@@ -1308,6 +1311,31 @@ public class SystemUIListener extends XposedModPack {
                         } catch (Throwable ignored) {
                         }
                         param.setResult(null);
+                    }
+                });
+            }
+        }
+        if (Xprefs.getBoolean("boldClockAndDateInStatusBar", false)) {
+            Class<?> Clock = findClassIfExists("com.android.systemui.statusbar.policy.Clock", lpparam.classLoader);
+            if (Clock != null) {
+                tryHookAllMethods(Clock, "updateClock$1", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        TextView clockView = (TextView) param.thisObject;
+                        clockView.setTypeface(XPrefs.modRes.getFont(R.font.google_sans_clock), Typeface.BOLD);
+                    }
+                });
+            }
+            Class<?> VariableDateView = findClassIfExists("com.android.systemui.statusbar.policy.VariableDateView", lpparam.classLoader);
+            if (VariableDateView != null) {
+                tryHookAllConstructors(VariableDateView, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        TextView dateView = (TextView) param.thisObject;
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            dateView.setTypeface(XPrefs.modRes.getFont(R.font.google_sans_flex));
+                            dateView.setFontVariationSettings("'wght' 600, 'ROND' 100");
+                        }, 1000);
                     }
                 });
             }

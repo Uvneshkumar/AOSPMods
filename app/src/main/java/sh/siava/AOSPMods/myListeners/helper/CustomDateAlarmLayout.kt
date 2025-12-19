@@ -7,7 +7,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
 import android.view.Gravity
-import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -34,7 +33,9 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
 
     private var lastShownDate = ""
     private var lastShownAlarmTime = ""
-    private var lastShownAlarmVisibility = View.GONE
+    private var lastShownAlarmVisibility = GONE
+
+    val boldTextVariation = "'wght' 600, 'ROND' 100"
 
     init {
         orientation = VERTICAL
@@ -42,14 +43,15 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
         dateTextView = TextView(context).apply {
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
             setTextColor(Color.WHITE)
-            typeface = XPrefs.modRes.getFont(R.font.google_sans_text_500)
+            typeface = XPrefs.modRes.getFont(R.font.google_sans_flex)
+            fontVariationSettings = boldTextVariation
             includeFontPadding = false
         }
         addView(dateTextView)
         alarmLayout = LinearLayout(context).apply {
             gravity = Gravity.CENTER_VERTICAL
             orientation = HORIZONTAL
-            visibility = View.GONE
+            visibility = GONE
         }
         alarmIcon = ImageView(context).apply {
             setImageDrawable(
@@ -65,7 +67,8 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
         alarmTextView = TextView(context).apply {
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
             setTextColor(Color.WHITE)
-            typeface = XPrefs.modRes.getFont(R.font.google_sans_text_500)
+            typeface = XPrefs.modRes.getFont(R.font.google_sans_flex)
+            fontVariationSettings = boldTextVariation
             includeFontPadding = false
         }
         alarmLayout.addView(alarmTextView)
@@ -94,7 +97,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     private fun showNextAlarmIfExists() {
         val nextAlarm = alarmManager?.nextAlarmClock
         var timeToShow = ""
-        var alarmVisibility = View.GONE
+        var alarmVisibility = GONE
         if (nextAlarm != null) {
             val alarmTimeMillis = nextAlarm.triggerTime
             val calendar = Calendar.getInstance()
@@ -104,7 +107,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
             val hoursDifference = timeDifferenceMillis / (1000 * 60 * 60)
             if (hoursDifference < 12) {
                 timeToShow = alarmTimeString
-                alarmVisibility = View.VISIBLE
+                alarmVisibility = VISIBLE
             }
         }
         if (timeToShow != lastShownAlarmTime) {
