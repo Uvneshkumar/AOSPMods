@@ -53,6 +53,7 @@ import sh.siava.AOSPMods.R;
 import sh.siava.AOSPMods.XPrefs;
 import sh.siava.AOSPMods.XposedModPack;
 import sh.siava.AOSPMods.myListeners.helper.Helper;
+import sh.siava.AOSPMods.myListeners.helper.MyBroadcastReceiver;
 import sh.siava.AOSPMods.myListeners.helper.ScreenReceiver;
 import sh.siava.AOSPMods.utils.SystemUtils;
 
@@ -81,6 +82,7 @@ public class LauncherListener extends XposedModPack {
     private Object mLauncherOneUi = null;
 
     private boolean isScreenReceiverRegistered = false;
+    private boolean isMyBroadcastRegistered = false;
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -569,6 +571,14 @@ public class LauncherListener extends XposedModPack {
                 });
             }
         }
+        Class<?> StashedHandleView = findClassIfExists("com.android.launcher3.taskbar.StashedHandleView", lpparam.classLoader);
+        if (StashedHandleView != null) {
+            tryHookAllConstructors(StashedHandleView, registerMyReceiver());
+        }
+        Class<?> HomeView = findClassIfExists("com.honeyspace.ui.honeypots.homescreen.presentation.HomeView", lpparam.classLoader);
+        if (HomeView != null) {
+            tryHookAllConstructors(HomeView, registerMyReceiver());
+        }
         if (XPrefs.Xprefs.getBoolean("enableLauncherQQS", false)) {
             XC_MethodHook onStatusBarTouchEvent = getOnStatusBarTouchEventHook();
             Class<?> SystemUiProxy = findClassIfExists("com.android.quickstep.SystemUiProxy", lpparam.classLoader);
@@ -721,6 +731,23 @@ public class LauncherListener extends XposedModPack {
 //				});
 //			}
 //		}
+    }
+
+    private XC_MethodHook registerMyReceiver() {
+        return new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+                if (isMyBroadcastRegistered) {
+                    return;
+                }
+                MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(MyBroadcastReceiver.SCREENSHOT);
+                mContext.getApplicationContext().registerReceiver(myBroadcastReceiver, filter, Context.RECEIVER_EXPORTED);
+                isMyBroadcastRegistered = true;
+            }
+        };
     }
 
     private XC_MethodHook getOnStatusBarTouchEventHook() {

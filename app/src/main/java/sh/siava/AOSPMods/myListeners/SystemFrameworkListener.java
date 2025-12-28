@@ -32,11 +32,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicLong;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.AOSPMods;
 import sh.siava.AOSPMods.XposedModPack;
+import sh.siava.AOSPMods.myListeners.helper.MyBroadcastReceiver;
 import sh.siava.AOSPMods.utils.SystemUtils;
 
 @SuppressWarnings("RedundantThrows")
@@ -66,6 +68,9 @@ public class SystemFrameworkListener extends XposedModPack {
 
     @SuppressLint("SdCardPath")
     File myaod_active = new File("/sdcard/myaod_active");
+
+    private static final AtomicLong lastCaptureTime = new AtomicLong(0);
+    boolean isCaptureStarted = false;
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -252,6 +257,41 @@ public class SystemFrameworkListener extends XposedModPack {
                 });
             }
         }
+        if (Xprefs.getBoolean("powerVolumeUpPrivateScreenshot", false)) {
+            Class<?> PhoneWindowManager = findClassIfExists("com.android.server.policy.PhoneWindowManager", lpparam.classLoader);
+            if (PhoneWindowManager != null) {
+                tryHookAllMethods(PhoneWindowManager, "handleKeyGestureEvent", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        String keyGestureEvent = param.args[0].toString();
+                        if (keyGestureEvent.contains("keycodes = [24, 26]") && keyGestureEvent.contains("action = 1")) {
+                            isCaptureStarted = true;
+                            param.setResult(null);
+                        } else if (keyGestureEvent.contains("keycodes = [24, 26]") && keyGestureEvent.contains("action = 2") && isCaptureStarted) {
+                            isCaptureStarted = false;
+                            captureScreen();
+                            param.setResult(null);
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    private void captureScreen() {
+        long now = android.os.SystemClock.uptimeMillis();
+        long last = lastCaptureTime.get();
+        // To prevent duplicates when sometimes there is only 1 ms difference in 2 consecutive calls
+        if (now - last < 100) { // 100 ms in enough
+            return;
+        }
+        // To prevent duplicates in 2 consecutive calls
+        if (!lastCaptureTime.compareAndSet(last, now)) {
+            return;
+        }
+        Intent intent = new Intent();
+        intent.setAction(MyBroadcastReceiver.SCREENSHOT);
+        mContext.sendBroadcast(intent);
     }
 
     private void launchAction() {

@@ -307,6 +307,10 @@
 			android:defaultValue="false"
 			android:key="isBatterySaverOnScreenOff"
 			android:title="Battery Saver on Screen Off" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:key="powerVolumeUpPrivateScreenshot"
+            android:title="Power + Volume UP for .private Screenshots\nNeeds &quot;Prevent ringing&quot; gesture to be enabled if AOSP" />
 		<sh.siava.AOSPMods.ui.MaterialSwitchPreference
 			android:defaultValue="false"
 			android:key="assistantAnimationColors"
