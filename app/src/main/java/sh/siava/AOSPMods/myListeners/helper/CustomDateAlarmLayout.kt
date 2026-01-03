@@ -28,7 +28,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
         context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
     private val handler = Handler(Looper.getMainLooper())
     private val timeRunnable: Runnable
-    private val dateFormat = SimpleDateFormat("EEE, dd MMM", Locale.getDefault())
+    private val dateFormat = SimpleDateFormat("EEE, d MMM", Locale.getDefault())
     private val alarmTimeFormat = SimpleDateFormat("h:mm", Locale.getDefault())
 
     private var lastShownDate = ""
