@@ -45,6 +45,8 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import com.topjohnwu.superuser.Shell;
+
 import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -83,6 +85,7 @@ public class LauncherListener extends XposedModPack {
 
     private boolean isScreenReceiverRegistered = false;
     private boolean isMyBroadcastRegistered = false;
+    private boolean isAodOffAfterReboot = false;
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -545,27 +548,34 @@ public class LauncherListener extends XposedModPack {
         }
         boolean enable_taskbar_on_phones = XPrefs.Xprefs.getBoolean("enable_taskbar_on_phones", false);
         boolean isBatterySaverOnScreenOff = XPrefs.Xprefs.getBoolean("isBatterySaverOnScreenOff", false);
-        if (enable_taskbar_on_phones || isBatterySaverOnScreenOff) {
+        boolean disableAodOnBoot = XPrefs.Xprefs.getBoolean("disableAodOnBoot", false);
+        if (enable_taskbar_on_phones || isBatterySaverOnScreenOff || disableAodOnBoot) {
             Class<?> StashedHandleView = findClassIfExists("com.android.launcher3.taskbar.StashedHandleView", lpparam.classLoader);
             if (StashedHandleView != null) {
                 tryHookAllConstructors(StashedHandleView, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!isScreenReceiverRegistered) {
-                            ScreenReceiver screenReceiver = new ScreenReceiver((View) param.thisObject, enable_taskbar_on_phones, isBatterySaverOnScreenOff);
-                            IntentFilter filter = new IntentFilter();
-                            filter.addAction(Intent.ACTION_SCREEN_ON);
-                            filter.addAction(Intent.ACTION_SCREEN_OFF);
-                            mContext.getApplicationContext().registerReceiver(screenReceiver, filter);
-                            isScreenReceiverRegistered = true;
-                        } else {
-                            if (enable_taskbar_on_phones) {
-                                ScreenReceiver screenReceiver = new ScreenReceiver((View) param.thisObject, true, false);
+                        if (enable_taskbar_on_phones || isBatterySaverOnScreenOff) {
+                            if (!isScreenReceiverRegistered) {
+                                isScreenReceiverRegistered = true;
+                                ScreenReceiver screenReceiver = new ScreenReceiver((View) param.thisObject, enable_taskbar_on_phones, isBatterySaverOnScreenOff);
                                 IntentFilter filter = new IntentFilter();
                                 filter.addAction(Intent.ACTION_SCREEN_ON);
                                 filter.addAction(Intent.ACTION_SCREEN_OFF);
                                 mContext.getApplicationContext().registerReceiver(screenReceiver, filter);
+                            } else {
+                                if (enable_taskbar_on_phones) {
+                                    ScreenReceiver screenReceiver = new ScreenReceiver((View) param.thisObject, true, false);
+                                    IntentFilter filter = new IntentFilter();
+                                    filter.addAction(Intent.ACTION_SCREEN_ON);
+                                    filter.addAction(Intent.ACTION_SCREEN_OFF);
+                                    mContext.getApplicationContext().registerReceiver(screenReceiver, filter);
+                                }
                             }
+                        }
+                        if (disableAodOnBoot && !isAodOffAfterReboot) {
+                            isAodOffAfterReboot = true;
+                            Shell.cmd("settings put secure doze_always_on 0").submit();
                         }
                     }
                 });
