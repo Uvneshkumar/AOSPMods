@@ -24,6 +24,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
+import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
@@ -237,24 +238,41 @@ public class SystemFrameworkListener extends XposedModPack {
                 });
             }
         }
-        if (Xprefs.getBoolean("enableHapticTextHandle", false)) {
+        boolean enableHapticTextHandle = Xprefs.getBoolean("enableHapticTextHandle", false);
+        boolean enableHapticTextHandle2 = Xprefs.getBoolean("enableHapticTextHandle2", false);
+        if (enableHapticTextHandle || enableHapticTextHandle2) {
             Class<?> HapticFeedbackVibrationProvider = findClassIfExists("com.android.server.vibrator.HapticFeedbackVibrationProvider", lpparam.classLoader);
             if (HapticFeedbackVibrationProvider != null) {
-                tryHookAllConstructors(HapticFeedbackVibrationProvider, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        setObjectField(param.thisObject, "mHapticTextHandleEnabled", true);
-                    }
-                });
+                if (enableHapticTextHandle) {
+                    tryHookAllConstructors(HapticFeedbackVibrationProvider, new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            setObjectField(param.thisObject, "mHapticTextHandleEnabled", true);
+                        }
+                    });
+                }
+                if (enableHapticTextHandle2) {
+                    tryHookAllMethods(HapticFeedbackVibrationProvider, "getVibrationForHapticFeedback", new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            int effectId = (int) param.args[0];
+                            if (effectId == HapticFeedbackConstants.TEXT_HANDLE_MOVE || effectId == HapticFeedbackConstants.CLOCK_TICK || effectId == HapticFeedbackConstants.SEGMENT_FREQUENT_TICK) {
+                                param.args[0] = HapticFeedbackConstants.CONTEXT_CLICK; // Result VibrationEffect.EFFECT_TICK
+                            }
+                        }
+                    });
+                }
             }
-            Class<?> Editor = findClassIfExists("android.widget.Editor", lpparam.classLoader);
-            if (Editor != null) {
-                tryHookAllConstructors(Editor, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        setObjectField(param.thisObject, "mHapticTextHandleEnabled", true);
-                    }
-                });
+            if (enableHapticTextHandle) {
+                Class<?> Editor = findClassIfExists("android.widget.Editor", lpparam.classLoader);
+                if (Editor != null) {
+                    tryHookAllConstructors(Editor, new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            setObjectField(param.thisObject, "mHapticTextHandleEnabled", true);
+                        }
+                    });
+                }
             }
         }
         if (Xprefs.getBoolean("powerVolumeUpPrivateScreenshot", false)) {

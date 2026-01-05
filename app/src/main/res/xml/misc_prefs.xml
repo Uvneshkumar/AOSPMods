@@ -114,6 +114,10 @@
             android:title="Enable Haptic Text Handle" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
+            android:key="enableHapticTextHandle2"
+            android:title="Enable Haptic Text Handle Fallback\n(Fixes Launcher Recent Apps Scroll Vibration)" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
             android:key="vibrationTouchAlways"
             android:title="USAGE_TOUCH always for Vibration" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
