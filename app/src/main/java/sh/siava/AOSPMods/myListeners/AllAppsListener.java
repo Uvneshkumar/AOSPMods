@@ -412,6 +412,7 @@ public class AllAppsListener extends XposedModPack {
 //		hookEverything(SystemVibratorManager);
 //
 //		Class<?> VibrationEffect$Composition = findClassIfExists("android.os.VibrationEffect$Composition", lpparam.classLoader);
+//		hookEverything(VibrationEffect$Composition);
 //		tryHookAllMethods(VibrationEffect$Composition, "compose", new XC_MethodHook() {
 //			@Override
 //			protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
