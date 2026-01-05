@@ -14,7 +14,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.CombinedVibration;
-import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.view.View;
 
@@ -22,7 +21,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.XposedModPack;
 import sh.siava.AOSPMods.myListeners.helper.Helper;
-import sh.siava.AOSPMods.utils.SystemUtils;
 
 @SuppressWarnings("RedundantThrows")
 public class AllAppsListener extends XposedModPack {
@@ -344,11 +342,8 @@ public class AllAppsListener extends XposedModPack {
             tryHookAllMethods(SystemVibratorManager, "vibrate", new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    CombinedVibration combinedVibration = (CombinedVibration) param.args[2];
-                    VibrationAttributes vibrationAttributes = (VibrationAttributes) param.args[4];
-                    if (combinedVibration.toString().contains("effect=TEXTURE_TICK")) {
-                        param.setResult(null);
-                        SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, vibrationAttributes.getUsage());
+                    if (param.args[2].toString().contains("effect=TEXTURE_TICK")) {
+                        param.args[2] = CombinedVibration.createParallel(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK));
                     }
                 }
             });
