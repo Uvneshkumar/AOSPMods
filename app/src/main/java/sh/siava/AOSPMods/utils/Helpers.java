@@ -109,26 +109,31 @@ public class Helpers {
         tryHookAllConstructors(ourClass, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) {
-                myLog("");
-                myLog("Class: " + ourClass.getName());
-                myLog("Constructor:");
+                StringBuilder sb = new StringBuilder();
+                sb.append(" \n");
+                sb.append("Class: ").append(ourClass.getName()).append("\n");
+                sb.append("Constructor:\n");
                 for (Object arg : param.args) {
-                    myLog("    arg: " + arg);
+                    sb.append("    arg: ").append(arg).append("\n");
                 }
-                myLog("    result: " + param.getResult());
+                sb.append("    result: ").append(param.getResult());
+                myLog(sb.toString());
             }
         });
         for (Method m : ms) {
-            tryHookAllMethods(ourClass, m.getName(), new XC_MethodHook() {
+            final String methodName = m.getName();
+            tryHookAllMethods(ourClass, methodName, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
-                    myLog("");
-                    myLog("Class: " + ourClass.getName());
-                    myLog("Method: " + m.getName());
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(" \n");
+                    sb.append("Class: ").append(ourClass.getName()).append("\n");
+                    sb.append("Method: ").append(methodName).append("\n");
                     for (Object arg : param.args) {
-                        myLog("    arg: " + arg);
+                        sb.append("    arg: ").append(arg).append("\n");
                     }
-                    myLog("    result: " + param.getResult());
+                    sb.append("    result: ").append(param.getResult());
+                    myLog(sb.toString());
                 }
             });
         }
