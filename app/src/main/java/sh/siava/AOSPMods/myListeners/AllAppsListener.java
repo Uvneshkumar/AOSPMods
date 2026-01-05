@@ -337,13 +337,18 @@ public class AllAppsListener extends XposedModPack {
                 });
             }
         }
-        if (Xprefs.getBoolean("enableHapticTextHandle2", false)) {
+        boolean enableHapticTextHandle2 = Xprefs.getBoolean("enableHapticTextHandle2", false);
+        boolean chirpScreenUnlockVibration = Xprefs.getBoolean("chirpScreenUnlockVibration", false);
+        if (enableHapticTextHandle2 || chirpScreenUnlockVibration) {
             Class<?> SystemVibratorManager = findClassIfExists("android.os.SystemVibratorManager", lpparam.classLoader);
             tryHookAllMethods(SystemVibratorManager, "vibrate", new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    if (param.args[2].toString().contains("effect=TEXTURE_TICK")) {
+                    if (enableHapticTextHandle2 && param.args[2].toString().contains("effect=TEXTURE_TICK")) {
                         param.args[2] = CombinedVibration.createParallel(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK));
+                    }
+                    if (chirpScreenUnlockVibration && param.args[1].toString().contains("com.android.systemui") && param.args[2].toString().contains("Composed{segments=[Step{amplitude=0.39215687, frequencyHz=0.0, duration=5}, Step{amplitude=0.0, frequencyHz=0.0, duration=52}, Step{amplitude=0.039215688, frequencyHz=0.0, duration=10}, Step{amplitude=1.0, frequencyHz=0.0, duration=10}, Step{amplitude=0.078431375, frequencyHz=0.0, duration=10}], repeat=-1}")) {
+                        param.args[2] = CombinedVibration.createParallel(VibrationEffect.createWaveform(new long[]{0, 5, 52, 30}, -1));
                     }
                 }
             });
