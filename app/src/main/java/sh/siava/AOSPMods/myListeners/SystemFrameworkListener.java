@@ -282,10 +282,10 @@ public class SystemFrameworkListener extends XposedModPack {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         String keyGestureEvent = param.args[0].toString();
-                        if (keyGestureEvent.contains("keycodes = [24, 26]") && keyGestureEvent.contains("action = 1")) {
+                        if (keyGestureEvent.contains("keycodes = [24, 26]") && (keyGestureEvent.contains("action = 1") || keyGestureEvent.contains("action = START"))) {
                             isCaptureStarted = true;
                             param.setResult(null);
-                        } else if (keyGestureEvent.contains("keycodes = [24, 26]") && keyGestureEvent.contains("action = 2") && isCaptureStarted) {
+                        } else if (keyGestureEvent.contains("keycodes = [24, 26]") && (keyGestureEvent.contains("action = 2") || keyGestureEvent.contains("action = COMPLETE")) && isCaptureStarted) {
                             isCaptureStarted = false;
                             captureScreen();
                             param.setResult(null);
