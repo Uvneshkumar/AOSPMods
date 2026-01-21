@@ -178,9 +178,13 @@ object Helper {
         view.animate().alpha(0.99999f).translationY(0f).setDuration(500).start()
     }
 
-    fun animateAlpha(view: View) {
+    fun animateAlpha(view: View, duration: Long) {
         view.alpha = 0.00001f
-        view.animate().alpha(0.99999f).setDuration(500).start()
+        view.animate().alpha(0.99999f).setDuration(duration).start()
+    }
+
+    fun animateAlpha(view: View) {
+        animateAlpha(view, 500)
     }
 
     fun animateAlphaHandle(view: View, runnable: Runnable) {

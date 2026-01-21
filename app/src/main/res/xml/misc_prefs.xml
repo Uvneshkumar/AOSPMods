@@ -224,6 +224,10 @@
             android:title="KeyguardSliceView Custom (A16)" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
+            android:key="keyguardSliceViewBurnInLikeSmartSpace"
+            android:title="KeyguardSliceView Burn In like SmartSpace" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
             android:key="keyguardSliceViewBurnIn"
             android:title="KeyguardSliceView Burn In" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference

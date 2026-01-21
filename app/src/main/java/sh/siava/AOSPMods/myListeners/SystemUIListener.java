@@ -1062,6 +1062,57 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
+        if (Xprefs.getBoolean("keyguardSliceViewBurnInLikeSmartSpace", false)) {
+            Class<?> KeyguardRootView = findClassIfExists("com.android.systemui.keyguard.ui.view.KeyguardRootView", lpparam.classLoader);
+            if (KeyguardRootView != null) {
+                tryHookAllConstructors(KeyguardRootView, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        ViewGroup keyguardRootView = (ViewGroup) param.thisObject;
+                        int bc_smartspace_view_Id = mContext
+                                .getResources()
+                                .getIdentifier("bc_smartspace_view", "id", "com.android.systemui");
+                        int keyguard_slice_view_Id = mContext
+                                .getResources()
+                                .getIdentifier("keyguard_slice_view", "id", "com.android.systemui");
+                        int burn_in_layer_Id = mContext
+                                .getResources()
+                                .getIdentifier("burn_in_layer", "id", "com.android.systemui");
+                        View bc_smartspace_view = new View(mContext);
+                        bc_smartspace_view.setId(bc_smartspace_view_Id);
+                        final View[] keyguard_slice_view = {keyguardRootView.findViewById(keyguard_slice_view_Id)};
+                        final View[] burn_in_layer = {keyguardRootView.findViewById(burn_in_layer_Id)};
+                        final float[] lastY = {0};
+                        final float[] lastTranslationXY = {0, 0};
+                        keyguardRootView.addView(bc_smartspace_view);
+                        ViewTreeObserver viewTreeObserver = keyguardRootView.getViewTreeObserver();
+                        viewTreeObserver.addOnPreDrawListener(() -> {
+                            if (keyguard_slice_view[0] == null) {
+                                keyguard_slice_view[0] = keyguardRootView.findViewById(keyguard_slice_view_Id);
+                            } else if (burn_in_layer[0] == null) {
+                                burn_in_layer[0] = keyguardRootView.findViewById(burn_in_layer_Id);
+                            } else {
+                                if (lastY[0] != bc_smartspace_view.getY()
+                                        || lastTranslationXY[0] != burn_in_layer[0].getTranslationX()
+                                        || lastTranslationXY[1] != burn_in_layer[0].getTranslationY()) {
+                                    keyguard_slice_view[0].setVisibility(burn_in_layer[0].getVisibility());
+                                    keyguard_slice_view[0].setAlpha(burn_in_layer[0].getAlpha());
+                                    if (Math.abs(lastY[0] - bc_smartspace_view.getY()) > 100 && keyguardRootView.getAlpha() >= 0.9) {
+                                        Helper.INSTANCE.animateAlpha(keyguardRootView, 600);
+                                    }
+                                    lastY[0] = bc_smartspace_view.getY();
+                                    lastTranslationXY[0] = burn_in_layer[0].getTranslationX();
+                                    lastTranslationXY[1] = burn_in_layer[0].getTranslationY();
+                                    keyguard_slice_view[0].setTranslationX(lastTranslationXY[0]);
+                                    keyguard_slice_view[0].setY(lastY[0] + lastTranslationXY[1]);
+                                }
+                            }
+                            return true;
+                        });
+                    }
+                });
+            }
+        }
         if (Xprefs.getBoolean("keyguardSliceViewBurnIn", false)) {
             Class<?> KeyguardRootViewBinder = findClassIfExists("com.android.systemui.keyguard.ui.binder.KeyguardRootViewBinder", lpparam.classLoader);
             if (KeyguardRootViewBinder != null) {
