@@ -354,6 +354,21 @@ public class AllAppsListener extends XposedModPack {
             });
         }
 
+//        Display Colour CF Lumen
+//        Class<?> DisplayTransfosrmManager = findClassIfExists("com.android.server.display.color.DisplayTransformManager", lpparam.classLoader);
+//        if (DisplayTransformManager != null) {
+//            tryHookAllMethods(DisplayTransformManager, "setColorMatrix", new XC_MethodHook() {
+//                @Override
+//                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                    if (((int) param.args[0]) == 300) {
+//                        DisplayEngineController displayEngineController = new DisplayEngineController();
+//                        displayEngineController.updateBalance();
+//                        callMethod(param.thisObject, "setColorMatrix", displayEngineController.getLevel(), displayEngineController.getMatrix());
+//                    }
+//                }
+//            });
+//        }
+
 //		Vibration
 //		Class<?> SystemVibrator = findClassIfExists("android.os.SystemVibrator", lpparam.classLoader);
 //		hookEverything(SystemVibrator);
