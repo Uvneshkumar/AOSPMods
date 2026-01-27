@@ -354,6 +354,19 @@ public class AllAppsListener extends XposedModPack {
             });
         }
 
+//        Class<?> PackageImpl = findClassIfExists("com.android.internal.pm.parsing.pkg.PackageImpl", lpparam.classLoader);
+//        if (PackageImpl != null) {
+//            tryHookAllMethods(PackageImpl, "setOnBackInvokedCallbackEnabled", new XC_MethodHook() {
+//                @Override
+//                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//                    String packageName = (String) getObjectField(param.thisObject, "packageName");
+//                    if (Objects.equals(packageName, "com.whatsapp")) {
+//                        param.args[0] = true;
+//                    }
+//                }
+//            });
+//        }
+
 //        Display Colour CF Lumen
 //        Class<?> DisplayTransfosrmManager = findClassIfExists("com.android.server.display.color.DisplayTransformManager", lpparam.classLoader);
 //        if (DisplayTransformManager != null) {
