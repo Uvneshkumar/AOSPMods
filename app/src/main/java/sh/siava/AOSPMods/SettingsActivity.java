@@ -235,7 +235,9 @@ public class SettingsActivity extends AppCompatActivity implements PreferenceFra
 			SystemUtils.RestartLauncher();
 		} else if (itemID == R.id.menu_Updates) {
 			startActivity(new Intent(this, UpdateActivity.class));
-		}
+        } else if (itemID == R.id.menu_Vibration) {
+            startActivity(new Intent(this, VibrationActivity.class));
+        }
 		return true;
 	}
 

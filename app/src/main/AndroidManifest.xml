@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
@@ -36,6 +37,10 @@
             android:exported="true"
             android:label="@string/title_activity_settings">
         </activity>
+
+        <activity
+            android:name=".VibrationActivity"
+            android:exported="true" />
 
         <activity-alias
             android:name=".SettingsActivityNormalIcon"
