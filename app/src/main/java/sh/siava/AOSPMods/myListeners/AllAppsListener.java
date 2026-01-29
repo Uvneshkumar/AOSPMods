@@ -14,6 +14,9 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.CombinedVibration;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.view.View;
 
@@ -21,6 +24,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.XposedModPack;
 import sh.siava.AOSPMods.myListeners.helper.Helper;
+import sh.siava.AOSPMods.utils.SystemUtils;
 
 @SuppressWarnings("RedundantThrows")
 public class AllAppsListener extends XposedModPack {
@@ -348,7 +352,16 @@ public class AllAppsListener extends XposedModPack {
                         param.args[2] = CombinedVibration.createParallel(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK));
                     }
                     if (chirpScreenUnlockVibration && param.args[1].toString().contains("com.android.systemui") && param.args[2].toString().contains("Composed{segments=[Step{amplitude=0.39215687, frequencyHz=0.0, duration=5}, Step{amplitude=0.0, frequencyHz=0.0, duration=52}, Step{amplitude=0.039215688, frequencyHz=0.0, duration=10}, Step{amplitude=1.0, frequencyHz=0.0, duration=10}, Step{amplitude=0.078431375, frequencyHz=0.0, duration=10}], repeat=-1}")) {
-                        param.args[2] = CombinedVibration.createParallel(VibrationEffect.createWaveform(new long[]{0, 5, 52, 30}, -1));
+//                        param.args[2] = CombinedVibration.createParallel(VibrationEffect.createWaveform(new long[]{0, 5, 52, 30}, -1));
+                        param.setResult(null);
+                    }
+                }
+
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    if (chirpScreenUnlockVibration && param.args[1].toString().contains("com.android.systemui") && param.args[2].toString().contains("Composed{segments=[Step{amplitude=0.39215687, frequencyHz=0.0, duration=5}, Step{amplitude=0.0, frequencyHz=0.0, duration=52}, Step{amplitude=0.039215688, frequencyHz=0.0, duration=10}, Step{amplitude=1.0, frequencyHz=0.0, duration=10}, Step{amplitude=0.078431375, frequencyHz=0.0, duration=10}], repeat=-1}")) {
+                        new Handler(Looper.getMainLooper()).post(() -> SystemUtils.vibrate(VibrationEffect.EFFECT_CLICK, VibrationAttributes.USAGE_TOUCH));
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> SystemUtils.vibrate(VibrationEffect.EFFECT_HEAVY_CLICK, VibrationAttributes.USAGE_TOUCH), 52);
                     }
                 }
             });
