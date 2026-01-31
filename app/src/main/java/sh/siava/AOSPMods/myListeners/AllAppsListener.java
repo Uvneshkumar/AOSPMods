@@ -288,6 +288,10 @@ public class AllAppsListener extends XposedModPack {
                         if (((float) param.args[1]) == 166.0f) {
                             param.args[1] = ((float) param.args[1]) - 40.0f;
                         }
+                        // S20 FHD
+                        else if (((float) param.args[1]) == 130.0f) {
+                            param.args[1] = ((float) param.args[1]) - 30.0f;
+                        }
                     }
                 });
             }
