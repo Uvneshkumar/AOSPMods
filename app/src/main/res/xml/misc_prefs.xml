@@ -88,6 +88,11 @@
             android:key="fpIconShiftingTranslationY"
             android:title="FP Icon TranslationY"
             app:defaultValue="80" />
+        <sh.siava.AOSPMods.ui.MaterialEditTextPreference
+            android:key="fpIconPosition"
+            android:title="FP Icon Position - X, Y, Radius"
+            app:defaultValue=""
+            app:summary="Ex: 540, 1762, 130" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
             android:key="hideExtendUnlockMessage"

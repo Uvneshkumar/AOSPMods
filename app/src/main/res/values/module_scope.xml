@@ -10,5 +10,6 @@
         <item>com.android.phone</item> <!-- phone services -->
         <item>com.google.android.gms</item> <!-- Play Services -->
         <item>com.google.android.permissioncontroller</item> <!-- Permission controller on One UI -->
+        <item>com.android.settings</item> <!-- Settings -->
     </string-array>
 </resources>

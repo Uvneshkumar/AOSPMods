@@ -6,6 +6,7 @@ import static de.robv.android.xposed.XposedHelpers.getIntField;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.getStaticObjectField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
+import static de.robv.android.xposed.XposedHelpers.setObjectField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
@@ -57,7 +58,6 @@ public class AllAppsListener extends XposedModPack {
                 }
             });
         }
-
         // https://github.com/AidanWarner97/frameworks_base/commit/cee0f07dad38c2dc93717548da8924b0c0989e64
         if (Xprefs.getBoolean("whiteBatteryIcon", false)) {
             Class<?> ThemedBatteryDrawable = findClassIfExists("com.android.settingslib.graph.ThemedBatteryDrawable", lpparam.classLoader);
@@ -72,7 +72,6 @@ public class AllAppsListener extends XposedModPack {
                 });
             }
         }
-
         if (Xprefs.getBoolean("requireStrongAuth", false)) {
             Class<?> LockPatternUtils = findClassIfExists("com.android.internal.widget.LockPatternUtils", lpparam.classLoader);
             if (LockPatternUtils != null) {
@@ -146,7 +145,6 @@ public class AllAppsListener extends XposedModPack {
                     }
                 });
             }
-
             Class<?> TrustAgentService = findClassIfExists("android.service.trust.TrustAgentService", lpparam.classLoader);
             if (TrustAgentService != null) {
                 tryHookAllMethods(TrustAgentService, "onTrustTimeout", new XC_MethodHook() {
@@ -177,7 +175,6 @@ public class AllAppsListener extends XposedModPack {
                     }
                 });
             }
-
             Class<?> TrustAgentWrapper = findClassIfExists("com.android.server.trust.TrustAgentWrapper", lpparam.classLoader);
             if (TrustAgentWrapper != null) {
                 tryHookAllMethods(TrustAgentWrapper, "onTrustTimeout", new XC_MethodHook() {
@@ -191,7 +188,6 @@ public class AllAppsListener extends XposedModPack {
                     }
                 });
             }
-
             Class<?> GoogleTrustAgentChimeraService = findClassIfExists("com.google.android.gms.trustagent.GoogleTrustAgentChimeraService", lpparam.classLoader);
             if (GoogleTrustAgentChimeraService != null) {
                 tryHookAllMethods(GoogleTrustAgentChimeraService, "onTrustTimeout", new XC_MethodHook() {
@@ -222,7 +218,6 @@ public class AllAppsListener extends XposedModPack {
                     }
                 });
             }
-
             Class<?> GoogleChimeraTrustAgentService = findClassIfExists("com.google.android.chimera.TrustAgentService", lpparam.classLoader);
             if (GoogleChimeraTrustAgentService != null) {
                 tryHookAllMethods(GoogleChimeraTrustAgentService, "onTrustTimeout", new XC_MethodHook() {
@@ -369,6 +364,23 @@ public class AllAppsListener extends XposedModPack {
                     }
                 }
             });
+        }
+        String[] fpIconPosition_array = Xprefs.getString("fpIconPosition", "").split(",");
+        if (fpIconPosition_array.length == 3) {
+            int sensorLocationX = Integer.parseInt(fpIconPosition_array[0].trim());
+            int sensorLocationY = Integer.parseInt(fpIconPosition_array[1].trim());
+            int sensorRadius = Integer.parseInt(fpIconPosition_array[2].trim());
+            Class<?> SensorLocationInternal = findClassIfExists("android.hardware.biometrics.SensorLocationInternal", lpparam.classLoader);
+            if (SensorLocationInternal != null) {
+                tryHookAllConstructors(SensorLocationInternal, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        setObjectField(param.thisObject, "sensorLocationX", sensorLocationX);
+                        setObjectField(param.thisObject, "sensorLocationY", sensorLocationY);
+                        setObjectField(param.thisObject, "sensorRadius", sensorRadius);
+                    }
+                });
+            }
         }
 
 //        Class<?> PackageImpl = findClassIfExists("com.android.internal.pm.parsing.pkg.PackageImpl", lpparam.classLoader);
