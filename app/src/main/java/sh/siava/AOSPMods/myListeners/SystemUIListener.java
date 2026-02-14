@@ -41,6 +41,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.topjohnwu.superuser.Shell;
 
 import java.util.ArrayList;
@@ -206,6 +208,26 @@ public class SystemUIListener extends XposedModPack {
                                 }
                             }
                         }
+                    }
+                });
+            }
+        }
+        if (Xprefs.getBoolean("disableLockScreenBounceBP4A", false)) {
+            Class<?> NotificationPanelViewController = findClassIfExists("com.android.systemui.shade.NotificationPanelViewController", lpparam.classLoader);
+            if (NotificationPanelViewController != null) {
+                GestureDetector mTapToSleep = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onSingleTapUp(@NonNull MotionEvent e) {
+                        if (SystemUtils.KeyguardManager().isKeyguardLocked()) {
+                            SystemUtils.Sleep();
+                        }
+                        return super.onSingleTapUp(e);
+                    }
+                });
+                tryHookAllMethods(NotificationPanelViewController, "handleExternalInterceptTouch", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        mTapToSleep.onTouchEvent((MotionEvent) param.args[0]);
                     }
                 });
             }
