@@ -382,6 +382,22 @@ public class AllAppsListener extends XposedModPack {
                 });
             }
         }
+        if (Xprefs.getBoolean("experimentalDisableThermalThrottle", false)) {
+            Class<?> ThermalManagerService = findClassIfExists("com.android.server.power.thermal.ThermalManagerService", lpparam.classLoader);
+            if (ThermalManagerService != null) {
+                tryHookAllMethods(ThermalManagerService, "onTemperatureChanged", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        Object temperature = param.args[0];
+                        if (temperature.toString().contains("mType=3, mName=SKIN")) {
+                            setObjectField(temperature, "mValue", 35f);
+                            setObjectField(temperature, "mStatus", 0);
+                            param.args[0] = temperature;
+                        }
+                    }
+                });
+            }
+        }
 
 //        Class<?> PackageImpl = findClassIfExists("com.android.internal.pm.parsing.pkg.PackageImpl", lpparam.classLoader);
 //        if (PackageImpl != null) {
