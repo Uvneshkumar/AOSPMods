@@ -6,6 +6,7 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -99,6 +100,9 @@ class VibrationActivity : AppCompatActivity() {
 
     private fun setupVibrationButtons() {
         val container = findViewById<LinearLayout>(R.id.buttonsContainer)
+        val colorAccent = getColor(android.R.color.system_accent1_600)
+        val hex = String.format("#%08X", colorAccent)
+        Toast.makeText(this@VibrationActivity, "$colorAccent <-> $hex", Toast.LENGTH_LONG).show()
         vibrationPatterns.forEach { pattern ->
             val button = Button(this).apply {
                 text = pattern.name
@@ -107,7 +111,7 @@ class VibrationActivity : AppCompatActivity() {
                 ).apply {
                     setMargins(0, 8, 0, 8)
                 }
-                setBackgroundColor(getColor(android.R.color.holo_blue_light))
+                setBackgroundColor(colorAccent)
                 setTextColor(getColor(android.R.color.white))
                 setOnClickListener {
                     playVibrationPattern(pattern)
