@@ -20,7 +20,7 @@ import sh.siava.AOSPMods.utils.SystemUtils;
 public class QSQuickPullDown extends XposedModPack {
     private static final String listenPackage = AOSPMods.SYSTEM_UI_PACKAGE;
 
-    private static final int PULLDOWN_SIDE_RIGHT = 1;
+    public static final int PULLDOWN_SIDE_RIGHT = 1;
     @SuppressWarnings("unused")
     private static final int PULLDOWN_SIDE_LEFT = 2;
     private static final int STATUSBAR_MODE_SHADE = 0;

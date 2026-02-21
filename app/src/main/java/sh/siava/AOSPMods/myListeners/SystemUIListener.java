@@ -8,6 +8,7 @@ import static de.robv.android.xposed.XposedHelpers.setBooleanField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
+import static sh.siava.AOSPMods.systemui.QSQuickPullDown.PULLDOWN_SIDE_RIGHT;
 import static sh.siava.AOSPMods.utils.Helpers.getFpRect;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
@@ -76,6 +77,8 @@ public class SystemUIListener extends XposedModPack {
 
     boolean isAodIconVisible = true;
     boolean isTouchHandlingViewLongPressed = false;
+
+    boolean isOneHandedModeActive = false;
 
     private void initializeRunnable(Object thisObject) {
         handler.removeCallbacks(runnable);
@@ -152,6 +155,13 @@ public class SystemUIListener extends XposedModPack {
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         if (!lpparam.packageName.equals(listenPackage)) return;
+        int statusBarHeight;
+        @SuppressLint("InternalInsetResource") int resourceId = mContext.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            statusBarHeight = mContext.getResources().getDimensionPixelSize(resourceId);
+        } else {
+            statusBarHeight = 0;
+        }
         if (Xprefs.getBoolean("disableLocationPrivacyIndicator", false)) {
             Class<?> PrivacyConfig = findClassIfExists("com.android.systemui.privacy.PrivacyConfig", lpparam.classLoader);
             if (PrivacyConfig != null) {
@@ -1412,6 +1422,49 @@ public class SystemUIListener extends XposedModPack {
                             dateView.setTypeface(XPrefs.modRes.getFont(R.font.google_sans_flex));
                             dateView.setFontVariationSettings("'wght' 600, 'ROND' 100");
                         }, 1000);
+                    }
+                });
+            }
+        }
+        if (Xprefs.getBoolean("allowOpeningQsInOneHandedBP4A", false)) {
+            Class<?> OneHandedTouchHandler = findClassIfExists("com.android.wm.shell.onehanded.OneHandedTouchHandler", lpparam.classLoader);
+            if (OneHandedTouchHandler != null) {
+                tryHookAllMethods(OneHandedTouchHandler, "onStartFinished", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        isOneHandedModeActive = true;
+                    }
+                });
+                tryHookAllMethods(OneHandedTouchHandler, "onStopFinished", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        isOneHandedModeActive = false;
+                    }
+                });
+            }
+            boolean oneFingerPulldownEnabled = Xprefs.getBoolean("QSPulldownEnabled", false);
+            float statusbarPortion = Xprefs.getInt("QSPulldownPercent", 50) / 100f;
+            int pullDownSide = Integer.parseInt(Xprefs.getString("QSPulldownSide", "1"));
+            Class<?> QuickSettingsControllerImpl = findClassIfExists("com.android.systemui.shade.QuickSettingsControllerImpl", lpparam.classLoader);
+            if (QuickSettingsControllerImpl != null) {
+                tryHookAllMethods(QuickSettingsControllerImpl, "shouldQuickSettingsIntercept", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        float x = (float) param.args[0];
+                        float y = (float) param.args[1];
+                        if (isOneHandedModeActive && y <= statusBarHeight) {
+                            boolean quickPullApproved = false;
+                            if (oneFingerPulldownEnabled) {
+                                int w = mContext.getResources().getDisplayMetrics().widthPixels;
+                                float region = w * statusbarPortion;
+                                quickPullApproved = (pullDownSide == PULLDOWN_SIDE_RIGHT) ? w - region < x : x < region;
+                            }
+                            if (quickPullApproved) {
+                                Shell.cmd("cmd statusbar expand-settings").submit();
+                            } else {
+                                Shell.cmd("cmd statusbar expand-notifications").submit();
+                            }
+                        }
                     }
                 });
             }

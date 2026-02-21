@@ -143,6 +143,10 @@
             android:title="Disable Location Privacy Indicator" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
+            android:key="allowOpeningQsInOneHandedBP4A"
+            android:title="Allow opening QS in OneHanded mode\nA16 QPR2+" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
             android:key="disableLockScreenBounce"
             android:title="Disable Lock Screen Bounce\nST2S on Lock Screen" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
