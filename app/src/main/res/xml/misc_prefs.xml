@@ -217,6 +217,10 @@
             android:title="PowerButtonReveal Scrim at Bottom" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference
             android:defaultValue="false"
+            android:key="allLightRevealScrimFixBP4A"
+            android:title="All LightReveal Scrim Fix\nA16 QPR2+" />
+        <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+            android:defaultValue="false"
             android:key="hideKeyguardSliceView"
             android:title="Hide KeyguardSliceView" />
         <sh.siava.AOSPMods.ui.MaterialSwitchPreference

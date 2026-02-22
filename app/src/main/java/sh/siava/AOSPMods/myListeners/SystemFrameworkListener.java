@@ -62,6 +62,7 @@ public class SystemFrameworkListener extends XposedModPack {
 
     public final int PERMISSION = 4;
     public static final int WAKE_REASON_POWER_BUTTON = 1;
+    public static final int GO_TO_SLEEP_REASON_POWER_BUTTON = 4;
     public static final int ACTION_COMPLETE = 1; // SingleKeyGestureEvent
 
     private boolean isVolDown = false;

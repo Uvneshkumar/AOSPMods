@@ -29,6 +29,7 @@ import android.os.VibrationEffect;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -223,10 +224,9 @@ public class LauncherListener extends XposedModPack {
                         }
                         if ((event.getAction() == MotionEvent.ACTION_UP) && canLock && ((boolean) (param.getResult()))) {
                             canLock = false;
-                            try {
-                                Runtime.getRuntime().exec("su -c input keyevent 223");
-                            } catch (Throwable ignored) {
-                            }
+//                            if allLightRevealScrimFixBP4A
+//                            Xprefs.edit().putString("overrideLastTapXY", event.getX() + "," + event.getY()).apply();
+                            Shell.cmd("input keyevent " + KeyEvent.KEYCODE_SLEEP).submit();
                         }
                     }
                 });

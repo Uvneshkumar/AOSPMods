@@ -1,5 +1,6 @@
 package sh.siava.AOSPMods.myListeners;
 
+import static java.lang.Integer.max;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getBooleanField;
@@ -8,6 +9,7 @@ import static de.robv.android.xposed.XposedHelpers.setBooleanField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
+import static sh.siava.AOSPMods.myListeners.SystemFrameworkListener.GO_TO_SLEEP_REASON_POWER_BUTTON;
 import static sh.siava.AOSPMods.systemui.QSQuickPullDown.PULLDOWN_SIDE_RIGHT;
 import static sh.siava.AOSPMods.utils.Helpers.getFpRect;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
@@ -127,6 +129,11 @@ public class SystemUIListener extends XposedModPack {
 
     View mClearAllButton;
 
+    float previousScrimAmount = -1f;
+    float currentScrimAmount = -1f;
+    float fingerprintX = 0f;
+    float fingerprintY = 0f;
+
     private void adjustClockMargin(XC_MethodHook.MethodHookParam param) {
         TextView textView = (TextView) param.thisObject;
         if (!textView.isSingleLine()) {
@@ -155,6 +162,8 @@ public class SystemUIListener extends XposedModPack {
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         if (!lpparam.packageName.equals(listenPackage)) return;
+        int widthPixels = Resources.getSystem().getDisplayMetrics().widthPixels;
+        int heightPixels = Resources.getSystem().getDisplayMetrics().heightPixels;
         int statusBarHeight;
         @SuppressLint("InternalInsetResource") int resourceId = mContext.getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resourceId > 0) {
@@ -229,6 +238,9 @@ public class SystemUIListener extends XposedModPack {
                     @Override
                     public boolean onSingleTapUp(@NonNull MotionEvent e) {
                         if (SystemUtils.KeyguardManager().isKeyguardLocked()) {
+//                            if allLightRevealScrimFixBP4A
+//                            Helper.INSTANCE.setLastTapX(e.getX());
+//                            Helper.INSTANCE.setLastTapY(e.getY());
                             SystemUtils.Sleep();
                         }
                         return super.onSingleTapUp(e);
@@ -787,7 +799,7 @@ public class SystemUIListener extends XposedModPack {
             Class<?> PulsingGestureListener = findClassIfExists("com.android.systemui.shade.PulsingGestureListener", lpparam.classLoader);
             if (PulsingGestureListener != null) {
                 RectF fpRect = getFpRect();
-                float twoThirdScreenHeight = Resources.getSystem().getDisplayMetrics().heightPixels * 0.67f;
+                float twoThirdScreenHeight = heightPixels * 0.67f;
                 tryHookAllMethods(PulsingGestureListener, "onSingleTapUp", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -999,20 +1011,6 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
-//		if (Xprefs.getBoolean("noNotificationsAllCapsFix", false)) {
-//			Class<?> EmptyShadeView = findClassIfExists("com.android.systemui.statusbar.notification.emptyshade.ui.view.EmptyShadeView", lpparam.classLoader);
-//			if (EmptyShadeView != null) {
-//				tryHookAllMethods(EmptyShadeView, "onFinishInflate", new XC_MethodHook() {
-//					@Override
-//					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-//						TextView mEmptyText = (TextView) getObjectField(param.thisObject, "mEmptyText");
-//						if (mEmptyText != null) {
-//							mEmptyText.setAllCaps(false);
-//						}
-//					}
-//				});
-//			}
-//		}
         if (Xprefs.getBoolean("powerButtonRevealScrimBottom", false)) {
             Class<?> PowerButtonReveal = findClassIfExists("com.android.systemui.statusbar.PowerButtonReveal", lpparam.classLoader);
             float OFF_SCREEN_START_AMOUNT = 0.05f;
@@ -1035,6 +1033,56 @@ public class SystemUIListener extends XposedModPack {
                     }
                 });
             }
+        }
+        if (Xprefs.getBoolean("allLightRevealScrimFixBP4A", false)) {
+            Class<?> DeviceEntryIconView = findClassIfExists("com.android.systemui.keyguard.ui.view.DeviceEntryIconView", lpparam.classLoader);
+            if (DeviceEntryIconView != null) {
+                tryHookAllConstructors(DeviceEntryIconView, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            FrameLayout rootView = (FrameLayout) param.thisObject;
+                            rootView.post(() -> {
+                                int[] location = new int[2];
+                                rootView.getLocationOnScreen(location);
+                                int x = location[0];
+                                int y = location[1];
+                                fingerprintX = x + (rootView.getMeasuredWidth() / 2f);
+                                fingerprintY = y + (rootView.getMeasuredHeight() / 2f);
+                            });
+                        }, 1000);
+                    }
+                });
+            }
+            Class<?> ScreenOffAnimationController = findClassIfExists("com.android.systemui.statusbar.phone.ScreenOffAnimationController", lpparam.classLoader);
+            if (ScreenOffAnimationController != null) {
+                tryHookAllMethods(ScreenOffAnimationController, "onStartedGoingToSleep", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        Object wakefulnessLifecycle = getObjectField(param.thisObject, "wakefulnessLifecycle");
+                        int mLastSleepReason = (int) getObjectField(wakefulnessLifecycle, "mLastSleepReason");
+                        if (!SystemUtils.KeyguardManager().isKeyguardLocked() && mLastSleepReason == GO_TO_SLEEP_REASON_POWER_BUTTON) {
+                            Resources res = mContext.getResources();
+                            float powerButtonY = res.getDimensionPixelSize(res.getIdentifier("physical_power_button_center_screen_location_y", "dimen", mContext.getPackageName()));
+                            Xprefs.edit().putString("overrideLastTapXY", widthPixels * 1.05 + "," + powerButtonY).apply();
+                        }
+                    }
+                });
+            }
+            Class<?> PowerButtonReveal = findClassIfExists("com.android.systemui.statusbar.PowerButtonReveal", lpparam.classLoader);
+            Class<?> LiftReveal = findClassIfExists("com.android.systemui.statusbar.LiftReveal", lpparam.classLoader);
+            tryHookAllMethods(LiftReveal, "setRevealAmountOnScrim", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    circleReveal(param, widthPixels, heightPixels, RevealType.LIFT);
+                }
+            });
+            tryHookAllMethods(PowerButtonReveal, "setRevealAmountOnScrim", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    circleReveal(param, widthPixels, heightPixels, RevealType.POWER);
+                }
+            });
         }
         if (Xprefs.getBoolean("hideKeyguardSliceView", false)) {
             Class<?> KeyguardSliceView = findClassIfExists("com.android.keyguard.KeyguardSliceView", lpparam.classLoader);
@@ -1455,9 +1503,8 @@ public class SystemUIListener extends XposedModPack {
                         if (isOneHandedModeActive && y <= statusBarHeight) {
                             boolean quickPullApproved = false;
                             if (oneFingerPulldownEnabled) {
-                                int w = mContext.getResources().getDisplayMetrics().widthPixels;
-                                float region = w * statusbarPortion;
-                                quickPullApproved = (pullDownSide == PULLDOWN_SIDE_RIGHT) ? w - region < x : x < region;
+                                float region = widthPixels * statusbarPortion;
+                                quickPullApproved = (pullDownSide == PULLDOWN_SIDE_RIGHT) ? widthPixels - region < x : x < region;
                             }
                             if (quickPullApproved) {
                                 Shell.cmd("cmd statusbar expand-settings").submit();
@@ -1486,8 +1533,65 @@ public class SystemUIListener extends XposedModPack {
 //        }
     }
 
+    private void circleReveal(XC_MethodHook.MethodHookParam param, int widthPixels, int heightPixels, RevealType revealType) {
+        float amount = (float) param.args[0];
+        View scrim = (View) param.args[1];
+        int centerX = 0;
+        int centerY = 0;
+        if (revealType == RevealType.POWER) {
+            float powerButtonY = (float) getObjectField(param.thisObject, "powerButtonY");
+            centerX = (int) (widthPixels * 1.05);
+            centerY = (int) powerButtonY;
+
+        } else if (revealType == RevealType.LIFT) {
+            if (currentScrimAmount == -1) {
+                if (amount < 0.5) {
+                    // Wake
+                    // Always Wake from FP during Lift or some rare time when ST2W from AOD
+                    Helper.INSTANCE.setLastTapX(fingerprintX);
+                    Helper.INSTANCE.setLastTapY(fingerprintY);
+                } else {
+                    // Sleep
+                    String[] overrideLastTapXY = Xprefs.getString("overrideLastTapXY", "").split(",");
+                    if (overrideLastTapXY.length > 1) {
+                        float overrideLastTapX = Float.parseFloat(overrideLastTapXY[0].trim());
+                        float overrideLastTapY = Float.parseFloat(overrideLastTapXY[1].trim());
+                        Helper.INSTANCE.setLastTapX(overrideLastTapX);
+                        Helper.INSTANCE.setLastTapY(overrideLastTapY);
+                    }
+                }
+            }
+            previousScrimAmount = currentScrimAmount;
+            currentScrimAmount = amount;
+            centerX = (int) Helper.INSTANCE.getLastTapX();
+            centerY = (int) Helper.INSTANCE.getLastTapY();
+        }
+        int startRadius = 0;
+        int endRadius = max(max(centerX, widthPixels - centerX), max(centerY, heightPixels - centerY));
+        // LEGACY - https://cs.android.com/android/platform/superproject/+/android16-qpr2-release:frameworks/libs/systemui/animationlib/src/com/android/app/animation/Interpolators.java
+        Interpolator fastRevealInterpolator = new PathInterpolator(0.4f, 0f, 0.2f, 1f);
+        float interpolatedAmount = fastRevealInterpolator.getInterpolation(amount);
+        float threshold = 0.5f;
+        float fadeAmount = Math.max(0f, interpolatedAmount - threshold) * (1f / (1f - threshold));
+        float radius = startRadius + ((endRadius - startRadius) * amount);
+        setObjectField(scrim, "revealGradientEndColorAlpha", 1f - fadeAmount);
+        callMethod(scrim, "setRevealGradientBounds", centerX - radius, centerY - radius, centerX + radius, centerY + radius);
+        if (revealType == RevealType.LIFT) {
+            if (previousScrimAmount != -1 && ((currentScrimAmount == 0 && previousScrimAmount < 0.1) || (currentScrimAmount == 1 && previousScrimAmount > 0.9))) {
+                Xprefs.edit().putString("overrideLastTapXY", "").apply();
+                Helper.INSTANCE.resetTapPosition();
+                previousScrimAmount = -1;
+                currentScrimAmount = -1;
+            }
+        }
+    }
+
     @Override
     public boolean listensTo(String packageName) {
         return listenPackage.equals(packageName) && !AOSPMods.isChildProcess;
+    }
+
+    enum RevealType {
+        LIFT, POWER
     }
 }

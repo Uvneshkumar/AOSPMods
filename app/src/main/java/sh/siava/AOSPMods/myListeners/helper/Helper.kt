@@ -33,6 +33,18 @@ object Helper {
 
     private val appListItems: MutableSet<Pair<String, Drawable>> = mutableSetOf()
 
+    val widthPixels = getSystem().displayMetrics.widthPixels
+    val heightPixels = getSystem().displayMetrics.heightPixels
+
+    var lastTapX: Float = widthPixels / 2f
+    var lastTapY: Float = heightPixels * 1.05f
+
+    fun resetTapPosition() {
+        // Bottom Center - Charging Port Location usually
+        lastTapX = widthPixels / 2f
+        lastTapY = heightPixels * 1.05f
+    }
+
     @Suppress("LocalVariableName", "UNCHECKED_CAST")
     fun getPlatformPermissionsOfGroup(
         platformPermissionGroups: Any, pm: PackageManager, group: String
