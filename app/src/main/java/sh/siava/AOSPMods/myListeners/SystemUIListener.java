@@ -133,6 +133,9 @@ public class SystemUIListener extends XposedModPack {
     float currentScrimAmount = -1f;
     float fingerprintX = 0f;
     float fingerprintY = 0f;
+    boolean shouldContinueScrim = true;
+    boolean allLightRevealScrimFixBP4A = false;
+    boolean onlyLiftRevealScrimFixBP4A = false;
 
     private void adjustClockMargin(XC_MethodHook.MethodHookParam param) {
         TextView textView = (TextView) param.thisObject;
@@ -1034,7 +1037,9 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
-        if (Xprefs.getBoolean("allLightRevealScrimFixBP4A", false)) {
+        allLightRevealScrimFixBP4A = Xprefs.getBoolean("allLightRevealScrimFixBP4A", false);
+        onlyLiftRevealScrimFixBP4A = Xprefs.getBoolean("onlyLiftRevealScrimFixBP4A", false);
+        if (allLightRevealScrimFixBP4A || onlyLiftRevealScrimFixBP4A) {
             Class<?> DeviceEntryIconView = findClassIfExists("com.android.systemui.keyguard.ui.view.DeviceEntryIconView", lpparam.classLoader);
             if (DeviceEntryIconView != null) {
                 tryHookAllConstructors(DeviceEntryIconView, new XC_MethodHook() {
@@ -1069,7 +1074,6 @@ public class SystemUIListener extends XposedModPack {
                     }
                 });
             }
-            Class<?> PowerButtonReveal = findClassIfExists("com.android.systemui.statusbar.PowerButtonReveal", lpparam.classLoader);
             Class<?> LiftReveal = findClassIfExists("com.android.systemui.statusbar.LiftReveal", lpparam.classLoader);
             tryHookAllMethods(LiftReveal, "setRevealAmountOnScrim", new XC_MethodHook() {
                 @Override
@@ -1077,12 +1081,15 @@ public class SystemUIListener extends XposedModPack {
                     circleReveal(param, widthPixels, heightPixels, RevealType.LIFT);
                 }
             });
-            tryHookAllMethods(PowerButtonReveal, "setRevealAmountOnScrim", new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    circleReveal(param, widthPixels, heightPixels, RevealType.POWER);
-                }
-            });
+            if (allLightRevealScrimFixBP4A) {
+                Class<?> PowerButtonReveal = findClassIfExists("com.android.systemui.statusbar.PowerButtonReveal", lpparam.classLoader);
+                tryHookAllMethods(PowerButtonReveal, "setRevealAmountOnScrim", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        circleReveal(param, widthPixels, heightPixels, RevealType.POWER);
+                    }
+                });
+            }
         }
         if (Xprefs.getBoolean("hideKeyguardSliceView", false)) {
             Class<?> KeyguardSliceView = findClassIfExists("com.android.keyguard.KeyguardSliceView", lpparam.classLoader);
@@ -1535,14 +1542,12 @@ public class SystemUIListener extends XposedModPack {
 
     private void circleReveal(XC_MethodHook.MethodHookParam param, int widthPixels, int heightPixels, RevealType revealType) {
         float amount = (float) param.args[0];
-        View scrim = (View) param.args[1];
         int centerX = 0;
         int centerY = 0;
         if (revealType == RevealType.POWER) {
             float powerButtonY = (float) getObjectField(param.thisObject, "powerButtonY");
             centerX = (int) (widthPixels * 1.05);
             centerY = (int) powerButtonY;
-
         } else if (revealType == RevealType.LIFT) {
             if (currentScrimAmount == -1) {
                 if (amount < 0.5) {
@@ -1558,6 +1563,8 @@ public class SystemUIListener extends XposedModPack {
                         float overrideLastTapY = Float.parseFloat(overrideLastTapXY[1].trim());
                         Helper.INSTANCE.setLastTapX(overrideLastTapX);
                         Helper.INSTANCE.setLastTapY(overrideLastTapY);
+                    } else if (onlyLiftRevealScrimFixBP4A) {
+                        shouldContinueScrim = false;
                     }
                 }
             }
@@ -1566,22 +1573,26 @@ public class SystemUIListener extends XposedModPack {
             centerX = (int) Helper.INSTANCE.getLastTapX();
             centerY = (int) Helper.INSTANCE.getLastTapY();
         }
-        int startRadius = 0;
-        int endRadius = max(max(centerX, widthPixels - centerX), max(centerY, heightPixels - centerY));
-        // LEGACY - https://cs.android.com/android/platform/superproject/+/android16-qpr2-release:frameworks/libs/systemui/animationlib/src/com/android/app/animation/Interpolators.java
-        Interpolator fastRevealInterpolator = new PathInterpolator(0.4f, 0f, 0.2f, 1f);
-        float interpolatedAmount = fastRevealInterpolator.getInterpolation(amount);
-        float threshold = 0.5f;
-        float fadeAmount = Math.max(0f, interpolatedAmount - threshold) * (1f / (1f - threshold));
-        float radius = startRadius + ((endRadius - startRadius) * amount);
-        setObjectField(scrim, "revealGradientEndColorAlpha", 1f - fadeAmount);
-        callMethod(scrim, "setRevealGradientBounds", centerX - radius, centerY - radius, centerX + radius, centerY + radius);
+        if (shouldContinueScrim) {
+            View scrim = (View) param.args[1];
+            int startRadius = 0;
+            int endRadius = max(max(centerX, widthPixels - centerX), max(centerY, heightPixels - centerY));
+            // LEGACY - https://cs.android.com/android/platform/superproject/+/android16-qpr2-release:frameworks/libs/systemui/animationlib/src/com/android/app/animation/Interpolators.java
+            Interpolator fastRevealInterpolator = new PathInterpolator(0.4f, 0f, 0.2f, 1f);
+            float interpolatedAmount = fastRevealInterpolator.getInterpolation(amount);
+            float threshold = 0.5f;
+            float fadeAmount = Math.max(0f, interpolatedAmount - threshold) * (1f / (1f - threshold));
+            float radius = startRadius + ((endRadius - startRadius) * amount);
+            setObjectField(scrim, "revealGradientEndColorAlpha", 1f - fadeAmount);
+            callMethod(scrim, "setRevealGradientBounds", centerX - radius, centerY - radius, centerX + radius, centerY + radius);
+        }
         if (revealType == RevealType.LIFT) {
             if (previousScrimAmount != -1 && ((currentScrimAmount == 0 && previousScrimAmount < 0.1) || (currentScrimAmount == 1 && previousScrimAmount > 0.9))) {
                 Xprefs.edit().putString("overrideLastTapXY", "").apply();
                 Helper.INSTANCE.resetTapPosition();
                 previousScrimAmount = -1;
                 currentScrimAmount = -1;
+                shouldContinueScrim = true;
             }
         }
     }
