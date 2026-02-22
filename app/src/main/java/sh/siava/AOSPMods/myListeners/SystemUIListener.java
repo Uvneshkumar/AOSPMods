@@ -1,6 +1,5 @@
 package sh.siava.AOSPMods.myListeners;
 
-import static java.lang.Integer.max;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getBooleanField;
@@ -133,6 +132,7 @@ public class SystemUIListener extends XposedModPack {
     float currentScrimAmount = -1f;
     float fingerprintX = 0f;
     float fingerprintY = 0f;
+    boolean isLiftScrimAndSleepFromPowerButton = false;
     boolean shouldContinueScrim = true;
     boolean allLightRevealScrimFixBP4A = false;
     boolean onlyLiftRevealScrimFixBP4A = false;
@@ -1559,6 +1559,7 @@ public class SystemUIListener extends XposedModPack {
                     // Sleep
                     String[] overrideLastTapXY = Xprefs.getString("overrideLastTapXY", "").split(",");
                     if (overrideLastTapXY.length > 1) {
+                        isLiftScrimAndSleepFromPowerButton = !allLightRevealScrimFixBP4A && onlyLiftRevealScrimFixBP4A;
                         float overrideLastTapX = Float.parseFloat(overrideLastTapXY[0].trim());
                         float overrideLastTapY = Float.parseFloat(overrideLastTapXY[1].trim());
                         Helper.INSTANCE.setLastTapX(overrideLastTapX);
@@ -1575,16 +1576,33 @@ public class SystemUIListener extends XposedModPack {
         }
         if (shouldContinueScrim) {
             View scrim = (View) param.args[1];
-            int startRadius = 0;
-            int endRadius = max(max(centerX, widthPixels - centerX), max(centerY, heightPixels - centerY));
-            // LEGACY - https://cs.android.com/android/platform/superproject/+/android16-qpr2-release:frameworks/libs/systemui/animationlib/src/com/android/app/animation/Interpolators.java
-            Interpolator fastRevealInterpolator = new PathInterpolator(0.4f, 0f, 0.2f, 1f);
-            float interpolatedAmount = fastRevealInterpolator.getInterpolation(amount);
+            Interpolator interpolator;
+            if (isLiftScrimAndSleepFromPowerButton) {
+                // FAST_OUT_SLOW_IN_REVERSE
+                interpolator = new PathInterpolator(0.8f, 0f, 0.6f, 1f);
+            } else {
+                // LEGACY (fastRevealInterpolator) - https://cs.android.com/android/platform/superproject/+/android16-qpr2-release:frameworks/libs/systemui/animationlib/src/com/android/app/animation/Interpolators.java
+                interpolator = new PathInterpolator(0.4f, 0f, 0.2f, 1f);
+            }
+            float interpolatedAmount = interpolator.getInterpolation(amount);
             float threshold = 0.5f;
             float fadeAmount = Math.max(0f, interpolatedAmount - threshold) * (1f / (1f - threshold));
-            float radius = startRadius + ((endRadius - startRadius) * amount);
             setObjectField(scrim, "revealGradientEndColorAlpha", 1f - fadeAmount);
-            callMethod(scrim, "setRevealGradientBounds", centerX - radius, centerY - radius, centerX + radius, centerY + radius);
+            if (isLiftScrimAndSleepFromPowerButton) {
+                float OFF_SCREEN_START_AMOUNT = 0.05f;
+                float INCREASE_MULTIPLIER = 1.25f;
+                callMethod(scrim, "setRevealGradientBounds", scrim.getWidth() * (1f + OFF_SCREEN_START_AMOUNT) -
+                                scrim.getWidth() * INCREASE_MULTIPLIER * interpolatedAmount,
+                        centerY - scrim.getHeight() * interpolatedAmount,
+                        scrim.getWidth() * (1f + OFF_SCREEN_START_AMOUNT) +
+                                scrim.getWidth() * INCREASE_MULTIPLIER * interpolatedAmount,
+                        centerY + scrim.getHeight() * interpolatedAmount);
+            } else {
+                int startRadius = 0;
+                int endRadius = Math.max(Math.max(centerX, widthPixels - centerX), Math.max(centerY, heightPixels - centerY));
+                float radius = startRadius + ((endRadius - startRadius) * amount);
+                callMethod(scrim, "setRevealGradientBounds", centerX - radius, centerY - radius, centerX + radius, centerY + radius);
+            }
         }
         if (revealType == RevealType.LIFT) {
             if (previousScrimAmount != -1 && ((currentScrimAmount == 0 && previousScrimAmount < 0.1) || (currentScrimAmount == 1 && previousScrimAmount > 0.9))) {
@@ -1593,6 +1611,7 @@ public class SystemUIListener extends XposedModPack {
                 previousScrimAmount = -1;
                 currentScrimAmount = -1;
                 shouldContinueScrim = true;
+                isLiftScrimAndSleepFromPowerButton = false;
             }
         }
     }
