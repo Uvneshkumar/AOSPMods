@@ -729,18 +729,6 @@ public class LauncherListener extends XposedModPack {
                 });
             }
         }
-//		if (XPrefs.Xprefs.getBoolean("launcherClearAllFix", false)) {
-//			Class<?> RecentsView = findClassIfExists("com.android.quickstep.views.RecentsView", lpparam.classLoader);
-//			if (RecentsView != null) {
-//				tryHookAllConstructors(RecentsView, new XC_MethodHook() {
-//					@Override
-//					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-//						Button mClearAllButton = (Button) getObjectField(param.thisObject, "mClearAllButton");
-//						mClearAllButton.setAllCaps(false);
-//					}
-//				});
-//			}
-//		}
     }
 
     private XC_MethodHook registerMyReceiver() {

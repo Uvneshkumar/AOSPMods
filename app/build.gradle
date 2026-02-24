@@ -9,7 +9,7 @@ android {
 
 	defaultConfig {
 		applicationId "sh.siava.AOSPMods"
-		minSdk 33
+        minSdk 30
 		targetSdk 33
 		versionCode 245
 		versionName "canary-245"
@@ -52,8 +52,6 @@ dependencies {
 	//Xposed api
 	compileOnly files('lib/api-82.jar')
 	compileOnly files('lib/api-82-sources.jar')
-
-	implementation project(path: ':RangeSliderPreference')
 
 	implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 	implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
