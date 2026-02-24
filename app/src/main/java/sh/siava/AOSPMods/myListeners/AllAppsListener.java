@@ -8,6 +8,7 @@ import static de.robv.android.xposed.XposedHelpers.getStaticObjectField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
+import static sh.siava.AOSPMods.utils.Helpers.myLog;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
@@ -389,11 +390,12 @@ public class AllAppsListener extends XposedModPack {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         Object temperature = param.args[0];
-                        if (temperature.toString().contains("mType=3, mName=SKIN")) {
-                            setObjectField(temperature, "mValue", 35f);
-                            setObjectField(temperature, "mStatus", 0);
-                            param.args[0] = temperature;
-                        }
+//                        if (temperature.toString().contains("mType=3, mName=SKIN")) {
+                        setObjectField(temperature, "mValue", 35f);
+                        setObjectField(temperature, "mStatus", 0);
+                        myLog(temperature);
+                        param.args[0] = temperature;
+//                        }
                     }
                 });
             }
