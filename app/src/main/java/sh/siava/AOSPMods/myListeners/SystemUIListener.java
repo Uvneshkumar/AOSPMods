@@ -877,7 +877,11 @@ public class SystemUIListener extends XposedModPack {
                 XC_MethodHook setDozeScreenBrightness = new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        param.args[0] = pixelAODBrightness;
+                        if (param.args[0] instanceof Integer) {
+                            param.args[0] = (int) (255 * pixelAODBrightness);
+                        } else {
+                            param.args[0] = pixelAODBrightness;
+                        }
                     }
                 };
                 tryHookAllMethods(DozeService, "setDozeScreenBrightnessFloat", setDozeScreenBrightness);
