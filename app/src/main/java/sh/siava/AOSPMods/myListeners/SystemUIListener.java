@@ -215,6 +215,7 @@ public class SystemUIListener extends XposedModPack {
                 tryHookAllMethods(KeyguardTouchAnimator, "onTouchEvent", new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        param.setResult(true);
                         MotionEvent event = (MotionEvent) param.args[0];
                         if (event.getAction() == MotionEvent.ACTION_DOWN) {
                             initialX[0] = event.getX();
