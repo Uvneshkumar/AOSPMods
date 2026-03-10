@@ -764,8 +764,7 @@ public class LauncherListener extends XposedModPack {
                         } catch (Throwable ignored) {
                         }
                     }
-                }
-                if (event.getAction() == MotionEvent.ACTION_UP) {
+                } else {
                     if (shouldExpandQQS[0]) {
                         param.setResult(null);
                     }
