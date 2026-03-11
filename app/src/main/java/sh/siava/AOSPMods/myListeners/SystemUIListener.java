@@ -467,7 +467,8 @@ public class SystemUIListener extends XposedModPack {
         boolean largeClockTopMarginA16 = Xprefs.getBoolean("largeClockTopMarginA16", false);
         boolean largeClockDateSmartSpaceTopMarginA16 = Xprefs.getBoolean("largeClockDateSmartSpaceTopMarginA16", false);
         boolean hideClockDateSmartSpaceA16 = Xprefs.getBoolean("hideClockDateSmartSpaceA16", false);
-        if (largeClockTopMarginA16 || largeClockDateSmartSpaceTopMarginA16 || hideClockDateSmartSpaceA16) {
+        boolean fixHiddenLargeDateSmartSpaceA16 = Xprefs.getBoolean("fixHiddenLargeDateSmartSpaceA16", false);
+        if (largeClockTopMarginA16 || largeClockDateSmartSpaceTopMarginA16 || hideClockDateSmartSpaceA16 || fixHiddenLargeDateSmartSpaceA16) {
             Class<?> KeyguardRootView = findClassIfExists("com.android.systemui.keyguard.ui.view.KeyguardRootView", lpparam.classLoader);
             if (KeyguardRootView != null) {
                 tryHookAllConstructors(KeyguardRootView, new XC_MethodHook() {
@@ -496,6 +497,14 @@ public class SystemUIListener extends XposedModPack {
                             if (burn_in_layer != null) {
                                 if (largeClockTopMarginA16 && flex_clock_view != null) {
                                     flex_clock_view.setTranslationY(burn_in_layer.getTranslationY() - largeClockTopMarginDynamic);
+                                }
+                                if (fixHiddenLargeDateSmartSpaceA16) {
+                                    if (date_smartspace_view_large instanceof ViewGroup dateSmartspace) {
+                                        for (int i = 0; i < dateSmartspace.getChildCount(); i++) {
+                                            View dateSmartspaceChildView = dateSmartspace.getChildAt(i);
+                                            dateSmartspaceChildView.setMinimumHeight(128);
+                                        }
+                                    }
                                 }
                                 if (largeClockDateSmartSpaceTopMarginA16 && date_smartspace_view_large != null) {
                                     date_smartspace_view_large.setTranslationY(burn_in_layer.getTranslationY() - largeClockTopMarginDynamic);
