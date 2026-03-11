@@ -807,8 +807,7 @@ public class SystemUIListener extends XposedModPack {
                 tryHookAllMethods(PulsingGestureListener, "onSingleTapUp", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if ((boolean) param.getResult()) {
-                            MotionEvent event = (MotionEvent) param.args[0];
+                        if ((boolean) param.getResult() && param.args[0] instanceof MotionEvent event) {
                             if (fpRect.contains(event.getX(), event.getY()) || (directUnlockOnTouchIn1By3Region && event.getY() > twoThirdScreenHeight)) {
                                 myIcon.setVisibility(View.INVISIBLE);
                                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
