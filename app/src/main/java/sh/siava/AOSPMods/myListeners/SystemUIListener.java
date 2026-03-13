@@ -80,6 +80,20 @@ public class SystemUIListener extends XposedModPack {
     boolean isTouchHandlingViewLongPressed = false;
 
     boolean isOneHandedModeActive = false;
+    ViewGroup ST2S_BP4A_KeyguardRootView = null;
+    ViewGroup ST2S_BP4A_NotificationStackScrollLayout = null;
+    String[] blockedViews = {
+            "com.google.android.systemui.smartspace.DateSmartspaceView",
+            "app:id/date_smartspace_view_large",
+            "app:id/date_smartspace_view",
+            "com.google.android.systemui.smartspace.BcSmartspaceView",
+            "app:id/bc_smartspace_view",
+            "com.android.systemui.statusbar.notification.row.ExpandableNotificationRow",
+            "app:id/expandableNotificationRow",
+            "com.android.systemui.shared.clocks.view.FlexClockViewGroup",
+            "com.android.systemui.shared.clocks.view.FlexClockTextView",
+            "com.android.systemui.statusbar.notification.emptyshade.ui.view.EmptyShadeView"
+    };
 
     private void initializeRunnable(Object thisObject) {
         handler.removeCallbacks(runnable);
@@ -241,10 +255,12 @@ public class SystemUIListener extends XposedModPack {
                 GestureDetector mTapToSleep = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener() {
                     @Override
                     public boolean onSingleTapUp(@NonNull MotionEvent e) {
-                        if (SystemUtils.KeyguardManager().isKeyguardLocked()) {
-//                            if allLightRevealScrimFixBP4A
-//                            Helper.INSTANCE.setLastTapX(e.getX());
-//                            Helper.INSTANCE.setLastTapY(e.getY());
+//                        if allLightRevealScrimFixBP4A
+//                        Helper.INSTANCE.setLastTapX(e.getX());
+//                        Helper.INSTANCE.setLastTapY(e.getY());
+                        View currentViewInKeyguardRootView = findViewAt(ST2S_BP4A_KeyguardRootView, e.getX(), e.getY());
+                        View currentViewInNotificationStackScrollLayout = findViewAt(ST2S_BP4A_NotificationStackScrollLayout, e.getX(), e.getY());
+                        if (isAllowed(currentViewInKeyguardRootView) && isAllowed(currentViewInNotificationStackScrollLayout)) {
                             SystemUtils.Sleep();
                         }
                         return super.onSingleTapUp(e);
@@ -253,7 +269,30 @@ public class SystemUIListener extends XposedModPack {
                 tryHookAllMethods(NotificationPanelViewController, "handleExternalInterceptTouch", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        mTapToSleep.onTouchEvent((MotionEvent) param.args[0]);
+                        if (SystemUtils.KeyguardManager().isKeyguardLocked()) {
+                            int mBarState = (int) getObjectField(param.thisObject, "mBarState");
+                            if (mBarState != 2) {
+                                mTapToSleep.onTouchEvent((MotionEvent) param.args[0]);
+                            }
+                        }
+                    }
+                });
+            }
+            Class<?> KeyguardRootView = findClassIfExists("com.android.systemui.keyguard.ui.view.KeyguardRootView", lpparam.classLoader);
+            if (KeyguardRootView != null) {
+                tryHookAllConstructors(KeyguardRootView, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        ST2S_BP4A_KeyguardRootView = (ViewGroup) param.thisObject;
+                    }
+                });
+            }
+            Class<?> NotificationStackScrollLayout = findClassIfExists("com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayout", lpparam.classLoader);
+            if (NotificationStackScrollLayout != null) {
+                tryHookAllConstructors(NotificationStackScrollLayout, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        ST2S_BP4A_NotificationStackScrollLayout = (ViewGroup) param.thisObject;
                     }
                 });
             }
@@ -1553,6 +1592,31 @@ public class SystemUIListener extends XposedModPack {
 //                }
 //            });
 //        }
+    }
+
+    public View findViewAt(ViewGroup parent, float x, float y) {
+        for (int i = parent.getChildCount() - 1; i >= 0; i--) { // topmost first
+            View child = parent.getChildAt(i);
+            if (child.getVisibility() != View.VISIBLE) continue;
+            float childX = child.getX();
+            float childY = child.getY();
+            if (x >= childX && x <= childX + child.getWidth() &&
+                    y >= childY && y <= childY + child.getHeight()) {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    private boolean isAllowed(View view) {
+        if (view == null) return true;
+        String viewStr = view.toString();
+        for (String blocked : blockedViews) {
+            if (viewStr.contains(blocked)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void circleReveal(XC_MethodHook.MethodHookParam param, int widthPixels, int heightPixels, RevealType revealType) {
