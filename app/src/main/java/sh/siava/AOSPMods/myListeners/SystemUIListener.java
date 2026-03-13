@@ -88,10 +88,12 @@ public class SystemUIListener extends XposedModPack {
             "app:id/date_smartspace_view",
             "com.google.android.systemui.smartspace.BcSmartspaceView",
             "app:id/bc_smartspace_view",
-            "com.android.systemui.statusbar.notification.row.ExpandableNotificationRow",
-            "app:id/expandableNotificationRow",
             "com.android.systemui.shared.clocks.view.FlexClockViewGroup",
             "com.android.systemui.shared.clocks.view.FlexClockTextView",
+            "com.android.systemui.keyguard.ui.view.DeviceEntryIconView",
+            "app:id/device_entry_icon_view",
+            "com.android.systemui.statusbar.notification.row.ExpandableNotificationRow",
+            "app:id/expandableNotificationRow",
             "com.android.systemui.statusbar.notification.emptyshade.ui.view.EmptyShadeView"
     };
 
