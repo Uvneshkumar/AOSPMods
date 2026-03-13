@@ -64,7 +64,7 @@ object Helper {
 
     private fun loadAppIcons(context: Context, postAction: () -> Unit) {
         if (appListItems.isEmpty()) {
-            Handler(Looper.getMainLooper()).post {
+            Thread {
                 val appList: List<ApplicationInfo> =
                     context.packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
                 for (appInfo in appList) {
@@ -72,8 +72,10 @@ object Helper {
                     val appIcon: Drawable = context.packageManager.getApplicationIcon(appInfo)
                     appListItems.add(Pair(appName, appIcon))
                 }
-                postAction()
-            }
+                Handler(Looper.getMainLooper()).post {
+                    postAction()
+                }
+            }.start()
         } else {
             postAction()
         }
