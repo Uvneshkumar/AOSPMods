@@ -4,6 +4,12 @@
         android:id="@+id/menu_vibration"
         android:title="@string/menu_vibration" />
     <item
+        android:id="@+id/menu_exportPrefs"
+        android:title="@string/menu_exportPrefs" />
+    <item
+        android:id="@+id/menu_importPrefs"
+        android:title="@string/menu_importPrefs" />
+    <item
         android:id="@+id/menu_restart"
         android:title="@string/menu_restart" />
     <item

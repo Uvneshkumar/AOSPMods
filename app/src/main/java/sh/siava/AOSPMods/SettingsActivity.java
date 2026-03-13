@@ -26,10 +26,13 @@ import com.topjohnwu.superuser.Shell;
 
 import java.util.Objects;
 
+import sh.siava.AOSPMods.utils.PrefManager;
 import sh.siava.AOSPMods.utils.SystemUtils;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    private static final int REQUEST_IMPORT = 7;
+    private static final int REQUEST_EXPORT = 9;
     Context DPContext;
 
     public void backButtonDisabled() {
@@ -68,16 +71,51 @@ public class SettingsActivity extends AppCompatActivity {
         int itemID = item.getItemId();
         if (itemID == android.R.id.home) {
             onBackPressed();
+        } else if (itemID == R.id.menu_vibration) {
+            startActivity(new Intent(this, VibrationActivity.class));
+        } else if (itemID == R.id.menu_exportPrefs) {
+            importExportSettings(true);
+        } else if (itemID == R.id.menu_importPrefs) {
+            importExportSettings(false);
         } else if (itemID == R.id.menu_restart) {
             SystemUtils.Restart();
         } else if (itemID == R.id.menu_restartSysUI) {
             SystemUtils.RestartSystemUI();
         } else if (itemID == R.id.menu_restartLauncher) {
             SystemUtils.RestartLauncher();
-        } else if (itemID == R.id.menu_vibration) {
-            startActivity(new Intent(this, VibrationActivity.class));
         }
         return true;
+    }
+
+    private void importExportSettings(boolean export) {
+        Intent fileIntent = new Intent();
+        fileIntent.setAction(export ? Intent.ACTION_CREATE_DOCUMENT : Intent.ACTION_GET_CONTENT);
+        fileIntent.setType("*/*");
+        fileIntent.putExtra(Intent.EXTRA_TITLE, "AOSPMods_" + ".bin");
+        startActivityForResult(fileIntent, export ? REQUEST_EXPORT : REQUEST_IMPORT);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (data == null) return; // user hit cancel. Nothing to do
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext().createDeviceProtectedStorageContext());
+        switch (requestCode) {
+            case REQUEST_IMPORT:
+                try {
+                    PrefManager.importPath(prefs, getContentResolver().openInputStream(data.getData()));
+                    SystemUtils.RestartLauncher();
+                    SystemUtils.RestartSystemUI();
+                } catch (Exception ignored) {
+                }
+                break;
+            case REQUEST_EXPORT:
+                try {
+                    PrefManager.exportPrefs(prefs, getContentResolver().openOutputStream(data.getData()));
+                } catch (Exception ignored) {
+                }
+                break;
+        }
     }
 
     @SuppressWarnings("ConstantConditions")

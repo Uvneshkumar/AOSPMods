@@ -9,6 +9,8 @@
     <string name="pull_down_left">Left</string>
     <string name="pull_down_right">Right</string>
     <string name="menu_vibration">Vibration</string>
+    <string name="menu_exportPrefs">Export Prefs</string>
+    <string name="menu_importPrefs">Import Prefs</string>
     <string name="menu_restart">Reboot</string>
     <string name="menu_restartSysUI">Restart SystemUI</string>
     <string name="menu_restartLauncher">Restart Launcher</string>
