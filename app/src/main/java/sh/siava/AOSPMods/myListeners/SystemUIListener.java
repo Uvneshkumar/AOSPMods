@@ -596,6 +596,7 @@ public class SystemUIListener extends XposedModPack {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         FrameLayout rootView = (FrameLayout) param.thisObject;
+                        ImageView rootFpIcon = (ImageView) rootView.getChildAt(0);
                         myIcon = new ImageView(mContext);
                         myIcon.setImageDrawable(Helper.INSTANCE.createOvalDrawable());
                         int iconPadding = 5;
@@ -609,8 +610,9 @@ public class SystemUIListener extends XposedModPack {
                         float nothingLockIconScale = Float.parseFloat(Xprefs.getString("nothingLockIconScale", "1"));
                         rootView.setScaleX(nothingLockIconScale);
                         rootView.setScaleY(nothingLockIconScale);
-                        if (Xprefs.getBoolean("nothingLockIconLongPress", false)) {
-                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            rootFpIcon.setVisibility(View.INVISIBLE);
+                            if (Xprefs.getBoolean("nothingLockIconLongPress", false)) {
                                 String viewName;
                                 if (Xprefs.getBoolean("nothingLockIconLongPressCrashFix", false)) {
                                     viewName = "longPressHandlingView";
@@ -634,8 +636,8 @@ public class SystemUIListener extends XposedModPack {
                                     callMethod(touchHandlingViewListener, "onLongPressDetected", touchHandlingView, false);
                                     return false;
                                 });
-                            }, 1000);
-                        }
+                            }
+                        }, 1000);
                     }
                 });
             }
