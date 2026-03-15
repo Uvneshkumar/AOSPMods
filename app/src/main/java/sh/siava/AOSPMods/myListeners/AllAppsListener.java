@@ -391,9 +391,10 @@ public class AllAppsListener extends XposedModPack {
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         Object temperature = param.args[0];
 //                        if (temperature.toString().contains("mType=3, mName=SKIN")) {
+                        myLog("Before: " + temperature);
                         setObjectField(temperature, "mValue", 35f);
                         setObjectField(temperature, "mStatus", 0);
-                        myLog(temperature);
+                        myLog("After: " + temperature);
                         param.args[0] = temperature;
 //                        }
                     }
