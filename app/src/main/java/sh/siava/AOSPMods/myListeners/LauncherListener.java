@@ -4,6 +4,7 @@ import static android.content.pm.PackageManager.GET_ACTIVITIES;
 import static com.topjohnwu.superuser.Shell.cmd;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
+import static de.robv.android.xposed.XposedHelpers.findMethodBestMatch;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
@@ -35,8 +36,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,6 +51,7 @@ import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.topjohnwu.superuser.Shell;
 
+import java.lang.reflect.Method;
 import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -87,6 +91,8 @@ public class LauncherListener extends XposedModPack {
     private boolean isScreenReceiverRegistered = false;
     private boolean isMyBroadcastRegistered = false;
     private boolean isAodOffAfterReboot = false;
+
+    private Object recentView;
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -501,6 +507,62 @@ public class LauncherListener extends XposedModPack {
                         setObjectField(param.thisObject, "numRows", 6);
                     }
                 });
+            }
+        }
+        if (XPrefs.Xprefs.getBoolean("launcherClearAllOverviewAction", false)) {
+            Class<?> RecentsView = findClassIfExists("com.android.quickstep.views.RecentsView", lpparam.classLoader);
+            if (RecentsView != null) {
+                tryHookAllConstructors(RecentsView, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        recentView = param.thisObject;
+                    }
+                });
+                tryHookAllMethods(RecentsView, "setDisallowScrollToClearAll", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        param.args[0] = true;
+                    }
+                });
+                Method dismissAllTasks = findMethodBestMatch(RecentsView, "dismissAllTasks", View.class);
+                Class<?> OverviewActionsView = findClassIfExists("com.android.quickstep.views.OverviewActionsView", lpparam.classLoader);
+                if (OverviewActionsView != null && dismissAllTasks != null) {
+                    tryHookAllMethods(OverviewActionsView, "onFinishInflate", new XC_MethodHook() {
+                        @SuppressLint("SetTextI18n")
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            FrameLayout frameLayout = (FrameLayout) param.thisObject;
+                            frameLayout.setTranslationY(30);
+                            LinearLayout linearLayout = (LinearLayout) frameLayout.getChildAt(0);
+                            Button screenshot = (Button) linearLayout.getChildAt(0);
+                            Button select = (Button) linearLayout.getChildAt(1);
+                            screenshot.setTextSize(18);
+                            screenshot.setText("Clear all");
+                            screenshot.setCompoundDrawables(null, null, null, null);
+                            screenshot.setPadding(140, 0, 140, 0);
+                            ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) select.getLayoutParams();
+                            marginLayoutParams.height = 0;
+                            marginLayoutParams.width = 0;
+                            marginLayoutParams.setMarginStart(0);
+                            select.setLayoutParams(marginLayoutParams);
+                        }
+                    });
+                    tryHookAllMethods(OverviewActionsView, "onClick", new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            if (param.args[0].toString().contains("app:id/action_screenshot")) {
+                                param.setResult(null);
+                                dismissAllTasks.invoke(recentView, param.args[0]);
+                            }
+                        }
+                    });
+                    tryHookAllMethods(OverviewActionsView, "updateDisabledFlags", new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            param.setResult(null);
+                        }
+                    });
+                }
             }
         }
         if (XPrefs.Xprefs.getBoolean("launcherHideOverviewActions", false)) {

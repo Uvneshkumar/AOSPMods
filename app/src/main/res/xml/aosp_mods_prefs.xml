@@ -327,6 +327,10 @@
         android:title="Launcher 6 Rows" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="launcherClearAllOverviewAction"
+        android:title="Launcher Clear all" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="launcherHideOverviewActions"
         android:title="Launcher Hide Overview Actions" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
