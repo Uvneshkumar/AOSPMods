@@ -90,6 +90,11 @@ public class SystemUtils {
         instance.toggleFlashInternal();
     }
 
+    public static void TurnOffFlash() {
+        if (instance == null) return;
+        instance.turnOffFlashInternal();
+    }
+
     @Nullable
     @Contract(pure = true)
     public static AudioManager AudioManager() {
@@ -196,6 +201,10 @@ public class SystemUtils {
 
     private void toggleFlashInternal() {
         setFlashInternal(!TorchCallback.torchOn);
+    }
+
+    private void turnOffFlashInternal() {
+        setFlashInternal(false);
     }
 
     private String getFlashID(@NonNull CameraManager cameraManager) throws CameraAccessException {

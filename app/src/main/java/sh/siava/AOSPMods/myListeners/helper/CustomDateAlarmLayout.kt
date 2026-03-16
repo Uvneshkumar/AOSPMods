@@ -1,5 +1,6 @@
 package sh.siava.AOSPMods.myListeners.helper
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.NotificationManager
 import android.app.NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED
@@ -8,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
+import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
@@ -16,23 +18,36 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import sh.siava.AOSPMods.R
 import sh.siava.AOSPMods.XPrefs
+import sh.siava.AOSPMods.utils.SystemUtils
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
+@SuppressLint("SetTextI18n")
 class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
 
     val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+    private val cameraManager =
+        context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+    private val torchCallback = object : CameraManager.TorchCallback() {
+        override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
+            torchText.isInvisible = !enabled
+        }
+    }
     private val dateTextView: TextView
     private val alarmTextView: TextView
     private val alarmIcon: ImageView
     private val dndIcon: ImageView
     private val firstLine: LinearLayout
+    private val secondLine: LinearLayout
+    private val torchText: TextView
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
     private val handler = Handler(Looper.getMainLooper())
     private val timeRunnable: Runnable
@@ -47,8 +62,12 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
 
     init {
         orientation = VERTICAL
-        setPadding(0, dpToPx(4), 0, dpToPx(4))
+        setPadding(0, dpToPx(8), 0, dpToPx(8))
         firstLine = LinearLayout(context).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            orientation = HORIZONTAL
+        }
+        secondLine = LinearLayout(context).apply {
             gravity = Gravity.CENTER_VERTICAL
             orientation = HORIZONTAL
         }
@@ -95,8 +114,24 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
                 leftMargin = dpToPx(8)
             }
         firstLine.addView(alarmTextView, alarmTextParams)
+        torchText = TextView(context).apply {
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+            setTextColor(Color.WHITE)
+            typeface = XPrefs.modRes.getFont(R.font.google_sans_flex)
+            fontVariationSettings = boldTextVariation
+            includeFontPadding = false
+            text = "Torch is on"
+            visibility = INVISIBLE
+        }
+        setOnClickListener {
+            doCorrectAction()
+        }
+        secondLine.addView(torchText)
+        secondLine.updatePadding(top = dpToPx(8))
         addView(firstLine)
+        addView(secondLine)
         updateSilentState()
+        cameraManager.registerTorchCallback(torchCallback, null)
         val filter = IntentFilter(ACTION_INTERRUPTION_FILTER_CHANGED)
         context.registerReceiver(DoNotDisturbChangeReceiver(), filter)
         timeRunnable = object : Runnable {
@@ -107,6 +142,12 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
             }
         }
         handler.post(timeRunnable)
+    }
+
+    private fun doCorrectAction() {
+        if (torchText.isVisible) {
+            SystemUtils.TurnOffFlash()
+        }
     }
 
     private fun showCurrentDate() {
@@ -144,11 +185,11 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
         }
     }
 
-    fun isDndEnabled(): Boolean {
+    private fun isDndEnabled(): Boolean {
         return notificationManager?.currentInterruptionFilter != NotificationManager.INTERRUPTION_FILTER_ALL
     }
 
-    fun updateSilentState() {
+    private fun updateSilentState() {
         dndIcon.isVisible = isDndEnabled()
     }
 
