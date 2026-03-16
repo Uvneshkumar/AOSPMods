@@ -97,6 +97,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
                     XPrefs.modRes, R.drawable.ic_alarm, null
                 )
             )
+            visibility = GONE
         }
         val iconParams = LayoutParams(dpToPx(20), dpToPx(20)).apply {
             leftMargin = dpToPx(8)
@@ -108,6 +109,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
             typeface = XPrefs.modRes.getFont(R.font.google_sans_flex)
             fontVariationSettings = boldTextVariation
             includeFontPadding = false
+            visibility = GONE
         }
         val alarmTextParams =
             LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
