@@ -26,6 +26,28 @@ public class SettingsActivity extends AppCompatActivity {
 
     Context DPContext;
 
+    private boolean shouldFinishOnStop = true;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        shouldFinishOnStop = true;
+    }
+
+    @Override
+    protected void onUserLeaveHint() {
+        shouldFinishOnStop = false;
+        super.onUserLeaveHint();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (shouldFinishOnStop) {
+            finish();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         DPContext = this.createDeviceProtectedStorageContext();
