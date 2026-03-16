@@ -14,4 +14,5 @@
     <string name="menu_restart">Reboot</string>
     <string name="menu_restartSysUI">Restart SystemUI</string>
     <string name="menu_restartLauncher">Restart Launcher</string>
+    <string name="actions">Actions</string>
 </resources>

@@ -16,7 +16,6 @@
         <item name="android:windowBackground">@color/ui_bg</item>
         <item name="android:colorBackground">@color/ui_bg</item>
         <item name="fontFamily">@font/google_sans_text_400</item>
-        <item name="collapsingToolbarLayoutStyle">@style/Widget.CollapsingToolbar</item>
         <item name="android:windowSplashScreenBackground">@color/ui_bg</item>
         <item name="seekBarStyle">@style/Material3.SeekBar</item>
     </style>
