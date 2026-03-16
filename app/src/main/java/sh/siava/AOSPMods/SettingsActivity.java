@@ -45,10 +45,10 @@ public class SettingsActivity extends AppCompatActivity {
     public static class AospModsFragment extends PreferenceFragmentCompat {
 
         private FrameLayout pullDownIndicator;
-        SharedPreferences.OnSharedPreferenceChangeListener listener = (sharedPreferences, key) -> updateVisibililty(sharedPreferences);
+        SharedPreferences.OnSharedPreferenceChangeListener listener = (sharedPreferences, key) -> updateVisibility(sharedPreferences);
 
         @SuppressLint("RtlHardcoded")
-        private void updateVisibililty(SharedPreferences sharedPreferences) {
+        private void updateVisibility(SharedPreferences sharedPreferences) {
             try {
                 boolean QSPulldownEnabled = sharedPreferences.getBoolean("QSPulldownEnabled", false);
                 int displayWidth = getActivity().getWindowManager().getCurrentWindowMetrics().getBounds().width();
@@ -76,7 +76,7 @@ public class SettingsActivity extends AppCompatActivity {
             getPreferenceManager().setStorageDeviceProtected();
             setPreferencesFromResource(R.xml.aosp_mods_prefs, rootKey);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext().createDeviceProtectedStorageContext());
-            updateVisibililty(prefs);
+            updateVisibility(prefs);
             prefs.registerOnSharedPreferenceChangeListener(listener);
         }
 
