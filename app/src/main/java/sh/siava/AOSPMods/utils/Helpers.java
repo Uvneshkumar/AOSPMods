@@ -8,6 +8,7 @@ import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import android.graphics.RectF;
 import android.media.AudioManager;
 import android.os.FileObserver;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -168,6 +169,10 @@ public class Helpers {
 //		log("- " + text + " -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 //		log("Uvnesh: " + text);
         log("" + text);
+    }
+
+    public static void myLogOther(Object text) {
+        Log.i("LSPosed-Bridge", text.toString());
     }
 
     public static RectF getRectF(String fp) {
