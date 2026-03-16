@@ -18,7 +18,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import sh.siava.AOSPMods.R
@@ -38,7 +37,11 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
         context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     private val torchCallback = object : CameraManager.TorchCallback() {
         override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
-            torchText.isInvisible = !enabled
+            if (enabled) {
+                smartspaceText.text = torchText
+            } else {
+                smartspaceText.text = defaultText
+            }
         }
     }
     private val dateTextView: TextView
@@ -47,7 +50,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     private val dndIcon: ImageView
     private val firstLine: LinearLayout
     private val secondLine: LinearLayout
-    private val torchText: TextView
+    private val smartspaceText: TextView
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
     private val handler = Handler(Looper.getMainLooper())
     private val timeRunnable: Runnable
@@ -57,6 +60,9 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     private var lastShownDate = ""
     private var lastShownAlarmTime = ""
     private var lastShownAlarmVisibility = GONE
+
+    private val defaultText = "Greetings!"
+    private val torchText = "Torch is on"
 
     val boldTextVariation = "'wght' 600, 'ROND' 100"
 
@@ -116,19 +122,18 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
                 leftMargin = dpToPx(8)
             }
         firstLine.addView(alarmTextView, alarmTextParams)
-        torchText = TextView(context).apply {
+        smartspaceText = TextView(context).apply {
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
             setTextColor(Color.WHITE)
             typeface = XPrefs.modRes.getFont(R.font.google_sans_flex)
             fontVariationSettings = boldTextVariation
             includeFontPadding = false
-            text = "Torch is on"
-            visibility = INVISIBLE
+            text = defaultText
         }
         setOnClickListener {
             doCorrectAction()
         }
-        secondLine.addView(torchText)
+        secondLine.addView(smartspaceText)
         secondLine.updatePadding(top = dpToPx(8))
         addView(firstLine)
         addView(secondLine)
@@ -147,7 +152,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     }
 
     private fun doCorrectAction() {
-        if (torchText.isVisible) {
+        if (smartspaceText.text.toString() == torchText) {
             SystemUtils.TurnOffFlash()
         }
     }
