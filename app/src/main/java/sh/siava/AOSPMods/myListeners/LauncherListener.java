@@ -564,6 +564,15 @@ public class LauncherListener extends XposedModPack {
                     });
                 }
             }
+            Class<?> NexusOverviewActionsView = findClassIfExists("com.google.android.apps.nexuslauncher.overview.NexusOverviewActionsView", lpparam.classLoader);
+            if (NexusOverviewActionsView != null) {
+                tryHookAllMethods(NexusOverviewActionsView, "updateDisabledFlags", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        param.setResult(null);
+                    }
+                });
+            }
         }
         if (XPrefs.Xprefs.getBoolean("launcherHideOverviewActions", false)) {
             Class<?> OverviewActionsView = findClassIfExists("com.android.quickstep.views.OverviewActionsView", lpparam.classLoader);
