@@ -755,6 +755,17 @@ public class SystemUIListener extends XposedModPack {
                 tryHookAllMethods(QSTileImplClass, "longClick", longVibrateCallback);
             }
         }
+        if (Xprefs.getBoolean("hideBuildNumber", false)) {
+            Class<?> DevelopmentSettingRepository = findClassIfExists("com.android.systemui.development.data.repository.DevelopmentSettingRepository", lpparam.classLoader);
+            if (DevelopmentSettingRepository != null) {
+                tryHookAllMethods(DevelopmentSettingRepository, "access$checkDevelopmentSettingEnabled", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        param.setResult(false);
+                    }
+                });
+            }
+        }
         if (Xprefs.getBoolean("enableClipboardSmartActions", false)) {
             Class<?> DeviceConfigClass = findClassIfExists("android.provider.DeviceConfig", lpparam.classLoader);
             if (DeviceConfigClass != null) {
