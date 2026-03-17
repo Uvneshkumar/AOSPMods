@@ -62,7 +62,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     private var lastShownAlarmVisibility = GONE
 
     private val defaultText = "Greetings!"
-    private val torchText = "Torch is on"
+    private val torchText = "Torch on"
 
     val boldTextVariation = "'wght' 600, 'ROND' 100"
 
