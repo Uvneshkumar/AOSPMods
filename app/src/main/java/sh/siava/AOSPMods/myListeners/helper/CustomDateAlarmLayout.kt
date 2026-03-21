@@ -68,7 +68,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
 
     init {
         orientation = VERTICAL
-        setPadding(0, dpToPx(8), 0, dpToPx(8))
+        setPadding(0, dpToPx(24), 0, dpToPx(24))
         firstLine = LinearLayout(context).apply {
             gravity = Gravity.CENTER_VERTICAL
             orientation = HORIZONTAL
