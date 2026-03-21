@@ -1371,6 +1371,17 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
+        if (Xprefs.getBoolean("fixStupidMissingNotificationBackground", false)) {
+            Class<?> NotificationBackgroundView = findClassIfExists("com.android.systemui.statusbar.notification.row.NotificationBackgroundView", lpparam.classLoader);
+            tryHookAllMethods(NotificationBackgroundView, "setTint", new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    if ((int) param.args[0] == 0) {
+                        param.args[0] = getObjectField(param.thisObject, "mNormalColor");
+                    }
+                }
+            });
+        }
         if (Xprefs.getBoolean("expandFirstNotification", false)) {
             Class<?> ExpandableNotificationRow = findClassIfExists("com.android.systemui.statusbar.notification.row.ExpandableNotificationRow", lpparam.classLoader);
             if (ExpandableNotificationRow != null) {

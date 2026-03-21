@@ -281,6 +281,10 @@
         android:title="Fingerprint Notification Gestures" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="fixStupidMissingNotificationBackground"
+        android:title="Fix Stupid Missing Notification Background" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="expandFirstNotification"
         android:title="Always Expand First Notification" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
