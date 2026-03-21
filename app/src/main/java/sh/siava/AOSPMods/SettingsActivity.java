@@ -2,16 +2,19 @@ package sh.siava.AOSPMods;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -21,6 +24,8 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
 import com.topjohnwu.superuser.Shell;
+
+import sh.siava.AOSPMods.utils.SystemUtils;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -58,16 +63,58 @@ public class SettingsActivity extends AppCompatActivity {
         } catch (Exception ignored) {
         }
         setContentView(R.layout.settings_activity);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.settings, new AospModsFragment()).commit();
+        Button actionButton = findViewById(R.id.actions);
+        ViewCompat.setOnApplyWindowInsetsListener(actionButton, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+            marginLayoutParams.topMargin = systemBars.top;
+            return insets;
+        });
+        actionButton.setOnClickListener(v -> {
+            PopupMenu popupMenu = new PopupMenu(this, v, Gravity.END);
+            popupMenu.inflate(R.menu.main_menu);
+            popupMenu.setOnMenuItemClickListener(item -> {
+                int itemID = item.getItemId();
+                if (itemID == R.id.menu_vibration) {
+                    startActivity(new Intent(this, VibrationActivity.class));
+                } else if (itemID == R.id.menu_exportPrefs) {
+                    importExportSettings(true);
+                } else if (itemID == R.id.menu_importPrefs) {
+                    importExportSettings(false);
+                } else if (itemID == R.id.menu_restart) {
+                    SystemUtils.Restart();
+                } else if (itemID == R.id.menu_restartSysUI) {
+                    SystemUtils.RestartSystemUI();
+                } else if (itemID == R.id.menu_restartLauncher) {
+                    SystemUtils.RestartLauncher();
+                }
+                return true;
+            });
+            popupMenu.show();
+        });
+        actionButton.post(() -> {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.settings, new AospModsFragment(actionButton.getMeasuredHeight())).commit();
+        });
+    }
+
+    private void importExportSettings(boolean isExport) {
+        Intent intent = new Intent(this, ExportActivity.class);
+        intent.putExtra("isExport", isExport);
+        startActivity(intent);
     }
 
     @SuppressWarnings("ConstantConditions")
     public static class AospModsFragment extends PreferenceFragmentCompat {
 
+        private final int actionsHeight;
         private FrameLayout pullDownIndicator;
         SharedPreferences.OnSharedPreferenceChangeListener listener = (sharedPreferences, key) -> updateVisibility(sharedPreferences);
+
+        public AospModsFragment(int measuredHeight) {
+            actionsHeight = measuredHeight;
+        }
 
         @SuppressLint("RtlHardcoded")
         private void updateVisibility(SharedPreferences sharedPreferences) {
@@ -110,9 +157,9 @@ public class SettingsActivity extends AppCompatActivity {
                 Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
                 v.setPadding(
                         systemBars.left,
-                        systemBars.top + 100,
+                        systemBars.top + actionsHeight,
                         systemBars.right,
-                        systemBars.bottom + 100
+                        systemBars.bottom
                 );
                 return insets;
             });
