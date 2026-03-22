@@ -156,6 +156,11 @@ public class SystemUIListener extends XposedModPack {
     boolean allLightRevealScrimFixBP4A = false;
     boolean onlyLiftRevealScrimFixBP4A = false;
 
+    private final Handler preventDarkStatusBarHandler = new Handler(Looper.getMainLooper());
+    int LightBarTransitionsController_DEFAULT_TINT_ANIMATION_DURATION = 120;
+    boolean shouldPreventDarkStatusBarAnimation = false;
+    private final Runnable preventDarkStatusBarRunnable = () -> shouldPreventDarkStatusBarAnimation = false;
+
     private void adjustClockMargin(XC_MethodHook.MethodHookParam param) {
         TextView textView = (TextView) param.thisObject;
         if (!textView.isSingleLine()) {
@@ -1381,6 +1386,48 @@ public class SystemUIListener extends XposedModPack {
                     }
                 }
             });
+        }
+        if (Xprefs.getBoolean("fixStupidDarkStatusBarDelay", false)) {
+            Class<?> LightBarControllerImpl = findClassIfExists("com.android.systemui.statusbar.phone.LightBarControllerImpl", lpparam.classLoader);
+            if (LightBarControllerImpl != null) {
+                tryHookAllMethods(LightBarControllerImpl, "onNavigationBarAppearanceChanged", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Object mStatusBarIconController = getObjectField(param.thisObject, "mStatusBarIconController");
+                        if (mStatusBarIconController != null) {
+                            int appearance = (int) param.args[0];
+                            float mDarkIntensity = (float) getObjectField(mStatusBarIconController, "mDarkIntensity");
+                            if ((appearance == 0 || appearance == 16) && mDarkIntensity == 1) {
+                                // 16, 1
+                                // 0, 1
+                                shouldPreventDarkStatusBarAnimation = true;
+                                callMethod(mStatusBarIconController, "applyDarkIntensity", 0f);
+                            } else if (appearance == 8 && mDarkIntensity == 0) {
+                                // 8, 0
+                                shouldPreventDarkStatusBarAnimation = true;
+                                callMethod(mStatusBarIconController, "applyDarkIntensity", 1f);
+                            }
+                            if (shouldPreventDarkStatusBarAnimation) {
+                                preventDarkStatusBarHandler.removeCallbacks(preventDarkStatusBarRunnable);
+                                preventDarkStatusBarHandler.postDelayed(preventDarkStatusBarRunnable, LightBarTransitionsController_DEFAULT_TINT_ANIMATION_DURATION * 10L);
+                            }
+                        }
+                    }
+                });
+            }
+            Class<?> DarkIconDispatcherImpl = findClassIfExists("com.android.systemui.statusbar.phone.DarkIconDispatcherImpl", lpparam.classLoader);
+            if (DarkIconDispatcherImpl != null) {
+                tryHookAllMethods(DarkIconDispatcherImpl, "getTintAnimationDuration", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        if (shouldPreventDarkStatusBarAnimation) {
+                            param.setResult(0);
+                        } else {
+                            param.setResult(LightBarTransitionsController_DEFAULT_TINT_ANIMATION_DURATION);
+                        }
+                    }
+                });
+            }
         }
         if (Xprefs.getBoolean("expandFirstNotification", false)) {
             Class<?> ExpandableNotificationRow = findClassIfExists("com.android.systemui.statusbar.notification.row.ExpandableNotificationRow", lpparam.classLoader);

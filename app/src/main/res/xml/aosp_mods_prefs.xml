@@ -274,6 +274,10 @@
         android:title="Bold Clock and Date in Status Bar" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="fixStupidDarkStatusBarDelay"
+        android:title="Fix Stupid Dark Status Bar Delay" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="fingerprintNotificationGestures"
         android:title="Fingerprint Notification Gestures" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
