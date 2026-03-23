@@ -155,6 +155,15 @@ public class SystemUIListener extends XposedModPack {
     boolean shouldContinueScrim = true;
     boolean allLightRevealScrimFixBP4A = false;
     boolean onlyLiftRevealScrimFixBP4A = false;
+    private final Handler overrideLastTapXYRemoveHandler = new Handler(Looper.getMainLooper());
+    private final Runnable overrideLastTapXYRemoveRunnable = () -> {
+        Xprefs.edit().putString("overrideLastTapXY", "").apply();
+        Helper.INSTANCE.resetTapPosition();
+        previousScrimAmount = -1;
+        currentScrimAmount = -1;
+        shouldContinueScrim = true;
+        isLiftScrimAndSleepFromPowerButton = false;
+    };
 
     private final Handler preventDarkStatusBarHandler = new Handler(Looper.getMainLooper());
     int LightBarTransitionsController_DEFAULT_TINT_ANIMATION_DURATION = 120;
@@ -1757,16 +1766,8 @@ public class SystemUIListener extends XposedModPack {
                 callMethod(scrim, "setRevealGradientBounds", centerX - radius, centerY - radius, centerX + radius, centerY + radius);
             }
         }
-        if (revealType == RevealType.LIFT) {
-            if (previousScrimAmount != -1 && ((currentScrimAmount == 0 && previousScrimAmount < 0.1) || (currentScrimAmount == 1 && previousScrimAmount > 0.9))) {
-                Xprefs.edit().putString("overrideLastTapXY", "").apply();
-                Helper.INSTANCE.resetTapPosition();
-                previousScrimAmount = -1;
-                currentScrimAmount = -1;
-                shouldContinueScrim = true;
-                isLiftScrimAndSleepFromPowerButton = false;
-            }
-        }
+        overrideLastTapXYRemoveHandler.removeCallbacks(overrideLastTapXYRemoveRunnable);
+        overrideLastTapXYRemoveHandler.postDelayed(overrideLastTapXYRemoveRunnable, 100);
     }
 
     @Override
