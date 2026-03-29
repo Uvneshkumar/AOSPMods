@@ -1154,6 +1154,8 @@ public class SystemUIListener extends XposedModPack {
                             Resources res = mContext.getResources();
                             float powerButtonY = res.getDimensionPixelSize(res.getIdentifier("physical_power_button_center_screen_location_y", "dimen", mContext.getPackageName()));
                             Xprefs.edit().putString("overrideLastTapXY", widthPixels * 1.05 + "," + powerButtonY).apply();
+                            overrideLastTapXYRemoveHandler.removeCallbacks(overrideLastTapXYRemoveRunnable);
+                            overrideLastTapXYRemoveHandler.postDelayed(overrideLastTapXYRemoveRunnable, 1000);
                         }
                     }
                 });
