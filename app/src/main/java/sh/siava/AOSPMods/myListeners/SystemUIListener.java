@@ -276,9 +276,8 @@ public class SystemUIListener extends XposedModPack {
                 tryHookAllMethods(KeyguardIndicationTextView, "switchIndication", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        Object mMessage = getObjectField(param.thisObject, "mMessage");
-                        if (mMessage != null) {
-                            if (mMessage.toString().contains("Swipe up to open") && !hasSlept) {
+                        if (param.args[0] instanceof String mMessage) {
+                            if (mMessage != null && mMessage.contains("Swipe up to open") && !hasSlept) {
                                 hasSlept = true;
                                 SystemUtils.Sleep();
                             }
