@@ -80,6 +80,8 @@ public class SystemUIListener extends XposedModPack {
     boolean isTouchHandlingViewLongPressed = false;
 
     boolean isOneHandedModeActive = false;
+
+    boolean hasSlept = false;
     ViewGroup ST2S_BP4A_KeyguardRootView = null;
     ViewGroup ST2S_BP4A_NotificationStackScrollLayout = null;
     String[] blockedViews = {
@@ -269,6 +271,21 @@ public class SystemUIListener extends XposedModPack {
             }
         }
         if (Xprefs.getBoolean("disableLockScreenBounceBP4A", false)) {
+            Class<?> KeyguardIndicationTextView = findClassIfExists("com.android.systemui.statusbar.phone.KeyguardIndicationTextView", lpparam.classLoader);
+            if (KeyguardIndicationTextView != null) {
+                tryHookAllMethods(KeyguardIndicationTextView, "switchIndication", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Object mMessage = getObjectField(param.thisObject, "mMessage");
+                        if (mMessage != null) {
+                            if (mMessage.toString().contains("Swipe up to open") && !hasSlept) {
+                                hasSlept = true;
+                                SystemUtils.Sleep();
+                            }
+                        }
+                    }
+                });
+            }
             Class<?> NotificationPanelViewController = findClassIfExists("com.android.systemui.shade.NotificationPanelViewController", lpparam.classLoader);
             if (NotificationPanelViewController != null) {
                 GestureDetector mTapToSleep = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener() {
@@ -277,9 +294,11 @@ public class SystemUIListener extends XposedModPack {
 //                        if allLightRevealScrimFixBP4A
 //                        Helper.INSTANCE.setLastTapX(e.getX());
 //                        Helper.INSTANCE.setLastTapY(e.getY());
+                        hasSlept = false;
                         View currentViewInKeyguardRootView = findViewAt(ST2S_BP4A_KeyguardRootView, e.getX(), e.getY());
                         View currentViewInNotificationStackScrollLayout = findViewAt(ST2S_BP4A_NotificationStackScrollLayout, e.getX(), e.getY());
                         if (isAllowed(currentViewInKeyguardRootView) && isAllowed(currentViewInNotificationStackScrollLayout)) {
+                            hasSlept = true;
                             SystemUtils.Sleep();
                         }
                         return super.onSingleTapUp(e);
