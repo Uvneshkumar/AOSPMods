@@ -509,6 +509,17 @@ public class LauncherListener extends XposedModPack {
                 });
             }
         }
+        if (XPrefs.Xprefs.getBoolean("launcherEnableOneSearchAimActivity", false)) {
+            Class<?> Hotseat = findClassIfExists("com.android.launcher3.Hotseat", lpparam.classLoader);
+            if (Hotseat != null) {
+                tryHookAllMethods(Hotseat, "onLayout", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Shell.cmd("pm enable com.google.android.googlequicksearchbox/com.google.android.googlequicksearchbox.OneSearchAimActivity").submit();
+                    }
+                });
+            }
+        }
         if (XPrefs.Xprefs.getBoolean("launcherClearAllOverviewAction", false)) {
             Class<?> RecentsView = findClassIfExists("com.android.quickstep.views.RecentsView", lpparam.classLoader);
             if (RecentsView != null) {
