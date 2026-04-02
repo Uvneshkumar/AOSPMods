@@ -1154,8 +1154,8 @@ public class SystemUIListener extends XposedModPack {
                                 rootView.getLocationOnScreen(location);
                                 int x = location[0];
                                 int y = location[1];
-                                fingerprintX = x + (rootView.getMeasuredWidth() / 2f);
-                                fingerprintY = y + (rootView.getMeasuredHeight() / 2f);
+                                fingerprintX = Math.round(x + ((rootView.getMeasuredWidth() * rootView.getScaleX()) / 2f));
+                                fingerprintY = Math.round(y + ((rootView.getMeasuredHeight() * rootView.getScaleY()) / 2f));
                             });
                         }, 1000);
                     }
