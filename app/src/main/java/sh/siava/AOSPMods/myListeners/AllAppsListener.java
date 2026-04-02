@@ -271,6 +271,7 @@ public class AllAppsListener extends XposedModPack {
                             || param.args[0].toString().contains("com.iprototypes.volume")
                             || param.args[0].toString().contains("uvnesh.lockwidget")
                             || param.args[0].toString().contains("uvnesh.power")
+                            || param.args[0].toString().contains("com.android.chrome")
                     ) {
                         param.setResult(null);
                     }
