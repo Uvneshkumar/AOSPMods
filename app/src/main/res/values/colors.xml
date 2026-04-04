@@ -21,4 +21,7 @@
     <color name="accent_variant_dark">@android:color/system_accent3_600</color>
 
     <color name="button_text">@android:color/white</color>
+
+    <color name="gradient_end">#FFFFFFFF</color>
+    <color name="gradient_center">#BFFFFFFF</color>
 </resources>
