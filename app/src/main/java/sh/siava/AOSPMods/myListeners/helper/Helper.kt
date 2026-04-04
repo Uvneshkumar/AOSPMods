@@ -31,7 +31,7 @@ object Helper {
     val below_clock_padding_start_icons = 31.px
     val bcSmartspaceViewPadding = 17.px
 
-    private val appListItems: MutableSet<Pair<String, Drawable>> = mutableSetOf()
+    private val appListItems: MutableMap<String, Drawable> = mutableMapOf()
 
     val widthPixels = getSystem().displayMetrics.widthPixels
     val heightPixels = getSystem().displayMetrics.heightPixels
@@ -65,14 +65,16 @@ object Helper {
     private fun loadAppIcons(context: Context, postAction: () -> Unit) {
         if (appListItems.isEmpty()) {
             Thread {
+                val tempMap = mutableMapOf<String, Drawable>()
                 val appList: List<ApplicationInfo> =
                     context.packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
                 for (appInfo in appList) {
                     val appName: String = appInfo.packageName
                     val appIcon: Drawable = context.packageManager.getApplicationIcon(appInfo)
-                    appListItems.add(Pair(appName, appIcon))
+                    tempMap[appName] = appIcon
                 }
                 Handler(Looper.getMainLooper()).post {
+                    appListItems.putAll(tempMap)
                     postAction()
                 }
             }.start()
@@ -120,10 +122,8 @@ object Helper {
         val iconScaleFactor = 1.2f
         val rootScaleFactor = 1.3f
         loadAppIcons(imageView.context) {
-            val iconDrawable =
-                appListItems.find { it.first == statusBarNotification.packageName }?.second
+            val iconDrawable = appListItems[statusBarNotification.packageName]
             if (iconDrawable == null && isFirstTry) {
-                appListItems.clear()
                 setNotificationIcon(imageView, statusBarNotification, false, isFromOneUi)
                 return@loadAppIcons
             }
