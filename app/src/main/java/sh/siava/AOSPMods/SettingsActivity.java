@@ -25,10 +25,12 @@ import androidx.preference.PreferenceManager;
 
 import com.topjohnwu.superuser.Shell;
 
+import sh.siava.AOSPMods.myListeners.helper.Helper;
 import sh.siava.AOSPMods.utils.SystemUtils;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    int topMarginInt = 12;
     Context DPContext;
 
     private boolean shouldFinishOnStop = true;
@@ -67,7 +69,7 @@ public class SettingsActivity extends AppCompatActivity {
         ViewCompat.setOnApplyWindowInsetsListener(actionButton, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
-            marginLayoutParams.topMargin = systemBars.top;
+            marginLayoutParams.topMargin = systemBars.top + Helper.INSTANCE.getPx(topMarginInt);
             return insets;
         });
         actionButton.setOnClickListener(v -> {
@@ -95,7 +97,7 @@ public class SettingsActivity extends AppCompatActivity {
         actionButton.post(() -> {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.settings, new AospModsFragment(actionButton.getMeasuredHeight())).commit();
+            fragmentTransaction.replace(R.id.settings, new AospModsFragment(actionButton.getMeasuredHeight() + Helper.INSTANCE.getPx(topMarginInt + 8))).commit();
         });
     }
 
