@@ -823,7 +823,9 @@ public class LauncherListener extends XposedModPack {
                 }
                 MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
                 IntentFilter filter = new IntentFilter();
-                filter.addAction(MyBroadcastReceiver.SCREENSHOT);
+                for (String action : MyBroadcastReceiver.actions) {
+                    filter.addAction(action);
+                }
                 mContext.getApplicationContext().registerReceiver(myBroadcastReceiver, filter, Context.RECEIVER_EXPORTED);
                 isMyBroadcastRegistered = true;
             }

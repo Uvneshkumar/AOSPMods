@@ -8,6 +8,7 @@ import static sh.siava.AOSPMods.XPrefs.Xprefs;
 import android.annotation.SuppressLint;
 import android.app.KeyguardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
@@ -27,6 +28,7 @@ import androidx.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
 
 import sh.siava.AOSPMods.BuildConfig;
+import sh.siava.AOSPMods.myListeners.helper.MyBroadcastReceiver;
 
 public class SystemUtils {
     private static final int THREAD_PRIORITY_BACKGROUND = 10;
@@ -178,6 +180,13 @@ public class SystemUtils {
                 t.printStackTrace();
             }
         }
+        Intent intent = new Intent();
+        if (enabled) {
+            intent.setAction(MyBroadcastReceiver.TORCH_ON);
+        } else {
+            intent.setAction(MyBroadcastReceiver.TORCH_OFF);
+        }
+        mContext.sendBroadcast(intent);
     }
 
     private boolean cantInitCamera() {
