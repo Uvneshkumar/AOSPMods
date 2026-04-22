@@ -30,7 +30,6 @@ import android.os.VibrationEffect;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.view.GestureDetector;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -211,6 +210,7 @@ public class LauncherListener extends XposedModPack {
                 tryHookAllConstructors(VerticalApplistFastScroller, hideOneUiLauncherFastScroller);
             }
         }
+        boolean enableST2SLockNoAppDrawer = XPrefs.Xprefs.getBoolean("enableST2SLockNoAppDrawer", false);
         if (XPrefs.Xprefs.getBoolean("enableST2SLock", false)) {
             Class<?> WorkspaceTouchListener = findClassIfExists("com.android.launcher3.touch.WorkspaceTouchListener", lpparam.classLoader);
             if (WorkspaceTouchListener != null) {
@@ -219,20 +219,24 @@ public class LauncherListener extends XposedModPack {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         MotionEvent event = (MotionEvent) param.args[1];
                         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                            Object mLauncher = getObjectField(param.thisObject, "mLauncher");
-                            Object mStateManager = getObjectField(mLauncher, "mStateManager");
-                            if (Objects.equals(getObjectField(mStateManager, "mCurrentStableState").toString(), "Normal")) {
-                                canLock = true;
-                                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                                    canLock = false;
-                                }, 200);
-                            }
+                            canLock = true;
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                                canLock = false;
+                            }, 200);
                         }
                         if ((event.getAction() == MotionEvent.ACTION_UP) && canLock && ((boolean) (param.getResult()))) {
                             canLock = false;
+                            if (enableST2SLockNoAppDrawer) {
+                                Object mLauncher = getObjectField(param.thisObject, "mLauncher");
+                                Object mStateManager = getObjectField(mLauncher, "mStateManager");
+                                if (Objects.equals(getObjectField(mStateManager, "mCurrentStableState").toString(), "Normal")) {
+                                    SystemUtils.Sleep();
+                                }
+                            } else {
+                                SystemUtils.Sleep();
+                            }
 //                            if allLightRevealScrimFixBP4A
 //                            Xprefs.edit().putString("overrideLastTapXY", event.getX() + "," + event.getY()).apply();
-                            Shell.cmd("input keyevent " + KeyEvent.KEYCODE_SLEEP).submit();
                         }
                     }
                 });

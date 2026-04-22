@@ -311,6 +311,10 @@
         android:title="ST2S Lock Screen" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="enableST2SLockNoAppDrawer"
+        android:title="ST2S only when App Drawer is not shown" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="enableST2SMyAod"
         android:title="ST2S MyAod" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference

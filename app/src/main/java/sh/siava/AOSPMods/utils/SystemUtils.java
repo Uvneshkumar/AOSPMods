@@ -21,9 +21,12 @@ import android.os.SystemClock;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.os.VibratorManager;
+import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.topjohnwu.superuser.Shell;
 
 import org.jetbrains.annotations.Contract;
 
@@ -136,18 +139,19 @@ public class SystemUtils {
     }
 
     public static void Sleep() {
-        if (Xprefs.getBoolean("rootForSleep", false)) {
-            try {
-                Runtime.getRuntime().exec("su -c input keyevent 223").waitFor();
-            } catch (Throwable ignored) {
-            }
+        if (instance == null || Xprefs.getBoolean("rootForSleep", false)) {
+            rootSleep();
         } else {
-            if (instance == null) return;
             try {
                 callMethod(instance.mPowerManager, "goToSleep", SystemClock.uptimeMillis());
-            } catch (Throwable ignored) {
+            } catch (Throwable throwable) {
+                rootSleep();
             }
         }
+    }
+
+    private static void rootSleep() {
+        Shell.cmd("input keyevent " + KeyEvent.KEYCODE_SLEEP).submit();
     }
 
     private AudioManager getAudioManager() { //we don't init audio manager unless it's requested by someone
