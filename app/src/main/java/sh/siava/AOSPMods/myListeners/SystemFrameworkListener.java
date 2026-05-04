@@ -62,6 +62,7 @@ public class SystemFrameworkListener extends XposedModPack {
 
     public final int PERMISSION = 4;
     public static final int WAKE_REASON_POWER_BUTTON = 1;
+    public static final int WAKE_REASON_PLUGGED_IN = 3;
     public static final int GO_TO_SLEEP_REASON_POWER_BUTTON = 4;
     public static final int ACTION_COMPLETE = 1; // SingleKeyGestureEvent
 
@@ -289,6 +290,20 @@ public class SystemFrameworkListener extends XposedModPack {
                         } else if (keyGestureEvent.contains("keycodes = [24, 26]") && (keyGestureEvent.contains("action = 2") || keyGestureEvent.contains("action = COMPLETE")) && isCaptureStarted) {
                             isCaptureStarted = false;
                             captureScreen();
+                            param.setResult(null);
+                        }
+                    }
+                });
+            }
+        }
+        if (Xprefs.getBoolean("dontWakeOnPowerPlug", false)) {
+            Class<?> PowerGroup = findClassIfExists("com.android.server.power.PowerGroup", lpparam.classLoader);
+            if (PowerGroup != null) {
+                tryHookAllMethods(PowerGroup, "wakeUpLocked", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        int reason = (int) param.args[1];
+                        if (reason == WAKE_REASON_PLUGGED_IN) {
                             param.setResult(null);
                         }
                     }

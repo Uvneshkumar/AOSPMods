@@ -483,6 +483,10 @@
         android:title="Allow Mismatched Signature" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="dontWakeOnPowerPlug"
+        android:title="Don't wake when plugged" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="vibrateOnCallAnswered"
         android:title="Vibrate On Call Answered" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
