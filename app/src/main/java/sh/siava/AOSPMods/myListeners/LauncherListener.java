@@ -5,6 +5,7 @@ import static com.topjohnwu.superuser.Shell.cmd;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.findMethodBestMatch;
+import static de.robv.android.xposed.XposedHelpers.getBooleanField;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
@@ -93,6 +94,27 @@ public class LauncherListener extends XposedModPack {
     private boolean isAodOffAfterReboot = false;
 
     private Object recentView;
+
+    boolean shouldExpandQQSSamsung = false;
+
+    private XC_MethodHook registerMyReceiver() {
+        return new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+                if (isMyBroadcastRegistered) {
+                    return;
+                }
+                MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
+                IntentFilter filter = new IntentFilter();
+                for (String action : MyBroadcastReceiver.actions) {
+                    filter.addAction(action);
+                }
+                mContext.getApplicationContext().registerReceiver(myBroadcastReceiver, filter, Context.RECEIVER_EXPORTED);
+                isMyBroadcastRegistered = true;
+            }
+        };
+    }
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -678,17 +700,47 @@ public class LauncherListener extends XposedModPack {
         }
         if (XPrefs.Xprefs.getBoolean("enableLauncherQQS", false)) {
             XC_MethodHook onStatusBarTouchEvent = getOnStatusBarTouchEventHook();
+            XC_MethodHook onStatusBarTouchEventSamsung = getOnStatusBarTouchEventHookSamsung();
             Class<?> SystemUiProxy = findClassIfExists("com.android.quickstep.SystemUiProxy", lpparam.classLoader);
             if (SystemUiProxy != null) {
                 tryHookAllMethods(SystemUiProxy, "onStatusBarTouchEvent", onStatusBarTouchEvent);
             }
             Class<?> SystemUiProxyOneUI = findClassIfExists("L1.t", lpparam.classLoader);
             if (SystemUiProxyOneUI != null) {
-                tryHookAllMethods(SystemUiProxyOneUI, "onStatusBarTouchEvent", onStatusBarTouchEvent);
+                tryHookAllMethods(SystemUiProxyOneUI, "onStatusBarTouchEvent", onStatusBarTouchEventSamsung);
             }
             Class<?> SystemUiProxyOneUI8 = findClassIfExists("X1.t", lpparam.classLoader);
             if (SystemUiProxyOneUI8 != null) {
-                tryHookAllMethods(SystemUiProxyOneUI8, "onStatusBarTouchEvent", onStatusBarTouchEvent);
+                tryHookAllMethods(SystemUiProxyOneUI8, "onStatusBarTouchEvent", onStatusBarTouchEventSamsung);
+            }
+            Class<?> NotificationPanelViewController = findClassIfExists("com.android.systemui.shade.NotificationPanelViewController", lpparam.classLoader);
+            if (NotificationPanelViewController != null) {
+                tryHookAllMethods(NotificationPanelViewController, "finishInputFocusTransfer", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        boolean shouldExpandQQSFromLauncher = Xprefs.getBoolean("shouldExpandQQSFromLauncher", false);
+                        if (shouldExpandQQSFromLauncher) {
+                            param.setResult(null);
+                            Object mCommandQueue = getObjectField(param.thisObject, "mCommandQueue");
+                            boolean panelsEnabled = (boolean) callMethod(mCommandQueue, "panelsEnabled");
+                            if (!panelsEnabled) {
+                                return;
+                            }
+                            boolean mExpectingSynthesizedDown = getBooleanField(param.thisObject, "mExpectingSynthesizedDown");
+                            if (mExpectingSynthesizedDown) {
+                                callMethod(param.thisObject, "maybeVibrateOnOpening", false);
+                                callMethod(param.thisObject, "expandToQs");
+                                callMethod(param.thisObject, "onTrackingStopped", false);
+                            }
+                        }
+                    }
+                });
+                tryHookAllMethods(NotificationPanelViewController, "onStatusBarLongPress", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        param.setResult(null);
+                    }
+                });
             }
         }
         if (XPrefs.Xprefs.getBoolean("launcherSearchUIFix", false)) {
@@ -818,41 +870,31 @@ public class LauncherListener extends XposedModPack {
         }
     }
 
-    private XC_MethodHook registerMyReceiver() {
-        return new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-                if (isMyBroadcastRegistered) {
-                    return;
-                }
-                MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
-                IntentFilter filter = new IntentFilter();
-                for (String action : MyBroadcastReceiver.actions) {
-                    filter.addAction(action);
-                }
-                mContext.getApplicationContext().registerReceiver(myBroadcastReceiver, filter, Context.RECEIVER_EXPORTED);
-                isMyBroadcastRegistered = true;
-            }
-        };
-    }
-
     private XC_MethodHook getOnStatusBarTouchEventHook() {
-        final boolean[] shouldExpandQQS = {false};
         return new XC_MethodHook() {
+            @SuppressLint("ApplySharedPref")
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 MotionEvent event = (MotionEvent) param.args[0];
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    int w = mContext.getResources().getDisplayMetrics().widthPixels;
-                    shouldExpandQQS[0] = event.getX() >= w * 0.65;
-                    if (shouldExpandQQS[0]) {
-                        param.setResult(null);
+                    Xprefs.edit().putBoolean("shouldExpandQQSFromLauncher", QSQuickPullDown.isQuickPullApproved(event.getX())).commit();
+                }
+            }
+        };
+    }
+
+    private XC_MethodHook getOnStatusBarTouchEventHookSamsung() {
+        return new XC_MethodHook() {
+            @SuppressLint("ApplySharedPref")
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                MotionEvent event = (MotionEvent) param.args[0];
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    shouldExpandQQSSamsung = QSQuickPullDown.isQuickPullApproved(event.getX());
+                    Xprefs.edit().putBoolean("shouldExpandQQSFromLauncher", shouldExpandQQSSamsung).commit();
+                } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
+                    if (shouldExpandQQSSamsung) {
                         Shell.cmd("cmd statusbar expand-settings").submit();
-                    }
-                } else {
-                    if (shouldExpandQQS[0]) {
-                        param.setResult(null);
                     }
                 }
             }
