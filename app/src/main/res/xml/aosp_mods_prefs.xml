@@ -455,6 +455,10 @@
         android:title="Hide AOD Battery Icon in One UI" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="oneUIBatteryPercentageInQS"
+        android:title="One UI Battery Percentage in QS" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="forceSmallClock"
         android:title="Force Small Clock (A12)" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference

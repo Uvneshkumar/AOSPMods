@@ -616,18 +616,43 @@ public class SystemUIListener extends XposedModPack {
                 tryHookAllMethods(KeyguardStatusBarView, "onLayout", hideLockScreenStatusBarCallback);
             }
         }
-        if (Xprefs.getBoolean("hideAODBatteryIconOneUI", false)) {
+        boolean hideAODBatteryIconOneUI = Xprefs.getBoolean("hideAODBatteryIconOneUI", false);
+        boolean oneUIBatteryPercentageInQS = Xprefs.getBoolean("oneUIBatteryPercentageInQS", false);
+        if (hideAODBatteryIconOneUI || oneUIBatteryPercentageInQS) {
             Class<?> BatteryMeterView = findClassIfExists("com.android.systemui.battery.BatteryMeterView", lpparam.classLoader);
             if (BatteryMeterView != null) {
-                tryHookAllConstructors(BatteryMeterView, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        View view = (View) param.thisObject;
-                        if (view.getId() == -1) {
-                            view.setScaleX(0);
+                if (hideAODBatteryIconOneUI) {
+                    tryHookAllConstructors(BatteryMeterView, new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            View view = (View) param.thisObject;
+                            if (view.getId() == View.NO_ID) {
+                                view.setScaleX(0);
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                if (oneUIBatteryPercentageInQS) {
+                    tryHookAllMethods(BatteryMeterView, "updatePercentText", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            LinearLayout view = (LinearLayout) param.thisObject;
+                            if (view.toString().contains("app:id/batteryRemainingIcon")) {
+                                TextView batteryPercentage = view.findViewWithTag("aospModsBatteryPercent");
+                                if (batteryPercentage == null) {
+                                    batteryPercentage = new TextView(mContext);
+                                    batteryPercentage.setTag("aospModsBatteryPercent");
+                                    batteryPercentage.setIncludeFontPadding(false);
+                                    batteryPercentage.setTextColor(Color.WHITE);
+                                    view.addView(batteryPercentage);
+                                }
+                                int mLevel = (int) getObjectField(param.thisObject, "mLevel");
+                                String percentText = " " + mLevel + "%";
+                                batteryPercentage.setText(percentText);
+                            }
+                        }
+                    });
+                }
             }
         }
         if (Xprefs.getBoolean("forceSmallClock", false)) {
