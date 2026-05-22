@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,6 +112,8 @@ public class SettingsActivity extends AppCompatActivity {
     @SuppressWarnings("ConstantConditions")
     public static class AospModsFragment extends PreferenceFragmentCompat {
 
+        final Handler handler = new Handler(Looper.getMainLooper());
+        Runnable runnable = null;
         private final int actionsHeight;
         private FrameLayout pullDownIndicator;
         SharedPreferences.OnSharedPreferenceChangeListener listener = (sharedPreferences, key) -> updateVisibility(sharedPreferences);
@@ -121,12 +125,14 @@ public class SettingsActivity extends AppCompatActivity {
         @SuppressLint("RtlHardcoded")
         private void updateVisibility(SharedPreferences sharedPreferences) {
             try {
-                boolean QSPulldownEnabled = sharedPreferences.getBoolean("QSPulldownEnabled", false);
                 int displayWidth = getActivity().getWindowManager().getCurrentWindowMetrics().getBounds().width();
-                findPreference("QSPulldownPercent").setVisible(QSPulldownEnabled);
-                findPreference("QSPulldownSide").setVisible(QSPulldownEnabled);
                 findPreference("QSPulldownPercent").setSummary(sharedPreferences.getInt("QSPulldownPercent", 50) + "%");
-                pullDownIndicator.setVisibility(findPreference("QSPulldownPercent").isVisible() ? View.VISIBLE : View.GONE);
+                findPreference("QSPulldownPercent").setOnPreferenceChangeListener((preference, newValue) -> {
+                    handler.removeCallbacks(runnable);
+                    pullDownIndicator.setVisibility(View.VISIBLE);
+                    handler.postDelayed(runnable, 1000);
+                    return true;
+                });
                 FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) pullDownIndicator.getLayoutParams();
                 lp.width = Math.round(sharedPreferences.getInt("QSPulldownPercent", 50) * displayWidth / 100f);
                 lp.gravity = Gravity.TOP | (Integer.parseInt(sharedPreferences.getString("QSPulldownSide", "1")) == 1 ? Gravity.RIGHT : Gravity.LEFT);
@@ -168,13 +174,15 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         private void createPullDownIndicator() {
+            handler.removeCallbacks(runnable);
+            runnable = () -> pullDownIndicator.setVisibility(View.GONE);
             pullDownIndicator = new FrameLayout(getContext());
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(0, 25);
             lp.gravity = Gravity.TOP;
             pullDownIndicator.setLayoutParams(lp);
             pullDownIndicator.setBackgroundColor(getContext().getColor(android.R.color.system_accent1_200));
             pullDownIndicator.setAlpha(.7f);
-            pullDownIndicator.setVisibility(View.VISIBLE);
+            pullDownIndicator.setVisibility(View.GONE);
             ((ViewGroup) getActivity().getWindow().getDecorView().getRootView()).addView(pullDownIndicator);
         }
     }
