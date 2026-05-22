@@ -130,7 +130,7 @@ public class SettingsActivity extends AppCompatActivity {
                 findPreference("QSPulldownPercent").setOnPreferenceChangeListener((preference, newValue) -> {
                     handler.removeCallbacks(runnable);
                     pullDownIndicator.setVisibility(View.VISIBLE);
-                    handler.postDelayed(runnable, 1000);
+                    handler.postDelayed(runnable, 5000);
                     return true;
                 });
                 FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) pullDownIndicator.getLayoutParams();
