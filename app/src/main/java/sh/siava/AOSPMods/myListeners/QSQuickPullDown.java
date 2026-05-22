@@ -14,6 +14,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.AOSPMods;
 import sh.siava.AOSPMods.XposedModPack;
+import sh.siava.AOSPMods.myListeners.helper.Helper;
 import sh.siava.AOSPMods.utils.SystemUtils;
 
 @SuppressWarnings("RedundantThrows")
@@ -46,6 +47,12 @@ public class QSQuickPullDown extends XposedModPack {
 
     boolean quickPullApproved = false;
 
+    public static boolean isQuickPullApproved(float x) {
+        int w = Helper.INSTANCE.getWidthPixels();
+        float region = w * statusbarPortion;
+        return (pullDownSide == PULLDOWN_SIDE_RIGHT) ? w - region < x : x < region;
+    }
+
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         if (!lpparam.packageName.equals(listenPackage)) return;
@@ -58,10 +65,7 @@ public class QSQuickPullDown extends XposedModPack {
                         MotionEvent event = (MotionEvent) param.args[0];
                         final int action = event.getActionMasked();
                         if (oneFingerPulldownEnabled && action == MotionEvent.ACTION_DOWN) {
-                            int w = mContext.getResources().getDisplayMetrics().widthPixels;
-                            float x = event.getX();
-                            float region = w * statusbarPortion;
-                            quickPullApproved = (pullDownSide == PULLDOWN_SIDE_RIGHT) ? w - region < x : x < region;
+                            quickPullApproved = isQuickPullApproved(event.getX());
                             quickPullApproved &= getIntField(param.thisObject, "mBarState") == STATUSBAR_MODE_SHADE;
                         }
                         if (enableStatusBarVibration) {
