@@ -74,6 +74,7 @@ public class LauncherListener extends XposedModPack {
 
     @Override
     public void updatePrefs(String... Key) {
+        QSQuickPullDown.updatePrefs();
     }
 
     @Override

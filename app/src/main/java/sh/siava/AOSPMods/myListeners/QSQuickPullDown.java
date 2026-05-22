@@ -25,10 +25,10 @@ public class QSQuickPullDown extends XposedModPack {
     private static final int PULLDOWN_SIDE_LEFT = 2;
     private static final int STATUSBAR_MODE_SHADE = 0;
 
-    private static int pullDownSide = PULLDOWN_SIDE_RIGHT;
+    public static int pullDownSide = PULLDOWN_SIDE_RIGHT;
     private static boolean oneFingerPulldownEnabled = false;
     private static boolean enableStatusBarVibration = false;
-    private static float statusbarPortion = 0.50f; // now set to 50% of the screen. it can be anything between 0 to 100%
+    public static float statusbarPortion = 0.50f; // now set to 50% of the screen. it can be anything between 0 to 100%
 
     boolean canVibrate = true;
 
@@ -41,8 +41,7 @@ public class QSQuickPullDown extends XposedModPack {
         if (Xprefs == null) return;
         oneFingerPulldownEnabled = Xprefs.getBoolean("QSPulldownEnabled", false);
         enableStatusBarVibration = Xprefs.getBoolean("enableStatusBarVibration", false);
-        statusbarPortion = Xprefs.getInt("QSPulldownPercent", 50) / 100f;
-        pullDownSide = Integer.parseInt(Xprefs.getString("QSPulldownSide", "1"));
+        updatePrefs();
     }
 
     boolean quickPullApproved = false;
