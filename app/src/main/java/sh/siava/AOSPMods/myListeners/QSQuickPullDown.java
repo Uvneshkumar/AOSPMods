@@ -36,6 +36,11 @@ public class QSQuickPullDown extends XposedModPack {
         super(context);
     }
 
+    public static void updatePrefs() {
+        statusbarPortion = Xprefs.getInt("QSPulldownPercent", 50) / 100f;
+        pullDownSide = Integer.parseInt(Xprefs.getString("QSPulldownSide", "1"));
+    }
+
     @Override
     public void updatePrefs(String... Key) {
         if (Xprefs == null) return;
