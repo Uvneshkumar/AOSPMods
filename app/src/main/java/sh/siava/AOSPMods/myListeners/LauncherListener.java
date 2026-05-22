@@ -847,10 +847,7 @@ public class LauncherListener extends XposedModPack {
                     shouldExpandQQS[0] = event.getX() >= w * 0.65;
                     if (shouldExpandQQS[0]) {
                         param.setResult(null);
-                        try {
-                            Runtime.getRuntime().exec("su -c cmd statusbar expand-settings");
-                        } catch (Throwable ignored) {
-                        }
+                        Shell.cmd("cmd statusbar expand-settings").submit();
                     }
                 } else {
                     if (shouldExpandQQS[0]) {
