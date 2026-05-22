@@ -44,6 +44,8 @@ public class QSQuickPullDown extends XposedModPack {
         pullDownSide = Integer.parseInt(Xprefs.getString("QSPulldownSide", "1"));
     }
 
+    boolean quickPullApproved = false;
+
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         if (!lpparam.packageName.equals(listenPackage)) return;
@@ -55,6 +57,13 @@ public class QSQuickPullDown extends XposedModPack {
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         MotionEvent event = (MotionEvent) param.args[0];
                         final int action = event.getActionMasked();
+                        if (oneFingerPulldownEnabled && action == MotionEvent.ACTION_DOWN) {
+                            int w = mContext.getResources().getDisplayMetrics().widthPixels;
+                            float x = event.getX();
+                            float region = w * statusbarPortion;
+                            quickPullApproved = (pullDownSide == PULLDOWN_SIDE_RIGHT) ? w - region < x : x < region;
+                            quickPullApproved &= getIntField(param.thisObject, "mBarState") == STATUSBAR_MODE_SHADE;
+                        }
                         if (enableStatusBarVibration) {
                             if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_UP) {
                                 canVibrate = true;
@@ -70,13 +79,6 @@ public class QSQuickPullDown extends XposedModPack {
                             final boolean twoFingerDrag = action == MotionEvent.ACTION_POINTER_DOWN && pointerCount == 2;
                             final boolean stylusButtonClickDrag = action == MotionEvent.ACTION_DOWN && (event.isButtonPressed(MotionEvent.BUTTON_STYLUS_PRIMARY) || event.isButtonPressed(MotionEvent.BUTTON_STYLUS_SECONDARY));
                             final boolean mouseButtonClickDrag = action == MotionEvent.ACTION_DOWN && (event.isButtonPressed(MotionEvent.BUTTON_SECONDARY) || event.isButtonPressed(MotionEvent.BUTTON_TERTIARY));
-
-                            int w = mContext.getResources().getDisplayMetrics().widthPixels;
-                            float x = event.getX();
-                            float region = w * statusbarPortion;
-                            boolean quickPullApproved = (pullDownSide == PULLDOWN_SIDE_RIGHT) ? w - region < x : x < region;
-                            quickPullApproved &= getIntField(param.thisObject, "mBarState") == STATUSBAR_MODE_SHADE;
-
                             param.setResult(twoFingerDrag || quickPullApproved || stylusButtonClickDrag || mouseButtonClickDrag);
                         }
                     }
