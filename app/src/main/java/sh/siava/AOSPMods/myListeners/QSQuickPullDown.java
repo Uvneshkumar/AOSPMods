@@ -64,10 +64,6 @@ public class QSQuickPullDown extends XposedModPack {
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         MotionEvent event = (MotionEvent) param.args[0];
                         final int action = event.getActionMasked();
-                        if (oneFingerPulldownEnabled && action == MotionEvent.ACTION_DOWN) {
-                            quickPullApproved = isQuickPullApproved(event.getX());
-                            quickPullApproved &= getIntField(param.thisObject, "mBarState") == STATUSBAR_MODE_SHADE;
-                        }
                         if (enableStatusBarVibration) {
                             if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_UP) {
                                 canVibrate = true;
@@ -79,6 +75,10 @@ public class QSQuickPullDown extends XposedModPack {
                             }
                         }
                         if (oneFingerPulldownEnabled) {
+                            if (action == MotionEvent.ACTION_DOWN) {
+                                quickPullApproved = isQuickPullApproved(event.getX());
+                                quickPullApproved &= getIntField(param.thisObject, "mBarState") == STATUSBAR_MODE_SHADE;
+                            }
                             final int pointerCount = event.getPointerCount();
                             final boolean twoFingerDrag = action == MotionEvent.ACTION_POINTER_DOWN && pointerCount == 2;
                             final boolean stylusButtonClickDrag = action == MotionEvent.ACTION_DOWN && (event.isButtonPressed(MotionEvent.BUTTON_STYLUS_PRIMARY) || event.isButtonPressed(MotionEvent.BUTTON_STYLUS_SECONDARY));
