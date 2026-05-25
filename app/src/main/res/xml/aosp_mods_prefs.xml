@@ -286,12 +286,12 @@
         android:title="Fix Stupid Missing Notification Background" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
-        android:key="expandFirstNotification"
-        android:title="Always Expand First Notification" />
-    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-        android:defaultValue="false"
         android:key="expandFirstNotificationLegacy"
         android:title="Always Expand First Notification (Legacy)" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
+        android:key="expandFirstNotification"
+        android:title="Expand First Notification by Default" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
         android:key="aodIconsCenter"
