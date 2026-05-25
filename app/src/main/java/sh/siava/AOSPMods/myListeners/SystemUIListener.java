@@ -172,6 +172,10 @@ public class SystemUIListener extends XposedModPack {
     boolean shouldPreventDarkStatusBarAnimation = false;
     private final Runnable preventDarkStatusBarRunnable = () -> shouldPreventDarkStatusBarAnimation = false;
 
+    private int lastIsExpandedCount = 0;
+    private boolean manualOverride = false;
+    private ViewGroup notificationStackScrollLayout = null;
+
     private void adjustClockMargin(XC_MethodHook.MethodHookParam param) {
         TextView textView = (TextView) param.thisObject;
         if (!textView.isSingleLine()) {
@@ -1482,7 +1486,7 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
-        if (Xprefs.getBoolean("expandFirstNotification", false)) {
+        if (Xprefs.getBoolean("expandFirstNotificationLegacy", false)) {
             Class<?> ExpandableNotificationRow = findClassIfExists("com.android.systemui.statusbar.notification.row.ExpandableNotificationRow", lpparam.classLoader);
             if (ExpandableNotificationRow != null) {
                 tryHookAllMethods(ExpandableNotificationRow, "isExpanded", new XC_MethodHook() {
@@ -1492,6 +1496,72 @@ public class SystemUIListener extends XposedModPack {
                         ViewGroup viewGroup = (ViewGroup) view.getParent();
                         if (view != null && viewGroup != null && viewGroup.indexOfChild(view) == 0 && !getBooleanField(param.thisObject, "mOnKeyguard")) {
                             param.setResult(true);
+                        }
+                    }
+                });
+            }
+        }
+        if (Xprefs.getBoolean("expandFirstNotification", false)) {
+            Class<?> NotificationPanelViewController = findClassIfExists("com.android.systemui.shade.NotificationPanelViewController", lpparam.classLoader);
+            if (NotificationPanelViewController != null) {
+                tryHookAllMethods(NotificationPanelViewController, "determineAccessibilityPaneTitle", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (param.getResult() != null) {
+                            removeManualOverride();
+                        }
+                    }
+                });
+                tryHookAllMethods(NotificationPanelViewController, "isFullyCollapsed", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if ((boolean) param.getResult()) {
+                            removeManualOverride();
+                        }
+                    }
+                });
+            }
+            Class<?> ExpandableNotificationRow = findClassIfExists("com.android.systemui.statusbar.notification.row.ExpandableNotificationRow", lpparam.classLoader);
+            if (ExpandableNotificationRow != null) {
+                tryHookAllMethods(ExpandableNotificationRow, "setUserExpanded", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        View view = (View) param.thisObject;
+                        if (getBooleanField(view, "mOnKeyguard")) {
+                            return;
+                        }
+                        ViewGroup viewGroup = (ViewGroup) view.getParent();
+                        if (viewGroup != null) {
+                            boolean isGroupParent = (boolean) callMethod(view, "isSummaryWithChildren");
+                            boolean isGroupChild = (boolean) callMethod(view, "isChildInGroup");
+                            if (!isGroupParent && !isGroupChild && viewGroup.indexOfChild(view) == 0) {
+                                manualOverride = true;
+                            }
+                        }
+                    }
+                });
+                tryHookAllMethods(ExpandableNotificationRow, "isExpanded", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        View view = (View) param.thisObject;
+                        if (getBooleanField(view, "mOnKeyguard")) {
+                            return;
+                        }
+                        ViewGroup viewGroup = (ViewGroup) view.getParent();
+                        if (viewGroup != null) {
+                            notificationStackScrollLayout = viewGroup;
+                            if (lastIsExpandedCount != viewGroup.getChildCount()) {
+                                removeManualOverride();
+                            }
+                            if (manualOverride) {
+                                return;
+                            }
+                            boolean isGroupParent = (boolean) callMethod(view, "isSummaryWithChildren");
+                            boolean isGroupChild = (boolean) callMethod(view, "isChildInGroup");
+                            if (!isGroupParent && !isGroupChild && viewGroup.indexOfChild(view) == 0) {
+                                param.setResult(true);
+                            }
+                            lastIsExpandedCount = viewGroup.getChildCount();
                         }
                     }
                 });
@@ -1719,6 +1789,22 @@ public class SystemUIListener extends XposedModPack {
 //                }
 //            });
 //        }
+    }
+
+    private void removeManualOverride() {
+        if (notificationStackScrollLayout != null) {
+            for (int i = 0; i < notificationStackScrollLayout.getChildCount(); i++) {
+                View view = notificationStackScrollLayout.getChildAt(i);
+                if (view.getClass().toString().contains("com.android.systemui.statusbar.notification.row.ExpandableNotificationRow")) {
+                    boolean isGroupParent = (boolean) callMethod(view, "isSummaryWithChildren");
+                    boolean isGroupChild = (boolean) callMethod(view, "isChildInGroup");
+                    if (!isGroupParent && !isGroupChild) {
+                        setObjectField(view, "mUserExpanded", false);
+                    }
+                }
+            }
+        }
+        manualOverride = false;
     }
 
     public View findViewAt(ViewGroup parent, float x, float y) {
