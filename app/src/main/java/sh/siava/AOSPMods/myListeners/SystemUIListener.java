@@ -396,8 +396,7 @@ public class SystemUIListener extends XposedModPack {
             if (LockscreenNotificationIconsOnlyController != null) {
                 tryHookAllMethods(LockscreenNotificationIconsOnlyController, "onNotificationInfoUpdated", new XC_MethodHook() {
                     @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        param.setResult(null);
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         ViewGroup viewGroup = (ViewGroup) callMethod(param.thisObject, "getIconContainer");
                         ArrayList<?> paramArrayList = (ArrayList<?>) param.args[0];
                         if (viewGroup != null && viewGroup.getChildCount() > 0) {
