@@ -395,7 +395,7 @@
         android:key="powerVolumeUpPrivateScreenshot"
         android:title="Power + Volume UP for .private Screenshots\nNeeds &quot;Prevent ringing&quot; gesture to be enabled if AOSP" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
-        android:defaultValue="false"
+        android:defaultValue="true"
         android:key="assistantAnimationColors"
         android:title="Assistant Animation Colors" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference

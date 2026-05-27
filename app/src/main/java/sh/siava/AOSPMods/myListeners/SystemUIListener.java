@@ -1679,23 +1679,27 @@ public class SystemUIListener extends XposedModPack {
             // OplusNavigationHandle
             // SideGestureDetector
         }
-        if (Xprefs.getBoolean("assistantAnimationColors", false)) {
-            Class<?> InvocationLightsView = findClassIfExists("com.android.systemui.assist.ui.InvocationLightsView", lpparam.classLoader);
-            if (InvocationLightsView != null) {
-                tryHookAllConstructors(InvocationLightsView, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        setObjectField(param.thisObject, "mUseNavBarColor", false);
-                        @SuppressWarnings("unchecked") ArrayList<Object> mAssistInvocationLights = (ArrayList<Object>) getObjectField(param.thisObject, "mAssistInvocationLights");
-                        if (mAssistInvocationLights.size() == 4) {
+        Class<?> InvocationLightsView = findClassIfExists("com.android.systemui.assist.ui.InvocationLightsView", lpparam.classLoader);
+        if (InvocationLightsView != null) {
+            tryHookAllConstructors(InvocationLightsView, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    setObjectField(param.thisObject, "mUseNavBarColor", false);
+                    @SuppressWarnings("unchecked") ArrayList<Object> mAssistInvocationLights = (ArrayList<Object>) getObjectField(param.thisObject, "mAssistInvocationLights");
+                    if (mAssistInvocationLights != null && mAssistInvocationLights.size() == 4) {
+                        if (Xprefs.getBoolean("assistantAnimationColors", true)) {
                             setObjectField(mAssistInvocationLights.get(0), "mColor", colorBlue);
                             setObjectField(mAssistInvocationLights.get(1), "mColor", colorRed);
                             setObjectField(mAssistInvocationLights.get(2), "mColor", colorYellow);
                             setObjectField(mAssistInvocationLights.get(3), "mColor", colorGreen);
+                        } else {
+                            for (int i = 0; i < mAssistInvocationLights.size(); i++) {
+                                setObjectField(mAssistInvocationLights.get(i), "mColor", Color.TRANSPARENT);
+                            }
                         }
                     }
-                });
-            }
+                }
+            });
         }
         if (Xprefs.getBoolean("fingerprintNotificationGestures", false)) {
             Class<?> FooterView = findClassIfExists("com.android.systemui.statusbar.notification.footer.ui.view.FooterView", lpparam.classLoader);
