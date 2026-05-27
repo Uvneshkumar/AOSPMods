@@ -310,6 +310,17 @@ public class SystemFrameworkListener extends XposedModPack {
                 });
             }
         }
+        if (Xprefs.getBoolean("allowAssistantOnLockScreen", false)) {
+            Class<?> HotwordDetectionConnection = findClassIfExists("com.android.server.voiceinteraction.HotwordDetectionConnection", lpparam.classLoader);
+            if (HotwordDetectionConnection != null) {
+                tryHookAllMethods(HotwordDetectionConnection, "stopListeningFromMicLocked", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        param.setResult(null);
+                    }
+                });
+            }
+        }
     }
 
     private void captureScreen() {

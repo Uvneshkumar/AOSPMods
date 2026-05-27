@@ -33,6 +33,10 @@
         android:title="Hook Alert Slider" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="allowAssistantOnLockScreen"
+        android:title="Allow Assistant on Lock Screen (GSI)" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="oneUiPermCrashFix"
         android:title="Fix Stupid Crash on One UI Permission Controller" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
