@@ -1025,6 +1025,20 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
+        if (Xprefs.getBoolean("disableNavBarAnimationOnOneUI", false)) {
+            Class<?> GestureHintAnimator = findClassIfExists("com.android.systemui.navigationbar.gestural.GestureHintAnimator", lpparam.classLoader);
+            if (GestureHintAnimator != null) {
+                tryHookAllMethods(GestureHintAnimator, "getHintView", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        int currentHintId = (int) getObjectField(param.thisObject, "currentHintId");
+                        if (((int) param.args[0]) == currentHintId) {
+                            param.setResult(null);
+                        }
+                    }
+                });
+            }
+        }
         String pixelAODBrightnessFloat = Xprefs.getString("pixelAODBrightnessFloat", "");
         if (pixelAODBrightnessFloat != null && !pixelAODBrightnessFloat.isEmpty()) {
             Class<?> DozeService = findClassIfExists("com.android.systemui.doze.DozeService", lpparam.classLoader);

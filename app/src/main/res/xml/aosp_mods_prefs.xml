@@ -68,6 +68,10 @@
         app:summary="Less than 0 = Disable" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="disableNavBarAnimationOnOneUI"
+        android:title="Disable Nav Bar Animation on One UI" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="oxygenOsLauncherFixes"
         android:title="Oxygen OS Launcher Fixes" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
