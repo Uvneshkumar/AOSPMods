@@ -146,7 +146,6 @@ public class SystemUIListener extends XposedModPack {
     int colorYellow = Color.parseColor("#fffbbc06");
     int colorBlue = Color.parseColor("#ff4185f4");
     int colorGreen = Color.parseColor("#ff3aa853");
-    int currentAssistantColourCount = 0;
 
     View mClearAllButton;
 
@@ -1681,22 +1680,18 @@ public class SystemUIListener extends XposedModPack {
             // SideGestureDetector
         }
         if (Xprefs.getBoolean("assistantAnimationColors", false)) {
-            Class<?> EdgeLight = findClassIfExists("com.android.systemui.assist.ui.EdgeLight", lpparam.classLoader);
-            if (EdgeLight != null) {
-                tryHookAllMethods(EdgeLight, "setEndpoints", new XC_MethodHook() {
+            Class<?> InvocationLightsView = findClassIfExists("com.android.systemui.assist.ui.InvocationLightsView", lpparam.classLoader);
+            if (InvocationLightsView != null) {
+                tryHookAllConstructors(InvocationLightsView, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (currentAssistantColourCount < 4) {
-                            if (currentAssistantColourCount == 0) {
-                                setObjectField(param.thisObject, "mColor", colorBlue);
-                            } else if (currentAssistantColourCount == 1) {
-                                setObjectField(param.thisObject, "mColor", colorRed);
-                            } else if (currentAssistantColourCount == 2) {
-                                setObjectField(param.thisObject, "mColor", colorYellow);
-                            } else {
-                                setObjectField(param.thisObject, "mColor", colorGreen);
-                            }
-                            currentAssistantColourCount++;
+                        setObjectField(param.thisObject, "mUseNavBarColor", false);
+                        @SuppressWarnings("unchecked") ArrayList<Object> mAssistInvocationLights = (ArrayList<Object>) getObjectField(param.thisObject, "mAssistInvocationLights");
+                        if (mAssistInvocationLights.size() == 4) {
+                            setObjectField(mAssistInvocationLights.get(0), "mColor", colorBlue);
+                            setObjectField(mAssistInvocationLights.get(1), "mColor", colorRed);
+                            setObjectField(mAssistInvocationLights.get(2), "mColor", colorYellow);
+                            setObjectField(mAssistInvocationLights.get(3), "mColor", colorGreen);
                         }
                     }
                 });
