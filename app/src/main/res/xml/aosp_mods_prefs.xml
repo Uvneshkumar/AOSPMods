@@ -59,6 +59,10 @@
         android:title="Hide One UI Launcher Fast Scroller" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="swipeToAssistantOnOneUI"
+        android:title="Swipe to Assistant on One UI" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="oxygenOsLauncherFixes"
         android:title="Oxygen OS Launcher Fixes" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference

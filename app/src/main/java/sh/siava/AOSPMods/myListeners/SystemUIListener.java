@@ -48,6 +48,7 @@ import androidx.annotation.NonNull;
 import com.topjohnwu.superuser.Shell;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -991,6 +992,23 @@ public class SystemUIListener extends XposedModPack {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 //						Intent paramIntent = (Intent) param.args[1];
                         callMethod(SystemUtils.PowerManager(), "wakeUp", SystemClock.uptimeMillis());
+                    }
+                });
+            }
+        }
+        if (Xprefs.getBoolean("swipeToAssistantOnOneUI", false)) {
+            Class<?> NavBarHelper = findClassIfExists("com.android.systemui.navigationbar.NavBarHelper", lpparam.classLoader);
+            if (NavBarHelper != null) {
+                tryHookAllMethods(NavBarHelper, "updateAssistantAvailability", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        boolean mAssistantAvailable = true;
+                        setObjectField(param.thisObject, "mAssistantAvailable", mAssistantAvailable);
+                        boolean mLongPressHomeEnabled = getBooleanField(param.thisObject, "mLongPressHomeEnabled");
+                        @SuppressWarnings("unchecked") List<Object> mStateListeners = (List<Object>) getObjectField(param.thisObject, "mStateListeners");
+                        for (int i = 0; i < mStateListeners.size(); i++) {
+                            callMethod(mStateListeners.get(i), "updateAssistantAvailable", mAssistantAvailable, mLongPressHomeEnabled);
+                        }
                     }
                 });
             }
