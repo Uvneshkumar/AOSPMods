@@ -61,6 +61,11 @@
         android:defaultValue="false"
         android:key="swipeToAssistantOnOneUI"
         android:title="Swipe to Assistant on One UI" />
+    <sh.siava.AOSPMods.ui.MaterialEditTextPreference
+        android:key="oneUiAssistantCornerRadius"
+        android:title="One UI Assistant Corner Radius"
+        app:defaultValue="-1"
+        app:summary="Less than 0 = Disable" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
         android:key="oxygenOsLauncherFixes"

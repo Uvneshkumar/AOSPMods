@@ -1013,6 +1013,18 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
+        int oneUiAssistantCornerRadius = Integer.parseInt(Xprefs.getString("oneUiAssistantCornerRadius", "-1"));
+        if (oneUiAssistantCornerRadius >= 0) {
+            Class<?> DisplayUtils = findClassIfExists("com.android.systemui.assist.ui.DisplayUtils", lpparam.classLoader);
+            if (DisplayUtils != null) {
+                tryHookAllMethods(DisplayUtils, "getInvocationCornerRadius", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        param.setResult(oneUiAssistantCornerRadius);
+                    }
+                });
+            }
+        }
         String pixelAODBrightnessFloat = Xprefs.getString("pixelAODBrightnessFloat", "");
         if (pixelAODBrightnessFloat != null && !pixelAODBrightnessFloat.isEmpty()) {
             Class<?> DozeService = findClassIfExists("com.android.systemui.doze.DozeService", lpparam.classLoader);
