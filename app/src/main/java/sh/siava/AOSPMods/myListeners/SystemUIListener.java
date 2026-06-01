@@ -429,9 +429,9 @@ public class SystemUIListener extends XposedModPack {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         if (param.args.length >= 3) {
-                            if (((int) param.args[2]) > oneUiAodBrightness) {
-                                param.args[2] = oneUiAodBrightness;
-                            }
+//                            if (((int) param.args[2]) > oneUiAodBrightness) {
+                            param.args[2] = oneUiAodBrightness;
+//                            }
                         }
                     }
                 });
