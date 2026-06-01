@@ -95,8 +95,6 @@ public class LauncherListener extends XposedModPack {
 
     private Object recentView;
 
-    boolean shouldExpandQQSSamsung = false;
-
     private XC_MethodHook registerMyReceiver() {
         return new XC_MethodHook() {
             @Override
@@ -700,18 +698,17 @@ public class LauncherListener extends XposedModPack {
         }
         if (XPrefs.Xprefs.getBoolean("enableLauncherQQS", false)) {
             XC_MethodHook onStatusBarTouchEvent = getOnStatusBarTouchEventHook();
-            XC_MethodHook onStatusBarTouchEventSamsung = getOnStatusBarTouchEventHookSamsung();
             Class<?> SystemUiProxy = findClassIfExists("com.android.quickstep.SystemUiProxy", lpparam.classLoader);
             if (SystemUiProxy != null) {
                 tryHookAllMethods(SystemUiProxy, "onStatusBarTouchEvent", onStatusBarTouchEvent);
             }
             Class<?> SystemUiProxyOneUI = findClassIfExists("L1.t", lpparam.classLoader);
             if (SystemUiProxyOneUI != null) {
-                tryHookAllMethods(SystemUiProxyOneUI, "onStatusBarTouchEvent", onStatusBarTouchEventSamsung);
+                tryHookAllMethods(SystemUiProxyOneUI, "onStatusBarTouchEvent", onStatusBarTouchEvent);
             }
             Class<?> SystemUiProxyOneUI8 = findClassIfExists("X1.t", lpparam.classLoader);
             if (SystemUiProxyOneUI8 != null) {
-                tryHookAllMethods(SystemUiProxyOneUI8, "onStatusBarTouchEvent", onStatusBarTouchEventSamsung);
+                tryHookAllMethods(SystemUiProxyOneUI8, "onStatusBarTouchEvent", onStatusBarTouchEvent);
             }
             Class<?> NotificationPanelViewController = findClassIfExists("com.android.systemui.shade.NotificationPanelViewController", lpparam.classLoader);
             if (NotificationPanelViewController != null) {
@@ -739,6 +736,25 @@ public class LauncherListener extends XposedModPack {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         param.setResult(null);
+                    }
+                });
+            }
+            Class<?> SecPanelSplitHelper = findClassIfExists("com.android.systemui.shade.SecPanelSplitHelper", lpparam.classLoader);
+            if (SecPanelSplitHelper != null) {
+                tryHookAllMethods(SecPanelSplitHelper, "shouldQSDown", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//                        boolean shouldExpandQQSFromLauncher = Xprefs.getBoolean("shouldExpandQQSFromLauncher", false);
+//                        if (shouldExpandQQSFromLauncher) {
+//                            Xprefs.edit().putBoolean("shouldExpandQQSFromLauncher", false).apply();
+//                            callMethod(param.thisObject, "slide$1", 0);
+//                            param.setResult(true);
+//                        }
+                        MotionEvent event = (MotionEvent) param.args[0];
+                        if (event.getAction() == MotionEvent.ACTION_DOWN && QSQuickPullDown.isQuickPullApproved(event.getX())) {
+                            callMethod(param.thisObject, "slide$1", 0);
+                            param.setResult(true);
+                        }
                     }
                 });
             }
@@ -878,24 +894,6 @@ public class LauncherListener extends XposedModPack {
                 MotionEvent event = (MotionEvent) param.args[0];
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     Xprefs.edit().putBoolean("shouldExpandQQSFromLauncher", QSQuickPullDown.isQuickPullApproved(event.getX())).commit();
-                }
-            }
-        };
-    }
-
-    private XC_MethodHook getOnStatusBarTouchEventHookSamsung() {
-        return new XC_MethodHook() {
-            @SuppressLint("ApplySharedPref")
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                MotionEvent event = (MotionEvent) param.args[0];
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    shouldExpandQQSSamsung = QSQuickPullDown.isQuickPullApproved(event.getX());
-                    Xprefs.edit().putBoolean("shouldExpandQQSFromLauncher", shouldExpandQQSSamsung).commit();
-                } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
-                    if (shouldExpandQQSSamsung) {
-                        Shell.cmd("cmd statusbar expand-settings").submit();
-                    }
                 }
             }
         };
