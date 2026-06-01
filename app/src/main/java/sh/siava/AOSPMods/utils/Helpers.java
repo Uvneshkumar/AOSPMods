@@ -18,6 +18,7 @@ import java.io.FileReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
 import sh.siava.AOSPMods.XPrefs;
@@ -70,6 +71,11 @@ public class Helpers {
         log("End dump");
     }
 
+    private static final Set<String> EXCLUDED_METHODS = Set.of(
+            "dummyMethodToSkipHook1",
+            "dummyMethodToSkipHook2"
+    );
+
     public static void hookEverything(Class<?> ourClass) {
         Method[] ms = ourClass.getDeclaredMethods();
         tryHookAllConstructors(ourClass, new XC_MethodHook() {
@@ -88,6 +94,9 @@ public class Helpers {
         });
         for (Method m : ms) {
             final String methodName = m.getName();
+            if (EXCLUDED_METHODS.contains(methodName)) {
+                continue;
+            }
             tryHookAllMethods(ourClass, methodName, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
