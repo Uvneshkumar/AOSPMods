@@ -480,6 +480,10 @@
         android:title="One UI Battery Percentage in QS" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="alwaysShowTimeDateOnQsOneUI"
+        android:title="OneUI Always Show Date &amp; Time in QQS" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="forceSmallClock"
         android:title="Force Small Clock (A12)" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference

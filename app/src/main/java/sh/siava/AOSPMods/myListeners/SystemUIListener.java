@@ -660,6 +660,9 @@ public class SystemUIListener extends XposedModPack {
                 }
             }
         }
+        if (XPrefs.Xprefs.getBoolean("alwaysShowTimeDateOnQsOneUI", false)) {
+            Helper.INSTANCE.alwaysShowTimeDateOnQs(lpparam);
+        }
         if (Xprefs.getBoolean("forceSmallClock", false)) {
             Class<?> KeyguardClockSwitch = findClassIfExists("com.android.keyguard.KeyguardClockSwitch", lpparam.classLoader);
             if (KeyguardClockSwitch != null) {

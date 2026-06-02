@@ -14,6 +14,7 @@ import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
 import android.media.AudioManager
 import android.media.RingtoneManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.service.notification.StatusBarNotification
@@ -22,6 +23,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers.findAndHookMethod
+import de.robv.android.xposed.XposedHelpers.getObjectField
+import de.robv.android.xposed.XposedHelpers.setObjectField
+import de.robv.android.xposed.callbacks.XC_LoadPackage
+import sh.siava.AOSPMods.AOSPMods
 import sh.siava.AOSPMods.XPrefs
 import sh.siava.AOSPMods.utils.Helpers.myLog
 
@@ -234,6 +242,58 @@ object Helper {
 
     fun debugView(view: View) {
         getAllViews(view)
+    }
+
+    // https://github.com/SoClear/OneUIX/blob/main/app/src/main/java/io/github/soclear/oneuix/hook/SystemUI.kt#L588
+    fun alwaysShowTimeDateOnQs(loadPackageParam: XC_LoadPackage.LoadPackageParam) {
+        if (loadPackageParam.packageName != AOSPMods.SYSTEM_UI_PACKAGE ||
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM
+        ) return
+        try {
+            findAndHookMethod(
+                "com.android.systemui.qs.animator.PanelTransitionAnimator",
+                loadPackageParam.classLoader,
+                "setQs",
+                "com.android.systemui.plugins.qs.QS",
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        if (loadPackageParam.appInfo.targetSdkVersion >= Build.VERSION_CODES.BAKLAVA) {
+                            setObjectField(param.thisObject, "clockDateContainer", null)
+                            return
+                        }
+                        val context = getObjectField(param.thisObject, "context") as Context
+                        setObjectField(param.thisObject, "clockDateContainer", View(context))
+                    }
+                }
+            )
+        } catch (t: Throwable) {
+            XposedBridge.log(t)
+        }
+        try {
+            val callback = object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val mContext = getObjectField(param.thisObject, "mContext") as Context
+                    setObjectField(param.thisObject, "mClockDateContainer", View(mContext))
+                }
+            }
+            if (loadPackageParam.appInfo.targetSdkVersion >= Build.VERSION_CODES.BAKLAVA) {
+                findAndHookMethod(
+                    "com.android.systemui.qs.animator.LegacyQsExpandAnimator",
+                    loadPackageParam.classLoader,
+                    "updateViews$2",
+                    callback
+                )
+            } else {
+                findAndHookMethod(
+                    "com.android.systemui.qs.animator.QsExpandAnimator",
+                    loadPackageParam.classLoader,
+                    "updateViews",
+                    callback
+                )
+            }
+        } catch (t: Throwable) {
+            XposedBridge.log(t)
+        }
     }
 
     val Int.px: Int get() = (this * getSystem().displayMetrics.density).toInt()
