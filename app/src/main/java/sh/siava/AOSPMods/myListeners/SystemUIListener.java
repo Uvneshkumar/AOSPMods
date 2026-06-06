@@ -452,7 +452,7 @@ public class SystemUIListener extends XposedModPack {
                                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                                     isAodIconVisible = true;
                                     Helper.INSTANCE.setNotificationIcon((ImageView) param.args[0], (StatusBarNotification) getObjectField(param.args[0], "mNotification"), true, false);
-                                }, 1000);
+                                }, 100);
                             }
                         }
                     }
