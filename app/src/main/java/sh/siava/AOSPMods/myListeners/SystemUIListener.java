@@ -59,6 +59,7 @@ import sh.siava.AOSPMods.XPrefs;
 import sh.siava.AOSPMods.XposedModPack;
 import sh.siava.AOSPMods.myListeners.helper.CustomDateAlarmLayout;
 import sh.siava.AOSPMods.myListeners.helper.Helper;
+import sh.siava.AOSPMods.myListeners.helper.MyBroadcastReceiver;
 import sh.siava.AOSPMods.utils.SystemUtils;
 
 @SuppressWarnings("RedundantThrows")
@@ -420,6 +421,7 @@ public class SystemUIListener extends XposedModPack {
                     }
                 });
             }
+            MyBroadcastReceiver.postSystemUiRestartNotification(mContext);
         }
         int oneUiAodBrightness = Integer.parseInt(Xprefs.getString("oneUiAodBrightness", "-2"));
         if (oneUiAodBrightness > -2) {
