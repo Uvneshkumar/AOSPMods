@@ -329,7 +329,8 @@ public class SystemUIListener extends XposedModPack {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (SystemUtils.KeyguardManager().isKeyguardLocked()) {
                             int mBarState = (int) getObjectField(param.thisObject, "mBarState");
-                            if (mBarState != 2) {
+                            float mExpandedHeight = (float) getObjectField(param.thisObject, "mExpandedHeight");
+                            if (mBarState != 2 && mExpandedHeight < heightPixels) {
                                 mTapToSleep.onTouchEvent((MotionEvent) param.args[0]);
                             }
                         }
