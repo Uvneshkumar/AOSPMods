@@ -47,6 +47,7 @@ import androidx.annotation.NonNull;
 
 import com.topjohnwu.superuser.Shell;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -276,6 +277,21 @@ public class SystemUIListener extends XposedModPack {
             }
         }
         if (Xprefs.getBoolean("disableLockScreenBounceBP4A", false)) {
+            Class<?> DigitalClockTextView = findClassIfExists("com.android.systemui.customization.clocks.view.DigitalClockTextView", lpparam.classLoader);
+            if (DigitalClockTextView != null) {
+                Method[] ms = DigitalClockTextView.getDeclaredMethods();
+                for (Method m : ms) {
+                    final String methodName = m.getName();
+                    if (methodName.contains("animateFidget")) {
+                        tryHookAllMethods(DigitalClockTextView, methodName, new XC_MethodHook() {
+                            @Override
+                            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                                param.setResult(false);
+                            }
+                        });
+                    }
+                }
+            }
             Class<?> KeyguardIndicationTextView = findClassIfExists("com.android.systemui.statusbar.phone.KeyguardIndicationTextView", lpparam.classLoader);
             if (KeyguardIndicationTextView != null) {
                 tryHookAllMethods(KeyguardIndicationTextView, "switchIndication", new XC_MethodHook() {
