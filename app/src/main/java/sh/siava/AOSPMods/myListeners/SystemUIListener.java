@@ -1774,6 +1774,22 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
+        if (Xprefs.getBoolean("showSecondsInQQS", false)) {
+            Class<?> ShadeHeaderController = findClassIfExists("com.android.systemui.shade.ShadeHeaderController", lpparam.classLoader);
+            if (ShadeHeaderController != null) {
+                tryHookAllConstructors(ShadeHeaderController, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            TextView clock = (TextView) getObjectField(param.thisObject, "clock");
+                            setObjectField(clock, "mShowSeconds", true);
+                            callMethod(clock, "updateShowSeconds");
+                            clock.setFontFeatureSettings(null);
+                        }, 1000);
+                    }
+                });
+            }
+        }
         if (Xprefs.getBoolean("boldClockAndDateInStatusBar", false)) {
             Class<?> Clock = findClassIfExists("com.android.systemui.statusbar.policy.Clock", lpparam.classLoader);
             if (Clock != null) {

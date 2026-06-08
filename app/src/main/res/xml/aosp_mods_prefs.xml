@@ -287,6 +287,10 @@
         android:title="Disable Burn In" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="showSecondsInQQS"
+        android:title="Show Seconds in QQS Clock" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="boldClockAndDateInStatusBar"
         android:title="Bold Clock and Date in Status Bar" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
