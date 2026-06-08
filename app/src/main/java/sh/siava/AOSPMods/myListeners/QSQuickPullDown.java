@@ -64,6 +64,20 @@ public class QSQuickPullDown extends XposedModPack {
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         if (!lpparam.packageName.equals(listenPackage)) return;
         if (oneFingerPulldownEnabled || enableLauncherQQS || enableStatusBarVibration) {
+            if (oneFingerPulldownEnabled) {
+                Class<?> NotificationPanelViewController$TouchHandler = findClassIfExists("com.android.systemui.shade.NotificationPanelViewController$TouchHandler", lpparam.classLoader);
+                if (NotificationPanelViewController$TouchHandler != null) {
+                    tryHookAllMethods(NotificationPanelViewController$TouchHandler, "onInterceptTouchEvent", new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            MotionEvent event = (MotionEvent) param.args[0];
+                            if (event.getY() == 0) {
+                                event.setLocation(event.getX(), 1);
+                            }
+                        }
+                    });
+                }
+            }
             Class<?> QuickSettingsControllerImpl = findClassIfExists("com.android.systemui.shade.QuickSettingsControllerImpl", lpparam.classLoader);
             if (QuickSettingsControllerImpl != null) {
                 tryHookAllMethods(QuickSettingsControllerImpl, "isOpenQsEvent", new XC_MethodHook() {
