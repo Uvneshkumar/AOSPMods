@@ -1,5 +1,6 @@
 package sh.siava.AOSPMods.myListeners;
 
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getIntField;
@@ -7,6 +8,7 @@ import static sh.siava.AOSPMods.XPrefs.Xprefs;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
+import android.content.res.XResources;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.view.MotionEvent;
@@ -56,8 +58,14 @@ public class QSQuickPullDown extends XposedModPack {
 
     public static boolean isQuickPullApproved(float x) {
         int w = Helper.INSTANCE.getWidthPixels();
+        int widthToCheck;
+        if (XResources.getSystem().getConfiguration().orientation == ORIENTATION_PORTRAIT) {
+            widthToCheck = w;
+        } else {
+            widthToCheck = Helper.INSTANCE.getHeightPixels();
+        }
         float region = w * statusbarPortion;
-        return (pullDownSide == PULLDOWN_SIDE_RIGHT) ? w - region < x : x < region;
+        return (pullDownSide == PULLDOWN_SIDE_RIGHT) ? widthToCheck - region < x : x < region;
     }
 
     @Override
