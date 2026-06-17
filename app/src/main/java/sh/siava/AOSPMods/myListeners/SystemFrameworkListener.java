@@ -201,7 +201,7 @@ public class SystemFrameworkListener extends XposedModPack {
             hookAllMethods(PhoneWindowManagerClass, "startedWakingUp", new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    if ((int) param.args[param.args.length - 1] == WAKE_REASON_POWER_BUTTON) {
+                    if ((int) param.args[1] == WAKE_REASON_POWER_BUTTON) {
                         mWakeTime = SystemClock.uptimeMillis();
                     }
                 }

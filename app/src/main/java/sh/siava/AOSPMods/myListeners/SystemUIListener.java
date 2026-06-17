@@ -142,6 +142,7 @@ public class SystemUIListener extends XposedModPack {
 
     View touchHandlingView;
     Object touchHandlingViewListener;
+    int touchHandlingViewListenerParameterCount = 0;
     ImageView myIcon;
 
     int colorRed = Color.parseColor("#ffea4234");
@@ -760,8 +761,19 @@ public class SystemUIListener extends XposedModPack {
                                         }
                                     }
                                 });
+                                Method[] ms = touchHandlingViewListener.getClass().getDeclaredMethods();
+                                for (Method m : ms) {
+                                    final String methodName = m.getName();
+                                    if (methodName.contains("onLongPressDetected")) {
+                                        touchHandlingViewListenerParameterCount = m.getParameterCount();
+                                    }
+                                }
                                 myIcon.setOnTouchListener((view, motionEvent) -> {
-                                    callMethod(touchHandlingViewListener, "onLongPressDetected", touchHandlingView, false);
+                                    if (touchHandlingViewListenerParameterCount == 1) {
+                                        callMethod(touchHandlingViewListener, "onLongPressDetected", touchHandlingView);
+                                    } else {
+                                        callMethod(touchHandlingViewListener, "onLongPressDetected", touchHandlingView, false);
+                                    }
                                     return false;
                                 });
                             }
@@ -963,7 +975,11 @@ public class SystemUIListener extends XposedModPack {
                                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
-                                        callMethod(touchHandlingViewListener, "onLongPressDetected", touchHandlingView, false);
+                                        if (touchHandlingViewListenerParameterCount == 1) {
+                                            callMethod(touchHandlingViewListener, "onLongPressDetected", touchHandlingView);
+                                        } else {
+                                            callMethod(touchHandlingViewListener, "onLongPressDetected", touchHandlingView, false);
+                                        }
                                         if (!directUnlockOnTouchIn1By3RegionHideFP) {
                                             myIcon.setVisibility(View.VISIBLE);
                                         }
