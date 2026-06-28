@@ -124,11 +124,18 @@ public class LauncherListener extends XposedModPack {
         if (XPrefs.Xprefs.getBoolean("enableLauncherVibration", false)) {
             Class<?> AllAppsRecyclerView = findClassIfExists("com.android.launcher3.allapps.AllAppsRecyclerView", lpparam.classLoader);
             if (AllAppsRecyclerView != null) {
+                boolean fixStupidDarkStatusBarDelay2 = Xprefs.getBoolean("fixStupidDarkStatusBarDelay2", false);
                 tryHookAllMethods(AllAppsRecyclerView, "onUpdateScrollbar", new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         if (!((View) (param.thisObject)).canScrollVertically(1) || !((View) (param.thisObject)).canScrollVertically(-1)) {
-                            if (!hasVibrated[0]) {
+                            boolean canVibrate;
+                            if (fixStupidDarkStatusBarDelay2) {
+                                canVibrate = Xprefs.getBoolean("canVibrateLauncherOverscroll", true);
+                            } else {
+                                canVibrate = true;
+                            }
+                            if (!hasVibrated[0] && canVibrate) {
                                 SystemUtils.vibrate(VibrationEffect.EFFECT_CLICK, VibrationAttributes.USAGE_TOUCH);
                                 hasVibrated[0] = true;
                             }

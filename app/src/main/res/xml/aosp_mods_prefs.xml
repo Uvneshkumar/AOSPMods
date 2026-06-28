@@ -299,6 +299,14 @@
         android:title="Fix Stupid Dark Status Bar Delay" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="fixStupidDarkStatusBarDelay2"
+        android:title="Fix Stupid Dark Status Bar Delay 2" />
+    <sh.siava.AOSPMods.ui.MaterialEditTextPreference
+        android:key="extraStupidActivities"
+        android:title="Additional Activities"
+        app:summary="Comma separated values" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="fingerprintNotificationGestures"
         android:title="Fingerprint Notification Gestures" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference

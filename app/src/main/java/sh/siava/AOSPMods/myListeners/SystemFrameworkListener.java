@@ -11,6 +11,7 @@ import static de.robv.android.xposed.XposedHelpers.findMethodExactIfExists;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
 import static sh.siava.AOSPMods.XPrefs.Xprefs;
+import static sh.siava.AOSPMods.utils.Helpers.myLog;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 import static sh.siava.AOSPMods.utils.SystemUtils.ToggleFlash;
@@ -20,7 +21,9 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.os.Binder;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
@@ -33,6 +36,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -75,6 +80,7 @@ public class SystemFrameworkListener extends XposedModPack {
 
     private static final AtomicLong lastCaptureTime = new AtomicLong(0);
     boolean isCaptureStarted = false;
+    Object phoneWindowManagerClass = null;
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -324,6 +330,83 @@ public class SystemFrameworkListener extends XposedModPack {
                         param.setResult(null);
                     }
                 });
+            }
+        }
+        if (Xprefs.getBoolean("fixStupidDarkStatusBarDelay2", false)) {
+            Class<?> PhoneWindowManagerClass = findClassIfExists("com.android.server.policy.PhoneWindowManager", lpparam.classLoader);
+            if (PhoneWindowManagerClass != null) {
+                tryHookAllMethods(PhoneWindowManagerClass, "bindKeyguard", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        phoneWindowManagerClass = param.thisObject;
+                    }
+                });
+            }
+            Class<?> ActivityClientController = findClassIfExists("com.android.server.wm.ActivityClientController", lpparam.classLoader);
+            if (ActivityClientController != null) {
+                Set<String> stupidActivities = new HashSet<>(Set.of(
+                        "com.supercell.clashroyale/com.supercell.titan.GameApp",
+                        "com.whatsapp/.home.ui.HomeActivity",
+                        "com.cloudflare.onedotonedotonedotone/com.cloudflare.app.presentation.main.MainActivity",
+                        "idm.internet.download.manager.plus/idm.internet.download.manager.MainActivity",
+                        "com.miniclip.eightballpool/.EightBallPoolActivity",
+                        "in.amazon.mShop.android.shopping/com.amazon.mShop.navigation.MainActivity",
+                        "com.bt.bms/com.movie.bms.ui.screens.main.MainActivity",
+                        "com.supercell.clashofclans/com.supercell.titan.GameApp",
+                        "com.flipkart.android/.activity.HomeFragmentHolderActivity",
+                        "com.linkedin.android/.authenticator.LaunchActivityDefault",
+                        "com.mxtech.videoplayer.pro/.ActivityMediaList",
+                        "com.olx.southasia/com.olxgroup.panamera.app.buyers.home.activities.BottomNavActivity",
+                        "com.google.android.play.games/com.google.android.gms.games.ui.v2.MainActivity",
+                        "in.redbus.android/.homeV2.HomeV2Activity",
+                        "com.google.android.googlequicksearchbox/.InternalGoogleAppActivityEntrypoint",
+                        "org.swiftapps.swiftbackup/.home.HomeActivity",
+                        "in.swiggy.android/.HomeIcon",
+                        "in.swiggy.android/.activities.HomeActivity",
+                        "org.telegram.messenger/.DefaultIcon",
+                        "com.termux/.app.TermuxActivity",
+                        "com.matteljv.uno/com.netease.uno.CustomOverrideActivity",
+                        "com.iprototypes.volume/.main",
+                        "fi.twomenandadog.walkmaster/com.unity3d.player.UnityPlayerActivity",
+                        "com.wizconnected.wiz2/.MainActivity",
+                        "com.google.android.youtube/.app.honeycomb.Shell$HomeActivity",
+                        "ru.zdevs.zarchiver/.ZArchiver",
+                        "com.application.zomato/com.library.zomato.home.tabbed.home.HomeActivityV2",
+                        "com.google.android.apps.wallpaper/com.android.wallpaper.picker.customization.ui.CustomizationPickerActivity"
+                ));
+                String extraActivities = Xprefs.getString("extraStupidActivities", "");
+                if (!extraActivities.isEmpty()) {
+                    for (String activity : extraActivities.split(",")) {
+                        stupidActivities.add(activity.trim());
+                    }
+                }
+                XC_MethodHook finishBefore = new XC_MethodHook() {
+                    @SuppressLint("ApplySharedPref")
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        Object token = param.args[0];
+                        if (token != null && phoneWindowManagerClass != null) {
+                            Object mActivityRef = getObjectField(token, "mActivityRef");
+                            Object activityRecord = callMethod(mActivityRef, "get");
+                            Intent intent = (Intent) getObjectField(activityRecord, "intent");
+                            String tokenString = intent.getComponent().flattenToShortString();
+                            myLog("tokenString: " + tokenString);
+                            if (stupidActivities.contains(tokenString)) {
+                                long identityToken = Binder.clearCallingIdentity();
+                                Xprefs.edit().putBoolean("canVibrateLauncherOverscroll", false).commit();
+                                callMethod(phoneWindowManagerClass, "goHome");
+                                Binder.restoreCallingIdentity(identityToken);
+                                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                                    long delayedIdentityToken = Binder.clearCallingIdentity();
+                                    Xprefs.edit().putBoolean("canVibrateLauncherOverscroll", true).apply();
+                                    Binder.restoreCallingIdentity(delayedIdentityToken);
+                                }, 500);
+                            }
+                        }
+                    }
+                };
+                tryHookAllMethods(ActivityClientController, "finishActivity", finishBefore);
+                tryHookAllMethods(ActivityClientController, "finishActivityAffinity", finishBefore);
             }
         }
     }
