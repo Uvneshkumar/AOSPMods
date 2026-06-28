@@ -46,6 +46,7 @@ import sh.siava.AOSPMods.utils.SystemUtils;
 public class SystemFrameworkListener extends XposedModPack {
 
     private static final String listenPackage = AOSPMods.SYSTEM_FRAMEWORK_PACKAGE;
+    private static boolean isFirstTime = true;
 
     public SystemFrameworkListener(Context context) {
         super(context);
@@ -77,6 +78,10 @@ public class SystemFrameworkListener extends XposedModPack {
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
+        if (!isFirstTime) {
+            return;
+        }
+        isFirstTime = false;
         if (Xprefs.getBoolean("killSystemUi", false)) {
             try {
                 Class<?> PhoneWindowManager = findClassIfExists("com.android.server.policy.PhoneWindowManager", lpparam.classLoader);
