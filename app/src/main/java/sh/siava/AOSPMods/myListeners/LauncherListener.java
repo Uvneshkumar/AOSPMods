@@ -510,6 +510,18 @@ public class LauncherListener extends XposedModPack {
                         }
                     }
                 });
+                tryHookAllMethods(QuickstepLauncher, "initDeviceProfile", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            try {
+                                callMethod(launcherWorkspaceObject, "moveToDefaultScreen");
+                            } catch (Throwable ignored) {
+                                moveToDefaultScreen(toPage);
+                            }
+                        }, 1000);
+                    }
+                });
             }
         }
         if (XPrefs.Xprefs.getBoolean("enableLauncherExtraPadding", false)) {
