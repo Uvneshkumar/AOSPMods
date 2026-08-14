@@ -39,13 +39,16 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     private val torchCallback = object : CameraManager.TorchCallback() {
         override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
             if (enabled) {
-                smartspaceText.text = torchText
+                setSmartspaceText(torchText)
             } else {
-                smartspaceText.text = ""
+                setSmartspaceText("")
                 showCorrectText()
             }
         }
     }
+
+    private var userName: String? = null
+
     private val dateTextView: TextView
     private val temperatureTextView: TextView
     private val temperatureIcon: ImageView
@@ -65,12 +68,12 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     private var lastShownAlarmTime = ""
     private var lastShownAlarmVisibility = GONE
 
-    private val defaultText = "Greetings!"
     private val torchText = "Torch on"
 
     val boldTextVariation = "'wght' 600, 'ROND' 100"
 
     init {
+        userName = XPrefs.Xprefs.getString("myUserName", "");
         orientation = VERTICAL
         setPadding(0, dpToPx(24), 0, dpToPx(24))
         firstLine = LinearLayout(context).apply {
@@ -152,7 +155,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
             typeface = XPrefs.modRes.getFont(R.font.google_sans_flex)
             fontVariationSettings = boldTextVariation
             includeFontPadding = false
-            text = defaultText
+            text = getGreeting()
         }
         setOnClickListener {
             doCorrectAction()
@@ -169,6 +172,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
             override fun run() {
                 showCurrentDate()
                 showNextAlarmIfExists()
+                showCorrectText()
                 handler.postDelayed(this, 1000)
             }
         }
@@ -193,9 +197,30 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
             return
         }
         if (currentMusic != null) {
-            smartspaceText.text = currentMusic
+            setSmartspaceText(currentMusic)
         } else {
-            smartspaceText.text = defaultText
+            setSmartspaceText(getGreeting())
+        }
+    }
+
+    private fun setSmartspaceText(text: String?) {
+        if (smartspaceText.text.toString() != text) {
+            smartspaceText.text = text
+        }
+    }
+
+    fun getGreeting(): String {
+        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        val greeting = when (hour) {
+            in 3 until 12 -> "Good morning"
+            in 12 until 18 -> "Good afternoon"
+            in 18 until 22 -> "Good evening"
+            else -> "Good night"
+        }
+        return if (userName.orEmpty().isNotBlank()) {
+            "$greeting, $userName"
+        } else {
+            greeting
         }
     }
 
