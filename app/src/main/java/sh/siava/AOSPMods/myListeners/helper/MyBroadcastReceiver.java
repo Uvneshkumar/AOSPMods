@@ -28,7 +28,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
     public static String SEND_TEMPERATURE = "uvnesh.aospmods.SEND_TEMPERATURE";
     public static String[] SystemUIActions = {SEND_TEMPERATURE};
 
-    public CustomDateAlarmLayout customDateAlarmLayout;
+    public CustomDateAlarmLayout customDateAlarmLayoutSmall;
 
     // Send Broadcast to run through Launcher or call directly to run through any application (that has notification permission granted)
     public static void postSystemUiRestartNotification(Context context) {
@@ -83,12 +83,12 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
         } else if (GET_TEMPERATURE.equals(action)) {
             sendTemperature(context);
         } else if (SEND_TEMPERATURE.equals(action)) {
-            if (customDateAlarmLayout != null) {
+            if (customDateAlarmLayoutSmall != null) {
                 Bitmap leftBitmap = intent.getParcelableExtra("leftBitmap", Bitmap.class);
                 String temperature = intent.getStringExtra("temperature");
                 if (leftBitmap != null && temperature != null && !temperature.isEmpty()) {
                     Drawable leftDrawable = new BitmapDrawable(context.getResources(), leftBitmap);
-                    customDateAlarmLayout.setTemperature(temperature, leftDrawable);
+                    customDateAlarmLayoutSmall.setTemperature(temperature, leftDrawable);
                 }
             }
         }

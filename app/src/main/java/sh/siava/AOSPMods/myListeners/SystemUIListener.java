@@ -86,7 +86,7 @@ public class SystemUIListener extends XposedModPack {
 
     boolean isOneHandedModeActive = false;
 
-    CustomDateAlarmLayout customDateAlarmLayout;
+    CustomDateAlarmLayout customDateAlarmLayoutSmall;
     MyBroadcastReceiver myBroadcastReceiver;
 
     boolean hasSlept = false;
@@ -1390,10 +1390,10 @@ public class SystemUIListener extends XposedModPack {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         ViewGroup viewGroup = (ViewGroup) param.thisObject;
                         viewGroup.removeAllViews();
-                        customDateAlarmLayout = new CustomDateAlarmLayout(mContext);
-                        viewGroup.addView(customDateAlarmLayout);
+                        customDateAlarmLayoutSmall = new CustomDateAlarmLayout(mContext);
+                        viewGroup.addView(customDateAlarmLayoutSmall);
                         if (myBroadcastReceiver != null) {
-                            myBroadcastReceiver.customDateAlarmLayout = customDateAlarmLayout;
+                            myBroadcastReceiver.customDateAlarmLayoutSmall = customDateAlarmLayoutSmall;
                         }
                         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                             @Override
@@ -1411,24 +1411,24 @@ public class SystemUIListener extends XposedModPack {
                 tryHookAllMethods(MediaControlPanel, "bindPlayer", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (customDateAlarmLayout != null) {
-                            customDateAlarmLayout.setMusicInfo(getObjectField(param.args[0], "song").toString());
+                        if (customDateAlarmLayoutSmall != null) {
+                            customDateAlarmLayoutSmall.setMusicInfo(getObjectField(param.args[0], "song").toString());
                         }
                     }
                 });
                 tryHookAllMethods(MediaControlPanel, "bindPlayerContentDescription", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (customDateAlarmLayout != null) {
-                            customDateAlarmLayout.setMusicInfo(getObjectField(param.args[0], "song").toString());
+                        if (customDateAlarmLayoutSmall != null) {
+                            customDateAlarmLayoutSmall.setMusicInfo(getObjectField(param.args[0], "song").toString());
                         }
                     }
                 });
                 tryHookAllMethods(MediaControlPanel, "onDestroy", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (customDateAlarmLayout != null) {
-                            customDateAlarmLayout.setMusicInfo(null);
+                        if (customDateAlarmLayoutSmall != null) {
+                            customDateAlarmLayoutSmall.setMusicInfo(null);
                         }
                     }
                 });
@@ -1441,8 +1441,8 @@ public class SystemUIListener extends XposedModPack {
                         String newState = param.args[1].toString();
                         if (newState.equals("FINISH")) {
                             // Wake
-                            if (customDateAlarmLayout != null) {
-                                customDateAlarmLayout.setMusicInfo(null);
+                            if (customDateAlarmLayoutSmall != null) {
+                                customDateAlarmLayoutSmall.setMusicInfo(null);
                             }
                         } else if (newState.equals("DOZE_AOD")) {
                             // Sleep - Do Nothing - bindPlayer or bindPlayerContentDescription Triggers
