@@ -85,6 +85,7 @@ public class SystemUIListener extends XposedModPack {
 
     boolean isOneHandedModeActive = false;
 
+    CustomDateAlarmLayout customDateAlarmLayout;
     MyBroadcastReceiver myBroadcastReceiver;
 
     boolean hasSlept = false;
@@ -1388,10 +1389,54 @@ public class SystemUIListener extends XposedModPack {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         ViewGroup viewGroup = (ViewGroup) param.thisObject;
                         viewGroup.removeAllViews();
-                        CustomDateAlarmLayout customDateAlarmLayout = new CustomDateAlarmLayout(mContext);
+                        customDateAlarmLayout = new CustomDateAlarmLayout(mContext);
                         viewGroup.addView(customDateAlarmLayout);
                         if (myBroadcastReceiver != null) {
                             myBroadcastReceiver.customDateAlarmLayout = customDateAlarmLayout;
+                        }
+                    }
+                });
+            }
+            Class<?> MediaControlPanel = findClassIfExists("com.android.systemui.media.controls.ui.controller.MediaControlPanel", lpparam.classLoader);
+            if (MediaControlPanel != null) {
+                tryHookAllMethods(MediaControlPanel, "bindPlayer", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (customDateAlarmLayout != null) {
+                            customDateAlarmLayout.setMusicInfo(getObjectField(param.args[0], "song").toString());
+                        }
+                    }
+                });
+                tryHookAllMethods(MediaControlPanel, "bindPlayerContentDescription", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (customDateAlarmLayout != null) {
+                            customDateAlarmLayout.setMusicInfo(getObjectField(param.args[0], "song").toString());
+                        }
+                    }
+                });
+                tryHookAllMethods(MediaControlPanel, "onDestroy", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (customDateAlarmLayout != null) {
+                            customDateAlarmLayout.setMusicInfo(null);
+                        }
+                    }
+                });
+            }
+            Class<?> DozeTriggers = findClassIfExists("com.android.systemui.doze.DozeTriggers", lpparam.classLoader);
+            if (DozeTriggers != null) {
+                tryHookAllMethods(DozeTriggers, "transitionTo", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        String newState = param.args[1].toString();
+                        if (newState.equals("FINISH")) {
+                            // Wake
+                            if (customDateAlarmLayout != null) {
+                                customDateAlarmLayout.setMusicInfo(null);
+                            }
+                        } else if (newState.equals("DOZE_AOD")) {
+                            // Sleep - Do Nothing - bindPlayer or bindPlayerContentDescription Triggers
                         }
                     }
                 });

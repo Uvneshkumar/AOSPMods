@@ -41,7 +41,8 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
             if (enabled) {
                 smartspaceText.text = torchText
             } else {
-                smartspaceText.text = defaultText
+                smartspaceText.text = ""
+                showCorrectText()
             }
         }
     }
@@ -177,6 +178,24 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     private fun doCorrectAction() {
         if (smartspaceText.text.toString() == torchText) {
             SystemUtils.TurnOffFlash()
+        }
+    }
+
+    private var currentMusic: String? = null
+
+    fun setMusicInfo(musicInfo: String?) {
+        currentMusic = musicInfo
+        showCorrectText()
+    }
+
+    private fun showCorrectText() {
+        if (smartspaceText.text == torchText) {
+            return
+        }
+        if (currentMusic != null) {
+            smartspaceText.text = currentMusic
+        } else {
+            smartspaceText.text = defaultText
         }
     }
 
