@@ -101,6 +101,9 @@ public class LauncherListener extends XposedModPack {
     private Object recentView;
     private TextView temperatureSmartspaceView;
 
+    public static Long TEMP_DELAY = 2000L;
+    MyBroadcastReceiver myBroadcastReceiver;
+
     private XC_MethodHook registerMyReceiver() {
         return new XC_MethodHook() {
             @Override
@@ -109,7 +112,7 @@ public class LauncherListener extends XposedModPack {
                 if (isMyBroadcastRegistered) {
                     return;
                 }
-                MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
+                myBroadcastReceiver = new MyBroadcastReceiver();
                 IntentFilter filter = new IntentFilter();
                 for (String action : MyBroadcastReceiver.actions) {
                     filter.addAction(action);
@@ -470,7 +473,7 @@ public class LauncherListener extends XposedModPack {
                                     }
                                 }
                             }
-                        }, 2000);
+                        }, TEMP_DELAY);
                     }
                 });
             }
@@ -977,15 +980,11 @@ public class LauncherListener extends XposedModPack {
     private void broadcastTemperature() {
         Drawable leftD = temperatureSmartspaceView.getCompoundDrawables()[0];
         if (leftD != null) {
-            Bitmap bitmap = Bitmap.createBitmap(leftD.getIntrinsicWidth(), leftD.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
+            Bitmap leftBitmap = Bitmap.createBitmap(leftD.getIntrinsicWidth(), leftD.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(leftBitmap);
             leftD.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
             leftD.draw(canvas);
-            Intent intent = new Intent();
-            intent.setAction(MyBroadcastReceiver.SEND_TEMPERATURE);
-            intent.putExtra("leftBitmap", bitmap);
-            intent.putExtra("temperature", temperatureSmartspaceView.getText().toString());
-            mContext.sendBroadcast(intent);
+            myBroadcastReceiver.setTemperatureDataAndSend(leftBitmap, temperatureSmartspaceView.getText().toString(), mContext);
         }
     }
 }

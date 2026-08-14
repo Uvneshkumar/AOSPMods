@@ -16,6 +16,7 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
@@ -1394,6 +1395,14 @@ public class SystemUIListener extends XposedModPack {
                         if (myBroadcastReceiver != null) {
                             myBroadcastReceiver.customDateAlarmLayout = customDateAlarmLayout;
                         }
+                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent intent = new Intent();
+                                intent.setAction(MyBroadcastReceiver.GET_TEMPERATURE);
+                                mContext.sendBroadcast(intent);
+                            }
+                        }, LauncherListener.TEMP_DELAY);
                     }
                 });
             }

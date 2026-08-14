@@ -22,7 +22,8 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
     public static String TORCH_ON = "uvnesh.aospmods.TORCH_ON";
     public static String TORCH_OFF = "uvnesh.aospmods.TORCH_OFF";
     public static String SYSTEMUI_RESTART = "uvnesh.aospmods.SYSTEMUI_RESTART";
-    public static String[] actions = {SCREENSHOT, TORCH_ON, TORCH_OFF, SYSTEMUI_RESTART};
+    public static String GET_TEMPERATURE = "uvnesh.aospmods.GET_TEMPERATURE";
+    public static String[] actions = {SCREENSHOT, TORCH_ON, TORCH_OFF, SYSTEMUI_RESTART, GET_TEMPERATURE};
 
     public static String SEND_TEMPERATURE = "uvnesh.aospmods.SEND_TEMPERATURE";
     public static String[] SystemUIActions = {SEND_TEMPERATURE};
@@ -65,6 +66,8 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
             notificationManager.cancel(1);
         }
     }
+    Bitmap leftBitmap;
+    String temperature;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -77,6 +80,8 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
             postTorchNotification(context, false);
         } else if (SYSTEMUI_RESTART.equals(action)) {
             postSystemUiRestartNotification(context);
+        } else if (GET_TEMPERATURE.equals(action)) {
+            sendTemperature(context);
         } else if (SEND_TEMPERATURE.equals(action)) {
             if (customDateAlarmLayout != null) {
                 Bitmap leftBitmap = intent.getParcelableExtra("leftBitmap", Bitmap.class);
@@ -86,6 +91,22 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
                     customDateAlarmLayout.setTemperature(temperature, leftDrawable);
                 }
             }
+        }
+    }
+
+    public void setTemperatureDataAndSend(Bitmap leftBitmap, String temperature, Context context) {
+        this.leftBitmap = leftBitmap;
+        this.temperature = temperature;
+        sendTemperature(context);
+    }
+
+    public void sendTemperature(Context context) {
+        if (leftBitmap != null && temperature != null && !temperature.isEmpty()) {
+            Intent intent = new Intent();
+            intent.setAction(MyBroadcastReceiver.SEND_TEMPERATURE);
+            intent.putExtra("leftBitmap", leftBitmap);
+            intent.putExtra("temperature", temperature);
+            context.sendBroadcast(intent);
         }
     }
 }
