@@ -182,6 +182,8 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     private fun doCorrectAction() {
         if (smartspaceText.text.toString() == torchText) {
             SystemUtils.TurnOffFlash()
+        } else {
+            SystemUtils.Sleep()
         }
     }
 
