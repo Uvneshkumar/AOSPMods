@@ -22,14 +22,18 @@ import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
+import android.text.Editable;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
+import android.text.TextWatcher;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -40,6 +44,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -94,6 +99,7 @@ public class LauncherListener extends XposedModPack {
     private boolean isAodOffAfterReboot = false;
 
     private Object recentView;
+    private TextView temperatureSmartspaceView;
 
     private XC_MethodHook registerMyReceiver() {
         return new XC_MethodHook() {
@@ -427,6 +433,44 @@ public class LauncherListener extends XposedModPack {
                                 }, (long) (animDuration - (animDuration / 1.75)));
                             }
                         }
+                    }
+                });
+            }
+        }
+        if (Xprefs.getBoolean("keyguardSliceViewCustomA16", false)) {
+            Class<?> DoubleShadowTextView = findClassIfExists("com.google.android.systemui.smartspace.DoubleShadowTextView", lpparam.classLoader);
+            if (DoubleShadowTextView != null) {
+                tryHookAllConstructors(DoubleShadowTextView, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                TextView doubleShadowTextView = (TextView) param.thisObject;
+                                if (doubleShadowTextView.toString().contains("app:id/subtitle_text")) {
+                                    if (doubleShadowTextView.getText().toString().contains("°C")) {
+                                        if (temperatureSmartspaceView == null) {
+                                            temperatureSmartspaceView = doubleShadowTextView;
+                                            broadcastTemperature();
+                                            temperatureSmartspaceView.addTextChangedListener(new TextWatcher() {
+                                                @Override
+                                                public void afterTextChanged(Editable s) {
+                                                    broadcastTemperature();
+                                                }
+
+                                                @Override
+                                                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                                                }
+
+                                                @Override
+                                                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        }, 2000);
                     }
                 });
             }
@@ -927,6 +971,21 @@ public class LauncherListener extends XposedModPack {
             if (view != null) {
                 view.requestFocus();
             }
+        }
+    }
+
+    private void broadcastTemperature() {
+        Drawable leftD = temperatureSmartspaceView.getCompoundDrawables()[0];
+        if (leftD != null) {
+            Bitmap bitmap = Bitmap.createBitmap(leftD.getIntrinsicWidth(), leftD.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            leftD.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            leftD.draw(canvas);
+            Intent intent = new Intent();
+            intent.setAction(MyBroadcastReceiver.SEND_TEMPERATURE);
+            intent.putExtra("leftBitmap", bitmap);
+            intent.putExtra("temperature", temperatureSmartspaceView.getText().toString());
+            mContext.sendBroadcast(intent);
         }
     }
 }

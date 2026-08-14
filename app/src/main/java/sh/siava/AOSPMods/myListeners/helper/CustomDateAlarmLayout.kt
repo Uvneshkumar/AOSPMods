@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.Looper
@@ -45,6 +46,8 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
         }
     }
     private val dateTextView: TextView
+    private val temperatureTextView: TextView
+    private val temperatureIcon: ImageView
     private val alarmTextView: TextView
     private val alarmIcon: ImageView
     private val dndIcon: ImageView
@@ -97,6 +100,26 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
             includeFontPadding = false
         }
         firstLine.addView(dateTextView)
+        temperatureIcon = ImageView(context).apply {
+            visibility = GONE
+        }
+        val temperatureIconParams = LayoutParams(dpToPx(20), dpToPx(20)).apply {
+            leftMargin = dpToPx(8)
+        }
+        firstLine.addView(temperatureIcon, temperatureIconParams)
+        temperatureTextView = TextView(context).apply {
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+            setTextColor(Color.WHITE)
+            typeface = XPrefs.modRes.getFont(R.font.google_sans_flex)
+            fontVariationSettings = boldTextVariation
+            includeFontPadding = false
+            visibility = GONE
+        }
+        val temperatureTextParams =
+            LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
+                leftMargin = dpToPx(8)
+            }
+        firstLine.addView(temperatureTextView, temperatureTextParams)
         alarmIcon = ImageView(context).apply {
             setImageDrawable(
                 ResourcesCompat.getDrawable(
@@ -163,6 +186,13 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
             lastShownDate = currentDate
             dateTextView.text = currentDate
         }
+    }
+
+    fun setTemperature(temperature: String, leftDrawable: Drawable) {
+        temperatureIcon.setImageDrawable(leftDrawable)
+        temperatureTextView.text = temperature;
+        temperatureIcon.visibility = VISIBLE
+        temperatureTextView.visibility = VISIBLE
     }
 
     private fun showNextAlarmIfExists() {

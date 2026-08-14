@@ -16,6 +16,7 @@ import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -83,6 +84,8 @@ public class SystemUIListener extends XposedModPack {
     boolean isTouchHandlingViewLongPressed = false;
 
     boolean isOneHandedModeActive = false;
+
+    MyBroadcastReceiver myBroadcastReceiver;
 
     boolean hasSlept = false;
     ViewGroup ST2S_BP4A_KeyguardRootView = null;
@@ -204,9 +207,34 @@ public class SystemUIListener extends XposedModPack {
         return className.contains("KeyguardRootView") || className.contains("KeyguardStatusAreaView");
     }
 
+    private boolean isMyBroadcastRegistered = false;
+
+    private XC_MethodHook registerMyReceiver() {
+        return new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+                if (isMyBroadcastRegistered) {
+                    return;
+                }
+                myBroadcastReceiver = new MyBroadcastReceiver();
+                IntentFilter filter = new IntentFilter();
+                for (String action : MyBroadcastReceiver.SystemUIActions) {
+                    filter.addAction(action);
+                }
+                mContext.getApplicationContext().registerReceiver(myBroadcastReceiver, filter, Context.RECEIVER_EXPORTED);
+                isMyBroadcastRegistered = true;
+            }
+        };
+    }
+
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         if (!lpparam.packageName.equals(listenPackage)) return;
+        Class<?> KeyguardRootView = findClassIfExists("com.android.systemui.keyguard.ui.view.KeyguardRootView", lpparam.classLoader);
+        if (KeyguardRootView != null) {
+            tryHookAllConstructors(KeyguardRootView, registerMyReceiver());
+        }
         int widthPixels = Resources.getSystem().getDisplayMetrics().widthPixels;
         int heightPixels = Resources.getSystem().getDisplayMetrics().heightPixels;
         int statusBarHeight;
@@ -338,7 +366,6 @@ public class SystemUIListener extends XposedModPack {
                     }
                 });
             }
-            Class<?> KeyguardRootView = findClassIfExists("com.android.systemui.keyguard.ui.view.KeyguardRootView", lpparam.classLoader);
             if (KeyguardRootView != null) {
                 tryHookAllConstructors(KeyguardRootView, new XC_MethodHook() {
                     @Override
@@ -570,7 +597,6 @@ public class SystemUIListener extends XposedModPack {
         boolean hideClockDateSmartSpaceA16 = Xprefs.getBoolean("hideClockDateSmartSpaceA16", false);
         boolean fixHiddenLargeDateSmartSpaceA16 = Xprefs.getBoolean("fixHiddenLargeDateSmartSpaceA16", false);
         if (largeClockTopMarginA16 || largeClockDateSmartSpaceTopMarginA16 || hideClockDateSmartSpaceA16 || fixHiddenLargeDateSmartSpaceA16) {
-            Class<?> KeyguardRootView = findClassIfExists("com.android.systemui.keyguard.ui.view.KeyguardRootView", lpparam.classLoader);
             if (KeyguardRootView != null) {
                 tryHookAllConstructors(KeyguardRootView, new XC_MethodHook() {
                     @Override
@@ -1362,13 +1388,16 @@ public class SystemUIListener extends XposedModPack {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         ViewGroup viewGroup = (ViewGroup) param.thisObject;
                         viewGroup.removeAllViews();
-                        viewGroup.addView(new CustomDateAlarmLayout(mContext));
+                        CustomDateAlarmLayout customDateAlarmLayout = new CustomDateAlarmLayout(mContext);
+                        viewGroup.addView(customDateAlarmLayout);
+                        if (myBroadcastReceiver != null) {
+                            myBroadcastReceiver.customDateAlarmLayout = customDateAlarmLayout;
+                        }
                     }
                 });
             }
         }
         if (Xprefs.getBoolean("keyguardSliceViewBurnInLikeSmartSpace", false)) {
-            Class<?> KeyguardRootView = findClassIfExists("com.android.systemui.keyguard.ui.view.KeyguardRootView", lpparam.classLoader);
             if (KeyguardRootView != null) {
                 tryHookAllConstructors(KeyguardRootView, new XC_MethodHook() {
                     @Override

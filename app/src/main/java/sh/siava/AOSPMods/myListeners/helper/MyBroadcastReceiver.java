@@ -7,6 +7,9 @@ import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 
 import androidx.core.app.NotificationCompat;
 
@@ -20,6 +23,11 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
     public static String TORCH_OFF = "uvnesh.aospmods.TORCH_OFF";
     public static String SYSTEMUI_RESTART = "uvnesh.aospmods.SYSTEMUI_RESTART";
     public static String[] actions = {SCREENSHOT, TORCH_ON, TORCH_OFF, SYSTEMUI_RESTART};
+
+    public static String SEND_TEMPERATURE = "uvnesh.aospmods.SEND_TEMPERATURE";
+    public static String[] SystemUIActions = {SEND_TEMPERATURE};
+
+    public CustomDateAlarmLayout customDateAlarmLayout;
 
     // Send Broadcast to run through Launcher or call directly to run through any application (that has notification permission granted)
     public static void postSystemUiRestartNotification(Context context) {
@@ -69,6 +77,15 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
             postTorchNotification(context, false);
         } else if (SYSTEMUI_RESTART.equals(action)) {
             postSystemUiRestartNotification(context);
+        } else if (SEND_TEMPERATURE.equals(action)) {
+            if (customDateAlarmLayout != null) {
+                Bitmap leftBitmap = intent.getParcelableExtra("leftBitmap", Bitmap.class);
+                String temperature = intent.getStringExtra("temperature");
+                if (leftBitmap != null && temperature != null && !temperature.isEmpty()) {
+                    Drawable leftDrawable = new BitmapDrawable(context.getResources(), leftBitmap);
+                    customDateAlarmLayout.setTemperature(temperature, leftDrawable);
+                }
+            }
         }
     }
 }
