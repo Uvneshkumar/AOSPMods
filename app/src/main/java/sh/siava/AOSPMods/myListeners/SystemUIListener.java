@@ -88,6 +88,8 @@ public class SystemUIListener extends XposedModPack {
 
     CustomDateAlarmLayout customDateAlarmLayoutSmall;
     MyBroadcastReceiver myBroadcastReceiver;
+    CustomDateAlarmLayout customDateAlarmLayoutBig;
+    int customDateAlarmLayoutBigInitialY = Helper.INSTANCE.getPx(570);
 
     boolean hasSlept = false;
     ViewGroup ST2S_BP4A_KeyguardRootView = null;
@@ -595,6 +597,10 @@ public class SystemUIListener extends XposedModPack {
             }
         }
         boolean largeClockTopMarginA16 = Xprefs.getBoolean("largeClockTopMarginA16", false);
+        if (largeClockTopMarginA16) {
+            int largeClockTopMarginDynamic = Helper.INSTANCE.getPx((int) Float.parseFloat(Xprefs.getString("largeClockTopMarginDynamic", "80")));
+            customDateAlarmLayoutBigInitialY = customDateAlarmLayoutBigInitialY - largeClockTopMarginDynamic;
+        }
         boolean largeClockDateSmartSpaceTopMarginA16 = Xprefs.getBoolean("largeClockDateSmartSpaceTopMarginA16", false);
         boolean hideClockDateSmartSpaceA16 = Xprefs.getBoolean("hideClockDateSmartSpaceA16", false);
         boolean fixHiddenLargeDateSmartSpaceA16 = Xprefs.getBoolean("fixHiddenLargeDateSmartSpaceA16", false);
@@ -1391,9 +1397,19 @@ public class SystemUIListener extends XposedModPack {
                         ViewGroup viewGroup = (ViewGroup) param.thisObject;
                         viewGroup.removeAllViews();
                         customDateAlarmLayoutSmall = new CustomDateAlarmLayout(mContext);
+                        customDateAlarmLayoutSmall.showOnlySmall();
+                        customDateAlarmLayoutBig = new CustomDateAlarmLayout(mContext);
+                        customDateAlarmLayoutBig.setId(View.generateViewId());
+                        customDateAlarmLayoutBig.setBig();
+                        viewGroup.post(() -> {
+                            ViewGroup keyguardRootView = (ViewGroup) viewGroup.getParent();
+                            keyguardRootView.addView(customDateAlarmLayoutBig);
+                            customDateAlarmLayoutBig.setY(customDateAlarmLayoutBigInitialY);
+                        });
                         viewGroup.addView(customDateAlarmLayoutSmall);
                         if (myBroadcastReceiver != null) {
                             myBroadcastReceiver.customDateAlarmLayoutSmall = customDateAlarmLayoutSmall;
+                            myBroadcastReceiver.customDateAlarmLayoutBig = customDateAlarmLayoutBig;
                         }
                         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                             @Override
@@ -1403,6 +1419,31 @@ public class SystemUIListener extends XposedModPack {
                                 mContext.sendBroadcast(intent);
                             }
                         }, LauncherListener.TEMP_DELAY);
+                    }
+                });
+            }
+            Class<?> FlexClockViewGroup = findClassIfExists("com.android.systemui.shared.clocks.view.FlexClockViewGroup", lpparam.classLoader);
+            if (FlexClockViewGroup != null) {
+                tryHookAllMethods(FlexClockViewGroup, "onLayout", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        ViewGroup viewGroup = (ViewGroup) param.thisObject;
+                        float alpha = viewGroup.getAlpha();
+                        if (alpha != 1) {
+                            customDateAlarmLayoutSmall.showOnlySmall();
+                        }
+                    }
+                });
+                tryHookAllMethods(FlexClockViewGroup, "setAlpha", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        float alpha = (float) param.args[0];
+                        customDateAlarmLayoutBig.setAlpha(alpha);
+                        if (alpha == 1) {
+                            customDateAlarmLayoutSmall.showOnlySmall();
+                        } else if (alpha == 0) {
+                            customDateAlarmLayoutSmall.showAll();
+                        }
                     }
                 });
             }
@@ -1493,6 +1534,9 @@ public class SystemUIListener extends XposedModPack {
                                     lastTranslationXY[1] = burn_in_layer[0].getTranslationY();
                                     keyguard_slice_view[0].setTranslationX(lastTranslationXY[0]);
                                     keyguard_slice_view[0].setY(lastY[0] + lastTranslationXY[1]);
+                                    if (customDateAlarmLayoutBig != null) {
+                                        customDateAlarmLayoutBig.setTranslationY(customDateAlarmLayoutBigInitialY + lastTranslationXY[1]);
+                                    }
                                 }
                             }
                             return true;

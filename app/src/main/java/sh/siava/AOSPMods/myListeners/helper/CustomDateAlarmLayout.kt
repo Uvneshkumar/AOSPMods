@@ -179,8 +179,24 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
         handler.post(timeRunnable)
     }
 
+    fun showOnlySmall() {
+        firstLine.visibility = INVISIBLE
+    }
+
+    fun showAll() {
+        firstLine.visibility = VISIBLE
+    }
+
+    fun setBig() {
+        firstLine.gravity = Gravity.CENTER
+        secondLine.visibility = GONE
+        post {
+            layoutParams.width = LayoutParams.MATCH_PARENT
+        }
+    }
+
     private fun doCorrectAction() {
-        if (smartspaceText.text.toString() == torchText) {
+        if (secondLine.isVisible && smartspaceText.text.toString() == torchText) {
             SystemUtils.TurnOffFlash()
         } else {
             SystemUtils.Sleep()

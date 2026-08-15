@@ -29,6 +29,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
     public static String[] SystemUIActions = {SEND_TEMPERATURE};
 
     public CustomDateAlarmLayout customDateAlarmLayoutSmall;
+    public CustomDateAlarmLayout customDateAlarmLayoutBig;
 
     // Send Broadcast to run through Launcher or call directly to run through any application (that has notification permission granted)
     public static void postSystemUiRestartNotification(Context context) {
@@ -89,6 +90,9 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
                 if (leftBitmap != null && temperature != null && !temperature.isEmpty()) {
                     Drawable leftDrawable = new BitmapDrawable(context.getResources(), leftBitmap);
                     customDateAlarmLayoutSmall.setTemperature(temperature, leftDrawable);
+                    if (customDateAlarmLayoutBig != null) {
+                        customDateAlarmLayoutBig.setTemperature(temperature, leftDrawable);
+                    }
                 }
             }
         }
