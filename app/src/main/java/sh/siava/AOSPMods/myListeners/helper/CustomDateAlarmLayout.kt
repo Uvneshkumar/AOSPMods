@@ -13,6 +13,7 @@ import android.graphics.drawable.Drawable
 import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.Looper
+import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity
 import android.widget.ImageView
@@ -75,7 +76,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     init {
         userName = XPrefs.Xprefs.getString("myUserName", "");
         orientation = VERTICAL
-        setPadding(0, dpToPx(24), 0, dpToPx(24))
+        setPadding(0, dpToPx(24), dpToPx(24), dpToPx(24))
         firstLine = LinearLayout(context).apply {
             gravity = Gravity.CENTER_VERTICAL
             orientation = HORIZONTAL
@@ -155,6 +156,8 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
             typeface = XPrefs.modRes.getFont(R.font.google_sans_flex)
             fontVariationSettings = boldTextVariation
             includeFontPadding = false
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
             text = getGreeting()
         }
         setOnClickListener {
