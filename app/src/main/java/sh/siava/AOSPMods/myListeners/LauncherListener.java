@@ -30,10 +30,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
-import android.text.Editable;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
-import android.text.TextWatcher;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -99,7 +97,6 @@ public class LauncherListener extends XposedModPack {
     private boolean isAodOffAfterReboot = false;
 
     private Object recentView;
-    private TextView temperatureSmartspaceView;
 
     public static Long TEMP_DELAY = 2000L;
     MyBroadcastReceiver myBroadcastReceiver;
@@ -451,25 +448,12 @@ public class LauncherListener extends XposedModPack {
                             public void run() {
                                 TextView doubleShadowTextView = (TextView) param.thisObject;
                                 if (doubleShadowTextView.toString().contains("app:id/subtitle_text")) {
-                                    if (doubleShadowTextView.getText().toString().contains("°C")) {
-                                        if (temperatureSmartspaceView == null) {
-                                            temperatureSmartspaceView = doubleShadowTextView;
-                                            broadcastTemperature();
-                                            temperatureSmartspaceView.addTextChangedListener(new TextWatcher() {
-                                                @Override
-                                                public void afterTextChanged(Editable s) {
-                                                    broadcastTemperature();
-                                                }
-
-                                                @Override
-                                                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                                                }
-
-                                                @Override
-                                                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                                                }
-                                            });
-                                        }
+                                    if (doubleShadowTextView.getText().toString().endsWith("°C")) {
+                                        broadcastTemperature(doubleShadowTextView);
+                                        // TextChangedListener Not Working
+                                        doubleShadowTextView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+                                            broadcastTemperature(doubleShadowTextView);
+                                        });
                                     }
                                 }
                             }
@@ -977,7 +961,7 @@ public class LauncherListener extends XposedModPack {
         }
     }
 
-    private void broadcastTemperature() {
+    private void broadcastTemperature(TextView temperatureSmartspaceView) {
         Drawable leftD = temperatureSmartspaceView.getCompoundDrawables()[0];
         if (leftD != null) {
             Bitmap leftBitmap = Bitmap.createBitmap(leftD.getIntrinsicWidth(), leftD.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
