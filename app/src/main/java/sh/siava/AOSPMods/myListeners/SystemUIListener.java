@@ -24,6 +24,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.graphics.drawable.Icon;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -1455,7 +1456,7 @@ public class SystemUIListener extends XposedModPack {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (customDateAlarmLayoutSmall != null) {
-                            customDateAlarmLayoutSmall.setMusicInfo(getObjectField(param.args[0], "song").toString());
+                            customDateAlarmLayoutSmall.setMusicInfo(getObjectField(param.args[0], "song").toString(), (Icon) getObjectField(param.args[0], "appIcon"));
                         }
                     }
                 });
@@ -1463,7 +1464,7 @@ public class SystemUIListener extends XposedModPack {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (customDateAlarmLayoutSmall != null) {
-                            customDateAlarmLayoutSmall.setMusicInfo(getObjectField(param.args[0], "song").toString());
+                            customDateAlarmLayoutSmall.setMusicInfo(getObjectField(param.args[0], "song").toString(), (Icon) getObjectField(param.args[0], "appIcon"));
                         }
                     }
                 });
@@ -1471,7 +1472,7 @@ public class SystemUIListener extends XposedModPack {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (customDateAlarmLayoutSmall != null) {
-                            customDateAlarmLayoutSmall.setMusicInfo(null);
+                            customDateAlarmLayoutSmall.setMusicInfo(null, null);
                         }
                     }
                 });
@@ -1485,7 +1486,7 @@ public class SystemUIListener extends XposedModPack {
                         if (newState.equals("FINISH")) {
                             // Wake
                             if (customDateAlarmLayoutSmall != null) {
-                                customDateAlarmLayoutSmall.setMusicInfo(null);
+                                customDateAlarmLayoutSmall.setMusicInfo(null, null);
                             }
                         } else if (newState.equals("DOZE_AOD")) {
                             // Sleep - Do Nothing - bindPlayer or bindPlayerContentDescription Triggers

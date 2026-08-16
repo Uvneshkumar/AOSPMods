@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.Icon
 import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.Looper
@@ -60,6 +61,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     private val dndIcon: ImageView
     private val firstLine: LinearLayout
     private val secondLine: LinearLayout
+    private val appIcon: ImageView
     private val smartspaceText: TextView
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
     private val handler = Handler(Looper.getMainLooper())
@@ -152,6 +154,13 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
                 leftMargin = dpToPx(8)
             }
         firstLine.addView(alarmTextView, alarmTextParams)
+        appIcon = ImageView(context).apply {
+            visibility = GONE
+        }
+        val appIconParams = LayoutParams(dpToPx(24), dpToPx(24)).apply {
+            rightMargin = dpToPx(8)
+        }
+        secondLine.addView(appIcon, appIconParams)
         smartspaceText = TextView(context).apply {
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
             setTextColor(Color.WHITE)
@@ -209,9 +218,11 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     }
 
     private var currentMusic: String? = null
+    private var currentAppIcon: Icon? = null
 
-    fun setMusicInfo(musicInfo: String?) {
+    fun setMusicInfo(musicInfo: String?, appIcon: Icon?) {
         currentMusic = musicInfo
+        currentAppIcon = appIcon
         showCorrectText()
     }
 
@@ -229,6 +240,13 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     private fun setSmartspaceText(text: String?) {
         if (smartspaceText.text.toString() != text) {
             smartspaceText.text = text
+            if (text == torchText || currentAppIcon == null) {
+                appIcon.isVisible = false
+                appIcon.setImageIcon(null)
+            } else {
+                appIcon.setImageIcon(currentAppIcon)
+                appIcon.isVisible = true
+            }
         }
     }
 
