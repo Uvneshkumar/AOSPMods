@@ -41,8 +41,10 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
         override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
             if (enabled) {
                 setSmartspaceText(torchText)
+                context.sendBroadcast(Intent(MyBroadcastReceiver.TORCH_ON))
             } else {
                 setSmartspaceText("")
+                context.sendBroadcast(Intent(MyBroadcastReceiver.TORCH_OFF))
                 showCorrectText()
             }
         }
@@ -69,7 +71,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     private var lastShownAlarmTime = ""
     private var lastShownAlarmVisibility = GONE
 
-    private val torchText = "Torch on"
+    private val torchText = "Torch on  ·  Tap to turn off"
 
     val boldTextVariation = "'wght' 600, 'ROND' 100"
 

@@ -228,6 +228,9 @@ public class SystemUIListener extends XposedModPack {
                 }
                 mContext.getApplicationContext().registerReceiver(myBroadcastReceiver, filter, Context.RECEIVER_EXPORTED);
                 isMyBroadcastRegistered = true;
+                Intent intent = new Intent();
+                intent.setAction(MyBroadcastReceiver.SYSTEMUI_RESTART);
+                mContext.sendBroadcast(intent);
             }
         };
     }
@@ -470,7 +473,6 @@ public class SystemUIListener extends XposedModPack {
                     }
                 });
             }
-            MyBroadcastReceiver.postSystemUiRestartNotification(mContext);
         }
         int oneUiAodBrightness = Integer.parseInt(Xprefs.getString("oneUiAodBrightness", "-2"));
         if (oneUiAodBrightness > -2) {
