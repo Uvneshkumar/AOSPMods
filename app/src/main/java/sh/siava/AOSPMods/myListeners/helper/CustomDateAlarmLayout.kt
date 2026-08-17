@@ -204,6 +204,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     fun setBig() {
         firstLine.gravity = Gravity.CENTER
         secondLine.visibility = GONE
+        updatePadding(right = 0)
         post {
             layoutParams.width = LayoutParams.MATCH_PARENT
         }
