@@ -1468,6 +1468,14 @@ public class SystemUIListener extends XposedModPack {
                         }
                     }
                 });
+                tryHookAllMethods(MediaControlPanel, "isPlaying", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (customDateAlarmLayoutSmall != null) {
+                            customDateAlarmLayoutSmall.setMusicPlaying((Boolean) param.getResult());
+                        }
+                    }
+                });
                 tryHookAllMethods(MediaControlPanel, "onDestroy", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -1487,9 +1495,11 @@ public class SystemUIListener extends XposedModPack {
                             // Wake
                             if (customDateAlarmLayoutSmall != null) {
                                 customDateAlarmLayoutSmall.setMusicInfo(null, null);
+                                customDateAlarmLayoutSmall.setMusicAllowed(false);
                             }
                         } else if (newState.equals("DOZE_AOD")) {
-                            // Sleep - Do Nothing - bindPlayer or bindPlayerContentDescription Triggers
+                            // Sleep - bindPlayer or bindPlayerContentDescription Triggers
+                            customDateAlarmLayoutSmall.setMusicAllowed(true);
                         }
                     }
                 });

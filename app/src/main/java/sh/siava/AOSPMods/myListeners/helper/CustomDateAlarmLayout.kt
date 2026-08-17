@@ -220,6 +220,8 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
 
     private var currentMusic: String? = null
     private var currentAppIcon: Icon? = null
+    private var isMusicAllowed: Boolean = false
+    private var isMusicPlaying: Boolean = false
 
     fun setMusicInfo(musicInfo: String?, appIcon: Icon?) {
         currentMusic = musicInfo
@@ -227,11 +229,21 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
         showCorrectText()
     }
 
+    fun setMusicPlaying(playing: Boolean) {
+        isMusicPlaying = playing
+        showCorrectText()
+    }
+
+    fun setMusicAllowed(allowed: Boolean) {
+        isMusicAllowed = allowed
+        showCorrectText()
+    }
+
     private fun showCorrectText() {
         if (smartspaceText.text == torchText) {
             return
         }
-        if (currentMusic != null) {
+        if (currentMusic != null && isMusicAllowed && isMusicPlaying) {
             setSmartspaceText(currentMusic)
         } else {
             setSmartspaceText(getGreeting())
@@ -241,7 +253,7 @@ class CustomDateAlarmLayout(context: Context) : LinearLayout(context) {
     private fun setSmartspaceText(text: String?) {
         if (smartspaceText.text.toString() != text) {
             smartspaceText.text = text
-            if (text == torchText || currentAppIcon == null) {
+            if (text == torchText || currentAppIcon == null || !isMusicAllowed || !isMusicPlaying) {
                 appIcon.isVisible = false
                 appIcon.setImageIcon(null)
             } else {
