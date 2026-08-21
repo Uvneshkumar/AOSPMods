@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.core.app.NotificationCompat;
 
@@ -109,7 +111,9 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
         if (SCREENSHOT.equals(action)) {
             Shell.cmd("mkdir -p /sdcard/Pictures/.private", "screencap -p /sdcard/Pictures/.private/" + System.currentTimeMillis() + ".png").submit();
         } else if (TORCH_ON.equals(action)) {
-            postTorchNotification(context, true);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                postTorchNotification(context, true);
+            }, 100);
         } else if (TORCH_OFF.equals(action)) {
             postTorchNotification(context, false);
         } else if (TORCH_ACTUAL_OFF.equals(action)) {
