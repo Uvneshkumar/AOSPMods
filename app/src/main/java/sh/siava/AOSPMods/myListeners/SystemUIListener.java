@@ -526,70 +526,114 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
+        /*
+        Small:
+        lockscreen [wght = 400.0, wdth = 85.0, ROND = 0.0, slnt = 0.0]
+        doze [wght = 200.0, wdth = 85.0, ROND = 0.0, slnt = 0.0]
+        chargeLockscreen [wght = 600.0, wdth = 95.0, ROND = 0.0, slnt = 0.0]
+        chargeDoze [wght = 800.0, wdth = 85.0, ROND = 0.0, slnt = 0.0]
+        fidget [wght = 600.0, wdth = 85.0, ROND = 0.0, slnt = 0.0]
+        Big:
+        lockscreen [wght = 500.0, wdth = 100.0, ROND = 100.0, slnt = 0.0]
+        doze [wght = 200.0, wdth = 85.0, ROND = 100.0, slnt = 0.0]
+        chargeLockscreen [wght = 700.0, wdth = 90.0, ROND = 100.0, slnt = 0.0]
+        chargeDoze [wght = 900.0, wdth = 100.0, ROND = 100.0, slnt = 0.0]
+        fidget [wght = 600.0, wdth = 85.0, ROND = 100.0, slnt = 0.0]
+        */
         boolean whiteLockClock = Xprefs.getBoolean("whiteLockClock", false);
         boolean whiteLockClockAOD = Xprefs.getBoolean("whiteLockClockAOD", false);
-        if (whiteLockClock || whiteLockClockAOD) {
-            if (whiteLockClock) {
-                Class<?> AnimatableClockView = findClassIfExists("com.android.systemui.shared.clocks.AnimatableClockView", lpparam.classLoader);
-                if (AnimatableClockView != null) {
-                    tryHookAllMethods(AnimatableClockView, "animateAppearOnLockscreen", new XC_MethodHook() {
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
-                        }
-                    });
-                    tryHookAllMethods(AnimatableClockView, "animateFoldAppear", new XC_MethodHook() {
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
-                        }
-                    });
-                    tryHookAllMethods(AnimatableClockView, "animateDoze", new XC_MethodHook() {
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
-                        }
-                    });
-                }
+        boolean A16ClockFontLikeA15 = Xprefs.getBoolean("A16ClockFontLikeA15", false);
+        boolean A16BigClockEnoughRoom = Xprefs.getBoolean("A16BigClockEnoughRoom", false);
+        String lsFontVariation = "'wght' 440, 'wdth' 100, 'ROND' 100, 'slnt' 0";
+        String aodFontVariation = "'wght' 120, 'wdth' 100, 'ROND' 100, 'slnt' 0";
+        Class<?> SimpleDigitalClockTextView = findClassIfExists("com.android.systemui.shared.clocks.view.SimpleDigitalClockTextView", lpparam.classLoader);
+        Class<?> DigitalClockTextView = findClassIfExists("com.android.systemui.customization.clocks.view.DigitalClockTextView", lpparam.classLoader);
+        if (whiteLockClock) {
+            Class<?> AnimatableClockView = findClassIfExists("com.android.systemui.shared.clocks.AnimatableClockView", lpparam.classLoader);
+            if (AnimatableClockView != null) {
+                tryHookAllMethods(AnimatableClockView, "animateAppearOnLockscreen", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
+                    }
+                });
+                tryHookAllMethods(AnimatableClockView, "animateFoldAppear", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
+                    }
+                });
+                tryHookAllMethods(AnimatableClockView, "animateDoze", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        setIntField(param.thisObject, "lockScreenColor", Color.WHITE);
+                    }
+                });
             }
-            int clockColor = Color.WHITE;
-            String lsFontVariation = "'wght' 440, 'wdth' 100, 'ROND' 100, 'slnt' 0";
-            String aodFontVariation = "'wght' 120, 'wdth' 100, 'ROND' 100, 'slnt' 0";
-            Class<?> SimpleDigitalClockTextView = findClassIfExists("com.android.systemui.shared.clocks.view.SimpleDigitalClockTextView", lpparam.classLoader);
+        }
+        if (whiteLockClock || whiteLockClockAOD || A16ClockFontLikeA15) {
             if (SimpleDigitalClockTextView != null) {
-//				float aodFontSizePx = 500; // Detect Large and Small and set separately
                 tryHookAllMethods(SimpleDigitalClockTextView, "updateColor", new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         if (whiteLockClock) {
-                            param.args[0] = clockColor;
+                            param.args[0] = Color.WHITE;
                         }
                     }
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (whiteLockClockAOD) {
+                        if (whiteLockClockAOD || A16ClockFontLikeA15) {
                             TextView view = (TextView) param.thisObject;
-                            setObjectField(view, "aodColor", clockColor);
-//							setObjectField(view, "aodFontSizePx", aodFontSizePx);
-                            setObjectField(view, "lsFontVariation", lsFontVariation);
-                            setObjectField(view, "aodFontVariation", aodFontVariation);
-                            setObjectField(view, "fidgetFontVariation", lsFontVariation);
+                            if (whiteLockClockAOD) {
+                                setObjectField(view, "aodColor", Color.WHITE);
+                            }
+//                          float aodFontSizePx = 500; // Detect Large and Small and set separately
+                            if (A16ClockFontLikeA15) {
+//                              setObjectField(view, "aodFontSizePx", aodFontSizePx);
+                                setObjectField(view, "lsFontVariation", lsFontVariation);
+                                setObjectField(view, "aodFontVariation", aodFontVariation);
+                                setObjectField(view, "fidgetFontVariation", lsFontVariation);
+                            }
                         }
                     }
                 });
             }
-            Class<?> DigitalClockTextView = findClassIfExists("com.android.systemui.customization.clocks.view.DigitalClockTextView", lpparam.classLoader);
-            if (DigitalClockTextView != null) {
-                tryHookAllMethods(DigitalClockTextView, "updateColor", new XC_MethodHook() {
+            if (whiteLockClock || whiteLockClockAOD) {
+                if (DigitalClockTextView != null) {
+                    tryHookAllMethods(DigitalClockTextView, "updateColor", new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            if (whiteLockClock) {
+                                param.args[0] = Color.WHITE;
+                            }
+                            if (whiteLockClockAOD) {
+                                param.args[1] = Color.WHITE;
+                            }
+                        }
+                    });
+                }
+            }
+        }
+        if (A16ClockFontLikeA15) {
+            Class<?> ClockAxisStyle = findClassIfExists("com.android.systemui.plugins.keyguard.ui.clocks.ClockAxisStyle", lpparam.classLoader);
+            if (ClockAxisStyle != null) {
+                tryHookAllMethods(ClockAxisStyle, "toFVar", new XC_MethodHook() {
+                    @SuppressWarnings("rawtypes")
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        if (whiteLockClock) {
-                            param.args[0] = clockColor;
+                        Iterable items = (Iterable) callMethod(param.thisObject, "getItems");
+                        if (items.toString().contains("wght=400.0") || items.toString().contains("wght=500.0")) {
+                            param.setResult(lsFontVariation);
+                        } else if (items.toString().contains("wght=200.0")) {
+                            param.setResult(aodFontVariation);
                         }
-                        param.args[1] = clockColor;
                     }
                 });
+            }
+        }
+        if (A16BigClockEnoughRoom) {
+            if (DigitalClockTextView != null) {
                 // View.MEASURED_SIZE_MASK: low bits = size, high bits = packed mode/state flags.
                 final int SIZE_MASK = 0x00FFFFFF;
                 int MIN_WIDTH_PX = 180;
@@ -617,40 +661,10 @@ public class SystemUIListener extends XposedModPack {
                         CharSequence text = v.getText();
                         if (text == null || text.length() != 1)
                             return;   // single-digit grid cells only
-                        float density = v.getResources().getDisplayMetrics().density;
                         // index 0 = on-screen width, 1 = on-screen height
                         // (computeMeasuredSize() already applied the isVertical swap)
                         param.args[0] = grow((Integer) param.args[0], MIN_WIDTH_PX, GRID_GAP_PX);
                         param.args[1] = grow((Integer) param.args[1], 0, GRID_GAP_PX);
-                    }
-                });
-            }
-            /*
-            Small:
-            lockscreen [wght=400.0, wdth=85.0, ROND=0.0, slnt=0.0]
-            doze [wght=200.0, wdth=85.0, ROND=0.0, slnt=0.0]
-            chargeLockscreen [wght=600.0, wdth=95.0, ROND=0.0, slnt=0.0]
-            chargeDoze [wght=800.0, wdth=85.0, ROND=0.0, slnt=0.0]
-            fidget [wght=600.0, wdth=85.0, ROND=0.0, slnt=0.0]
-            Big:
-            lockscreen [wght=500.0, wdth=100.0, ROND=100.0, slnt=0.0]
-            doze [wght=200.0, wdth=85.0, ROND=100.0, slnt=0.0]
-            chargeLockscreen [wght=700.0, wdth=90.0, ROND=100.0, slnt=0.0]
-            chargeDoze [wght=900.0, wdth=100.0, ROND=100.0, slnt=0.0]
-            fidget [wght=600.0, wdth=85.0, ROND=100.0, slnt=0.0]
-             */
-            Class<?> ClockAxisStyle = findClassIfExists("com.android.systemui.plugins.keyguard.ui.clocks.ClockAxisStyle", lpparam.classLoader);
-            if (ClockAxisStyle != null) {
-                tryHookAllMethods(ClockAxisStyle, "toFVar", new XC_MethodHook() {
-                    @SuppressWarnings("rawtypes")
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        Iterable items = (Iterable) callMethod(param.thisObject, "getItems");
-                        if (items.toString().contains("wght=400.0") || items.toString().contains("wght=500.0")) {
-                            param.setResult(lsFontVariation);
-                        } else if (items.toString().contains("wght=200.0")) {
-                            param.setResult(aodFontVariation);
-                        }
                     }
                 });
             }

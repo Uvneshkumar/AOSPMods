@@ -464,7 +464,16 @@
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
         android:key="whiteLockClockAOD"
-        android:title="A16 Clock Fixes\n - White Lock Clock AOD\n - Font Similar to A15" />
+        android:title="White Lock Clock AOD" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
+        android:key="A16ClockFontLikeA15"
+        android:summary="Font size, width"
+        android:title="A16 Clock Font Similar to A15" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
+        android:key="A16BigClockEnoughRoom"
+        android:title="A16 Big Clock Enough Room Around" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
         android:key="largeClockTopMargin"
