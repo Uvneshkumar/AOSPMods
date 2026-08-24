@@ -1,6 +1,7 @@
 package sh.siava.AOSPMods.myListeners;
 
 import static de.robv.android.xposed.XposedHelpers.callMethod;
+import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getAdditionalInstanceField;
 import static de.robv.android.xposed.XposedHelpers.getBooleanField;
@@ -587,6 +588,40 @@ public class SystemUIListener extends XposedModPack {
                             param.args[0] = clockColor;
                         }
                         param.args[1] = clockColor;
+                    }
+                });
+                // View.MEASURED_SIZE_MASK: low bits = size, high bits = packed mode/state flags.
+                final int SIZE_MASK = 0x00FFFFFF;
+                int MIN_WIDTH_PX = 180;
+                int GRID_GAP_PX = 18;
+                // setMeasuredDimension is the single funnel used by BOTH onMeasure() and onDraw().
+                // Hooking only onMeasure lets the doze/charge animation stomp the width back.
+                findAndHookMethod(View.class, "setMeasuredDimension", int.class, int.class, new XC_MethodHook() {
+                    /**
+                     * Enlarges the packed size, preserving the mode/state bits in the high bits.
+                     * The gap is only added when the size came from the text bounds. On the EXACTLY
+                     * branch of computeMeasuredSize() the size is the previous measured width, which
+                     * already carries the gap — adding again would grow the digit every frame.
+                     */
+                    private int grow(int raw, int minSize, int extra) {
+                        boolean fromTextBounds = (raw & (0x3 << 30)) != (1 << 30); // != MeasureSpec.EXACTLY
+                        int size = Math.max(raw & SIZE_MASK, minSize) + (fromTextBounds ? extra : 0);
+                        return (raw & ~SIZE_MASK) | (size & SIZE_MASK);
+                    }
+
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) {
+                        if (!DigitalClockTextView.isInstance(param.thisObject))
+                            return;  // cheap guard, hot path
+                        TextView v = (TextView) param.thisObject;
+                        CharSequence text = v.getText();
+                        if (text == null || text.length() != 1)
+                            return;   // single-digit grid cells only
+                        float density = v.getResources().getDisplayMetrics().density;
+                        // index 0 = on-screen width, 1 = on-screen height
+                        // (computeMeasuredSize() already applied the isVertical swap)
+                        param.args[0] = grow((Integer) param.args[0], MIN_WIDTH_PX, GRID_GAP_PX);
+                        param.args[1] = grow((Integer) param.args[1], 0, GRID_GAP_PX);
                     }
                 });
             }
