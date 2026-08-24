@@ -1,6 +1,7 @@
 package sh.siava.AOSPMods.myListeners.helper;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -24,13 +25,14 @@ import sh.siava.AOSPMods.utils.SystemUtils;
 public class MyBroadcastReceiver extends BroadcastReceiver {
 
     public static String SCREENSHOT = "uvnesh.aospmods.SCREENSHOT";
+    public static String ADVANCED_REBOOT = "uvnesh.aospmods.ADVANCED_REBOOT";
     public static String TORCH_ON = "uvnesh.aospmods.TORCH_ON";
     public static String TORCH_OFF = "uvnesh.aospmods.TORCH_OFF";
     public static String TORCH_ACTUAL_OFF = "uvnesh.aospmods.TORCH_ACTUAL_OFF";
     public static String SYSTEMUI_RESTART = "uvnesh.aospmods.SYSTEMUI_RESTART";
     public static String SYSTEMUI_RESTART_DISMISS = "uvnesh.aospmods.SYSTEMUI_RESTART_DISMISS";
     public static String GET_TEMPERATURE = "uvnesh.aospmods.GET_TEMPERATURE";
-    public static String[] actions = {SCREENSHOT, GET_TEMPERATURE};
+    public static String[] actions = {SCREENSHOT, GET_TEMPERATURE, ADVANCED_REBOOT};
 
     public static String SEND_TEMPERATURE = "uvnesh.aospmods.SEND_TEMPERATURE";
     public static String[] SystemUIActions = {SEND_TEMPERATURE, TORCH_ON, TORCH_OFF, TORCH_ACTUAL_OFF, SYSTEMUI_RESTART, SYSTEMUI_RESTART_DISMISS};
@@ -124,6 +126,8 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
             postSystemUiRestartNotification(context, true);
         } else if (GET_TEMPERATURE.equals(action)) {
             sendTemperature(context);
+        } else if (ADVANCED_REBOOT.equals(action)) {
+            showAdvancedRebootMenu(context);
         } else if (SEND_TEMPERATURE.equals(action)) {
             if (customDateAlarmLayoutSmall != null) {
                 Bitmap leftBitmap = intent.getParcelableExtra("leftBitmap", Bitmap.class);
@@ -137,6 +141,40 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
                 }
             }
         }
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    private void showAdvancedRebootMenu(Context context) {
+        String[] options = {"Reboot System", "Recovery", "Bootloader", "Fastboot", "Download", "EDL", "Restart SystemUI"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, android.R.style.ThemeOverlay_Material_Dialog_Alert);
+        builder.setItems(options, (dialog, which) -> {
+            switch (which) {
+                case 0:
+                    SystemUtils.Restart();
+                    break;
+                case 1:
+                    SystemUtils.reboot("recovery");
+                    break;
+                case 2:
+                    SystemUtils.reboot("bootloader");
+                    break;
+                case 3:
+                    SystemUtils.reboot("fastboot");
+                    break;
+                case 4:
+                    SystemUtils.reboot("download");
+                    break;
+                case 5:
+                    SystemUtils.reboot("edl");
+                    break;
+                case 6:
+                    SystemUtils.RestartSystemUI();
+                    break;
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setType(android.view.WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
+        dialog.show();
     }
 
     public void setTemperatureDataAndSend(Bitmap leftBitmap, String temperature, Context context) {

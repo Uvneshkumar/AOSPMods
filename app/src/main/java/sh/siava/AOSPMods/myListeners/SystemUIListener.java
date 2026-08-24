@@ -2014,6 +2014,40 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
+        if (Xprefs.getBoolean("advanced_reboot", false)) {
+            Class<?> RestartAction = findClassIfExists("com.android.systemui.globalactions.GlobalActionsDialogLite$RestartAction", lpparam.classLoader);
+            if (RestartAction != null) {
+                tryHookAllMethods(RestartAction, "onPress", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        param.setResult(null);
+                        Intent intent = new Intent();
+                        intent.setAction(MyBroadcastReceiver.ADVANCED_REBOOT);
+                        mContext.sendBroadcast(intent);
+                    }
+                });
+            }
+            Class<?> SinglePressAction = findClassIfExists("com.android.systemui.globalactions.GlobalActionsDialogLite$SinglePressAction", lpparam.classLoader);
+            if (SinglePressAction != null) {
+                tryHookAllMethods(SinglePressAction, "create", new XC_MethodHook() {
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        View view = (View) param.getResult();
+                        if (view instanceof ViewGroup viewGroup) {
+                            for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                                View childView = viewGroup.getChildAt(i);
+                                if (childView instanceof TextView textView) {
+                                    if (textView.getText().toString().equalsIgnoreCase("restart")) {
+                                        textView.setText("Advanced");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
 
 //		Class<?> BackPanel = findClassIfExists("com.android.systemui.navigationbar.gestural.BackPanel", lpparam.classLoader);
 //        if (BackPanel != null) {

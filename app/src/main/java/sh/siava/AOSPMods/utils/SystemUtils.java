@@ -90,6 +90,11 @@ public class SystemUtils {
         cmd("am start -a android.intent.action.REBOOT").submit();
     }
 
+    // https://github.com/topjohnwu/Magisk/blob/master/app/core/src/main/java/com/topjohnwu/magisk/core/ktx/XSU.kt
+    public static void reboot(String reason) {
+        cmd("/system/bin/svc power reboot " + reason + " || /system/bin/reboot " + reason).submit();
+    }
+
     public static void ToggleFlash() {
         if (instance == null) return;
         instance.toggleFlashInternal();

@@ -28,6 +28,10 @@
         android:title="Experimental - Completely Disable Thermal Throttle" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="advanced_reboot"
+        android:title="Advanced restart" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="disableAodOnBoot"
         android:title="Disable AOD on Boot" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
