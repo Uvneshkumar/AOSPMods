@@ -2,8 +2,10 @@ package sh.siava.AOSPMods.myListeners;
 
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
+import static de.robv.android.xposed.XposedHelpers.getAdditionalInstanceField;
 import static de.robv.android.xposed.XposedHelpers.getBooleanField;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
+import static de.robv.android.xposed.XposedHelpers.setAdditionalInstanceField;
 import static de.robv.android.xposed.XposedHelpers.setBooleanField;
 import static de.robv.android.xposed.XposedHelpers.setIntField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
@@ -14,6 +16,7 @@ import static sh.siava.AOSPMods.utils.Helpers.getFpRect;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllConstructors;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -2048,6 +2051,151 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
+        // https://gemini.google.com/app/291b3b9f362460e8
+        if (Xprefs.getBoolean("enableQsSpringOnPull", false)) {
+            Class<?> NotificationPanelViewController = findClassIfExists("com.android.systemui.shade.NotificationPanelViewController", lpparam.classLoader);
+            if (NotificationPanelViewController != null) {
+                tryHookAllMethods(NotificationPanelViewController, "setExpandedHeightInternal", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        float cleanMaxHeight = ((Number) callMethod(param.thisObject, "getMaxPanelHeight")).floatValue();
+                        setAdditionalInstanceField(param.thisObject, "clean_max_height", cleanMaxHeight);
+                        View[] views = getTargetViews(param);
+                        for (View v : views) {
+                            if (v == null) continue;
+                            Boolean isStripped = (Boolean) getAdditionalInstanceField(v, "is_stripped");
+                            if (isStripped != null && isStripped) continue;
+                            Float activeOverscroll = (Float) getAdditionalInstanceField(v, "active_overscroll");
+                            if (activeOverscroll != null && activeOverscroll > 0f) {
+                                v.setTranslationY(v.getTranslationY() - activeOverscroll);
+                            }
+                            setAdditionalInstanceField(v, "is_stripped", true);
+                        }
+                    }
+
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        float requestedHeight = (float) param.args[0];
+                        Float savedMaxHeight = (Float) getAdditionalInstanceField(param.thisObject, "clean_max_height");
+                        float maxPanelHeight = (savedMaxHeight != null) ? savedMaxHeight : ((Number) callMethod(param.thisObject, "getMaxPanelHeight")).floatValue();
+                        // 1. Check if the user's finger is actively touching the screen
+                        boolean isTracking = false;
+                        try {
+                            isTracking = getBooleanField(param.thisObject, "mTracking");
+                        } catch (Throwable t) {
+                            try {
+                                isTracking = (Boolean) callMethod(param.thisObject, "isTracking");
+                            } catch (Throwable ignored) {
+                            }
+                        }
+                        View[] views = getTargetViews(param);
+                        for (final View v : views) {
+                            if (v == null) continue;
+                            setAdditionalInstanceField(v, "is_stripped", false);
+                            Float activeOverscroll = (Float) getAdditionalInstanceField(v, "active_overscroll");
+                            if (activeOverscroll == null) activeOverscroll = 0f;
+                            float rawOverscroll = requestedHeight - maxPanelHeight;
+                            if (rawOverscroll < 1f || Float.isNaN(rawOverscroll))
+                                rawOverscroll = 0f;
+                            float maxPx = 60f;
+                            float stiffness = 250f;
+                            float newOverscroll = (rawOverscroll == 0f) ? 0f : (maxPx * (rawOverscroll / (rawOverscroll + stiffness)));
+                            ValueAnimator ongoingAnim = (ValueAnimator) getAdditionalInstanceField(v, "spring_anim");
+                            boolean isAnimating = ongoingAnim != null && ongoingAnim.isRunning();
+                            // FIX 1: If SystemUI abruptly clamps the height to 0 on finger release,
+                            // do NOT teleport the view. Trigger the smooth animation immediately instead.
+                            if (newOverscroll == 0f && activeOverscroll > 0f && !isTracking && !isAnimating) {
+                                v.setTranslationY(v.getTranslationY() + activeOverscroll);
+                                Runnable resetTask = (Runnable) getAdditionalInstanceField(v, "reset_task");
+                                if (resetTask != null) {
+                                    v.removeCallbacks(resetTask);
+                                    v.post(resetTask); // Run instantly
+                                }
+                            } else if (!isAnimating) {
+                                // Normal drag physics
+                                v.setTranslationY(v.getTranslationY() + newOverscroll);
+                                setAdditionalInstanceField(v, "active_overscroll", newOverscroll);
+                                Runnable resetTask = (Runnable) getAdditionalInstanceField(v, "reset_task");
+                                if (resetTask == null) {
+                                    resetTask = createResetTask(v, param.thisObject);
+                                    setAdditionalInstanceField(v, "reset_task", resetTask);
+                                }
+                                v.removeCallbacks(resetTask);
+                                v.postDelayed(resetTask, 50); // Increased buffer to prevent dropped-frame glitches
+                            } else {
+                                // Animation is currently handling the translation, preserve it
+                                v.setTranslationY(v.getTranslationY() + activeOverscroll);
+                            }
+                        }
+                    }
+
+                    private View[] getTargetViews(MethodHookParam param) {
+                        View notificationsScrim = null;
+                        Object scrimController = getObjectField(param.thisObject, "mScrimController");
+                        if (scrimController != null) {
+                            try {
+                                notificationsScrim = (View) getObjectField(scrimController, "mNotificationsScrim");
+                            } catch (Throwable ignored) {
+                            }
+                        }
+                        View nsslView = (View) getAdditionalInstanceField(param.thisObject, "cached_nssl");
+                        if (nsslView == null) {
+                            View panelView = (View) getObjectField(param.thisObject, "mView");
+                            nsslView = findNSSL(panelView);
+                            if (nsslView != null) {
+                                setAdditionalInstanceField(param.thisObject, "cached_nssl", nsslView);
+                            }
+                        }
+                        return new View[]{notificationsScrim, nsslView};
+                    }
+
+                    private Runnable createResetTask(final View v, final Object panelViewController) {
+                        return new Runnable() {
+                            @Override
+                            public void run() {
+                                // FIX 2: If the timer fires but the user is just resting their finger perfectly still,
+                                // do not retract the panel. Check again in 50ms.
+                                boolean isUserTracking = false;
+                                try {
+                                    isUserTracking = getBooleanField(panelViewController, "mTracking");
+                                } catch (Throwable t) {
+                                    try {
+                                        isUserTracking = (Boolean) callMethod(panelViewController, "isTracking");
+                                    } catch (Throwable ignored) {
+                                    }
+                                }
+                                if (isUserTracking) {
+                                    v.postDelayed(this, 50);
+                                    return;
+                                }
+                                Float currentOverscroll = (Float) getAdditionalInstanceField(v, "active_overscroll");
+                                if (currentOverscroll != null && currentOverscroll > 0f) {
+                                    ValueAnimator bounceAnim = ValueAnimator.ofFloat(currentOverscroll, 0f);
+                                    bounceAnim.setDuration(350);
+                                    bounceAnim.setInterpolator(new android.view.animation.DecelerateInterpolator(1.5f));
+                                    bounceAnim.addUpdateListener(animation -> {
+                                        float animVal = (float) animation.getAnimatedValue();
+                                        Float prev = (Float) getAdditionalInstanceField(v, "active_overscroll");
+                                        if (prev == null) prev = 0f;
+                                        float nativeY = v.getTranslationY() - prev;
+                                        v.setTranslationY(nativeY + animVal);
+                                        setAdditionalInstanceField(v, "active_overscroll", animVal);
+                                    });
+                                    bounceAnim.addListener(new android.animation.AnimatorListenerAdapter() {
+                                        @Override
+                                        public void onAnimationEnd(android.animation.Animator animation) {
+                                            setAdditionalInstanceField(v, "active_overscroll", 0f);
+                                        }
+                                    });
+                                    bounceAnim.start();
+                                    setAdditionalInstanceField(v, "spring_anim", bounceAnim);
+                                }
+                            }
+                        };
+                    }
+                });
+            }
+        }
 
 //		Class<?> BackPanel = findClassIfExists("com.android.systemui.navigationbar.gestural.BackPanel", lpparam.classLoader);
 //        if (BackPanel != null) {
@@ -2063,6 +2211,20 @@ public class SystemUIListener extends XposedModPack {
 //                }
 //            });
 //        }
+    }
+
+    private View findNSSL(View view) {
+        if (view == null) return null;
+        if (view.getClass().getSimpleName().equals("NotificationStackScrollLayout")) {
+            return view;
+        }
+        if (view instanceof ViewGroup vg) {
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                View result = findNSSL(vg.getChildAt(i));
+                if (result != null) return result;
+            }
+        }
+        return null;
     }
 
     private void removeManualOverride() {

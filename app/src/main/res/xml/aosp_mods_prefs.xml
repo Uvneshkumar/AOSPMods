@@ -36,6 +36,10 @@
         android:title="Disable AOD on Boot" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="enableQsSpringOnPull"
+        android:title="QS Spring Animation on Pull" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="hookAlertSlider"
         android:title="Hook Alert Slider" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
