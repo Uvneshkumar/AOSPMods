@@ -527,13 +527,13 @@ public class SystemUIListener extends XposedModPack {
             }
         }
         /*
-        Small:
+        Sharp:
         lockscreen [wght = 400.0, wdth = 85.0, ROND = 0.0, slnt = 0.0]
         doze [wght = 200.0, wdth = 85.0, ROND = 0.0, slnt = 0.0]
         chargeLockscreen [wght = 600.0, wdth = 95.0, ROND = 0.0, slnt = 0.0]
         chargeDoze [wght = 800.0, wdth = 85.0, ROND = 0.0, slnt = 0.0]
         fidget [wght = 600.0, wdth = 85.0, ROND = 0.0, slnt = 0.0]
-        Big:
+        Round:
         lockscreen [wght = 500.0, wdth = 100.0, ROND = 100.0, slnt = 0.0]
         doze [wght = 200.0, wdth = 85.0, ROND = 100.0, slnt = 0.0]
         chargeLockscreen [wght = 700.0, wdth = 90.0, ROND = 100.0, slnt = 0.0]
