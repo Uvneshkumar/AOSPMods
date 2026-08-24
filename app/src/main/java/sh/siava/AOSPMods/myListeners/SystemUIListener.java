@@ -551,17 +551,17 @@ public class SystemUIListener extends XposedModPack {
                     });
                 }
             }
+            int clockColor = Color.WHITE;
+            String lsFontVariation = "'wght' 440, 'wdth' 100, 'ROND' 100, 'slnt' 0";
+            String aodFontVariation = "'wght' 120, 'wdth' 100, 'ROND' 100, 'slnt' 0";
             Class<?> SimpleDigitalClockTextView = findClassIfExists("com.android.systemui.shared.clocks.view.SimpleDigitalClockTextView", lpparam.classLoader);
             if (SimpleDigitalClockTextView != null) {
-                int aodColor = Color.WHITE;
 //				float aodFontSizePx = 500; // Detect Large and Small and set separately
-                String lsFontVariation = "'wght' 440, 'wdth' 100, 'ROND' 100, 'slnt' 0";
-                String aodFontVariation = "'wght' 120, 'wdth' 100, 'ROND' 100, 'slnt' 0";
                 tryHookAllMethods(SimpleDigitalClockTextView, "updateColor", new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         if (whiteLockClock) {
-                            param.args[0] = Color.WHITE;
+                            param.args[0] = clockColor;
                         }
                     }
 
@@ -569,11 +569,52 @@ public class SystemUIListener extends XposedModPack {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (whiteLockClockAOD) {
                             TextView view = (TextView) param.thisObject;
-                            setObjectField(view, "aodColor", aodColor);
+                            setObjectField(view, "aodColor", clockColor);
 //							setObjectField(view, "aodFontSizePx", aodFontSizePx);
                             setObjectField(view, "lsFontVariation", lsFontVariation);
                             setObjectField(view, "aodFontVariation", aodFontVariation);
                             setObjectField(view, "fidgetFontVariation", lsFontVariation);
+                        }
+                    }
+                });
+            }
+            Class<?> DigitalClockTextView = findClassIfExists("com.android.systemui.customization.clocks.view.DigitalClockTextView", lpparam.classLoader);
+            if (DigitalClockTextView != null) {
+                tryHookAllMethods(DigitalClockTextView, "updateColor", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        if (whiteLockClock) {
+                            param.args[0] = clockColor;
+                        }
+                        param.args[1] = clockColor;
+                    }
+                });
+            }
+            /*
+            Small:
+            lockscreen [wght=400.0, wdth=85.0, ROND=0.0, slnt=0.0]
+            doze [wght=200.0, wdth=85.0, ROND=0.0, slnt=0.0]
+            chargeLockscreen [wght=600.0, wdth=95.0, ROND=0.0, slnt=0.0]
+            chargeDoze [wght=800.0, wdth=85.0, ROND=0.0, slnt=0.0]
+            fidget [wght=600.0, wdth=85.0, ROND=0.0, slnt=0.0]
+            Big:
+            lockscreen [wght=500.0, wdth=100.0, ROND=100.0, slnt=0.0]
+            doze [wght=200.0, wdth=85.0, ROND=100.0, slnt=0.0]
+            chargeLockscreen [wght=700.0, wdth=90.0, ROND=100.0, slnt=0.0]
+            chargeDoze [wght=900.0, wdth=100.0, ROND=100.0, slnt=0.0]
+            fidget [wght=600.0, wdth=85.0, ROND=100.0, slnt=0.0]
+             */
+            Class<?> ClockAxisStyle = findClassIfExists("com.android.systemui.plugins.keyguard.ui.clocks.ClockAxisStyle", lpparam.classLoader);
+            if (ClockAxisStyle != null) {
+                tryHookAllMethods(ClockAxisStyle, "toFVar", new XC_MethodHook() {
+                    @SuppressWarnings("rawtypes")
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        Iterable items = (Iterable) callMethod(param.thisObject, "getItems");
+                        if (items.toString().contains("wght=400.0") || items.toString().contains("wght=500.0")) {
+                            param.setResult(lsFontVariation);
+                        } else if (items.toString().contains("wght=200.0")) {
+                            param.setResult(aodFontVariation);
                         }
                     }
                 });
