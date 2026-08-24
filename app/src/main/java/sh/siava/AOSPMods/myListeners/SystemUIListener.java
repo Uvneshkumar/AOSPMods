@@ -1938,6 +1938,7 @@ public class SystemUIListener extends XposedModPack {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         new Handler(Looper.getMainLooper()).postDelayed(() -> {
                             TextView clock = (TextView) getObjectField(param.thisObject, "clock");
+                            clock.setMinWidth((int) (clock.getMeasuredWidth() * 1.9));
                             setObjectField(clock, "mShowSeconds", true);
                             callMethod(clock, "updateShowSeconds");
                             clock.setFontFeatureSettings(null);
