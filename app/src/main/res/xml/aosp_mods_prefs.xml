@@ -2,6 +2,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <sh.siava.AOSPMods.ui.MaterialEditTextPreference
+        android:key="search_term"
+        android:title="Search" />
+    <sh.siava.AOSPMods.ui.MaterialEditTextPreference
         android:key="myUserName"
         android:title="Set User Name" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference

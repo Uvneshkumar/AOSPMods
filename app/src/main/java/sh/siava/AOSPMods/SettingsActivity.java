@@ -22,10 +22,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceManager;
 
 import com.topjohnwu.superuser.Shell;
+
+import java.util.Locale;
 
 import sh.siava.AOSPMods.myListeners.helper.Helper;
 import sh.siava.AOSPMods.utils.SystemUtils;
@@ -138,6 +142,37 @@ public class SettingsActivity extends AppCompatActivity {
                 lp.gravity = Gravity.TOP | (Integer.parseInt(sharedPreferences.getString("QSPulldownSide", "1")) == 1 ? Gravity.RIGHT : Gravity.LEFT);
                 pullDownIndicator.setLayoutParams(lp);
             } catch (Exception ignored) {
+            }
+            String searchTerm = sharedPreferences.getString("search_term", "");
+            filterPreferences(searchTerm, getPreferenceScreen());
+        }
+
+        private void filterPreferences(String query, PreferenceGroup group) {
+            String lowerQuery = query != null ? query.toLowerCase(Locale.getDefault()) : "";
+            for (int i = 0; i < group.getPreferenceCount(); i++) {
+                Preference preference = group.getPreference(i);
+                if (preference instanceof PreferenceGroup subGroup) {
+                    // 1. Recursively search children
+                    filterPreferences(query, subGroup);
+                    // 2. Check if at least one child remains visible
+                    boolean hasVisibleChild = false;
+                    for (int j = 0; j < subGroup.getPreferenceCount(); j++) {
+                        if (subGroup.getPreference(j).isVisible()) {
+                            hasVisibleChild = true;
+                            break;
+                        }
+                    }
+                    subGroup.setVisible(hasVisibleChild);
+                } else {
+                    // 3. Match against title or summary
+                    CharSequence title = preference.getTitle();
+                    CharSequence key = preference.getKey();
+                    CharSequence summary = preference.getSummary();
+                    boolean titleMatch = title != null && title.toString().toLowerCase(Locale.getDefault()).contains(lowerQuery);
+                    boolean keyMatch = key != null && key.toString().toLowerCase(Locale.getDefault()).contains(lowerQuery);
+                    boolean summaryMatch = summary != null && summary.toString().toLowerCase(Locale.getDefault()).contains(lowerQuery);
+                    preference.setVisible(lowerQuery.isEmpty() || titleMatch || keyMatch || summaryMatch || key.toString().equals("search_term"));
+                }
             }
         }
 
