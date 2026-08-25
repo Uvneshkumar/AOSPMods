@@ -234,6 +234,10 @@
         android:defaultValue="false"
         android:key="disallowDeepAOD2"
         android:title="Disallow AOD 2 (Stay on LS)" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
+        android:key="fixAODBrightnessOnLockScreenTimeout"
+        android:title="Fix AOD Brightness on Lock Screen Timeout" />
     <sh.siava.AOSPMods.ui.MaterialEditTextPreference
         android:key="pixelAODBrightnessFloat"
         android:title="Pixel AOD Brightness"

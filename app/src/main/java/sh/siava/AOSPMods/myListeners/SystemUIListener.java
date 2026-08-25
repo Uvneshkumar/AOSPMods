@@ -1208,6 +1208,17 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
+        if (Xprefs.getBoolean("fixAODBrightnessOnLockScreenTimeout", false)) {
+            Class<?> DozeScreenBrightness = findClassIfExists("com.android.systemui.doze.DozeScreenBrightness", lpparam.classLoader);
+            if (DozeScreenBrightness != null) {
+                tryHookAllMethods(DozeScreenBrightness, "clampToDimBrightnessForScreenOff", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        param.setResult(param.args[0]);
+                    }
+                });
+            }
+        }
         String pixelAODBrightnessFloat = Xprefs.getString("pixelAODBrightnessFloat", "");
         if (pixelAODBrightnessFloat != null && !pixelAODBrightnessFloat.isEmpty()) {
             Class<?> DozeService = findClassIfExists("com.android.systemui.doze.DozeService", lpparam.classLoader);
