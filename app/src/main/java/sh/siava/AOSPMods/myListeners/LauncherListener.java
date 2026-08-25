@@ -109,13 +109,13 @@ public class LauncherListener extends XposedModPack {
                 if (isMyBroadcastRegistered) {
                     return;
                 }
+                isMyBroadcastRegistered = true;
                 myBroadcastReceiver = new MyBroadcastReceiver();
                 IntentFilter filter = new IntentFilter();
                 for (String action : MyBroadcastReceiver.actions) {
                     filter.addAction(action);
                 }
                 mContext.getApplicationContext().registerReceiver(myBroadcastReceiver, filter, Context.RECEIVER_EXPORTED);
-                isMyBroadcastRegistered = true;
             }
         };
     }
@@ -126,6 +126,14 @@ public class LauncherListener extends XposedModPack {
         @SuppressLint("InternalInsetResource") int resourceId = mContext.getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resourceId > 0) {
             statusBarHeight = mContext.getResources().getDimensionPixelSize(resourceId);
+        }
+        Class<?> Workspace = findClassIfExists("com.android.launcher3.Workspace", lpparam.classLoader);
+        if (Workspace != null) {
+            tryHookAllConstructors(Workspace, registerMyReceiver());
+        }
+        Class<?> HomeView = findClassIfExists("com.honeyspace.ui.honeypots.homescreen.presentation.HomeView", lpparam.classLoader);
+        if (HomeView != null) {
+            tryHookAllConstructors(HomeView, registerMyReceiver());
         }
         if (XPrefs.Xprefs.getBoolean("enableLauncherVibration", false)) {
             Class<?> AllAppsRecyclerView = findClassIfExists("com.android.launcher3.allapps.AllAppsRecyclerView", lpparam.classLoader);
@@ -178,7 +186,6 @@ public class LauncherListener extends XposedModPack {
                     }
                 });
             }
-            Class<?> HomeView = findClassIfExists("com.honeyspace.ui.honeypots.homescreen.presentation.HomeView", lpparam.classLoader);
             if (HomeView != null) {
                 tryHookAllMethods(HomeView, "onTouchEvent", new XC_MethodHook() {
                     @Override
@@ -285,7 +292,6 @@ public class LauncherListener extends XposedModPack {
                     }
                 });
             }
-            Class<?> HomeView = findClassIfExists("com.honeyspace.ui.honeypots.homescreen.presentation.HomeView", lpparam.classLoader);
             if (HomeView != null) {
                 final long[] initialTime = {-1};
                 tryHookAllMethods(HomeView, "i", new XC_MethodHook() {
@@ -464,7 +470,6 @@ public class LauncherListener extends XposedModPack {
         }
         if (XPrefs.Xprefs.getBoolean("enableLauncherPage1", false)) {
             int toPage = 1;
-            Class<?> Workspace = findClassIfExists("com.android.launcher3.Workspace", lpparam.classLoader);
             if (Workspace != null) {
                 tryHookAllMethods(Workspace, "moveToDefaultScreen", new XC_MethodHook() {
                     @Override
@@ -737,14 +742,6 @@ public class LauncherListener extends XposedModPack {
                     }
                 });
             }
-        }
-        Class<?> StashedHandleView = findClassIfExists("com.android.launcher3.taskbar.StashedHandleView", lpparam.classLoader);
-        if (StashedHandleView != null) {
-            tryHookAllConstructors(StashedHandleView, registerMyReceiver());
-        }
-        Class<?> HomeView = findClassIfExists("com.honeyspace.ui.honeypots.homescreen.presentation.HomeView", lpparam.classLoader);
-        if (HomeView != null) {
-            tryHookAllConstructors(HomeView, registerMyReceiver());
         }
         if (XPrefs.Xprefs.getBoolean("enableLauncherQQS", false)) {
             XC_MethodHook onStatusBarTouchEvent = getOnStatusBarTouchEventHook();
