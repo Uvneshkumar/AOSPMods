@@ -1493,15 +1493,17 @@ public class SystemUIListener extends XposedModPack {
                         ViewGroup viewGroup = (ViewGroup) param.thisObject;
                         viewGroup.removeAllViews();
                         customDateAlarmLayoutSmall = new CustomDateAlarmLayout(mContext);
-                        customDateAlarmLayoutSmall.showOnlySmall();
                         customDateAlarmLayoutBig = new CustomDateAlarmLayout(mContext);
                         customDateAlarmLayoutBig.setId(View.generateViewId());
                         customDateAlarmLayoutBig.setBig();
-                        viewGroup.post(() -> {
-                            ViewGroup keyguardRootView = (ViewGroup) viewGroup.getParent();
-                            keyguardRootView.addView(customDateAlarmLayoutBig);
-                            customDateAlarmLayoutBig.setY(customDateAlarmLayoutBigInitialY);
-                        });
+                        if (!Xprefs.getBoolean("keyguardSliceViewCustomA15", false)) {
+                            viewGroup.post(() -> {
+                                customDateAlarmLayoutSmall.showOnlySmall();
+                                ViewGroup keyguardRootView = (ViewGroup) viewGroup.getParent();
+                                keyguardRootView.addView(customDateAlarmLayoutBig);
+                                customDateAlarmLayoutBig.setY(customDateAlarmLayoutBigInitialY);
+                            });
+                        }
                         viewGroup.addView(customDateAlarmLayoutSmall);
                         if (myBroadcastReceiver != null) {
                             myBroadcastReceiver.customDateAlarmLayoutSmall = customDateAlarmLayoutSmall;
