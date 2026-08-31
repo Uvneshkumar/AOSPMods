@@ -145,7 +145,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
 
     @SuppressWarnings("DataFlowIssue")
     private void showAdvancedRebootMenu(Context context) {
-        String[] options = {"Reboot System", "Recovery", "Bootloader", "Fastboot", "Download", "EDL", "Restart SystemUI"};
+        String[] options = {"Reboot System", "Recovery", "Bootloader", "Fastboot", "Download", "EDL", "Restart Launcher", "Restart SystemUI"};
         AlertDialog.Builder builder = new AlertDialog.Builder(context, android.R.style.ThemeOverlay_Material_Dialog_Alert);
         builder.setItems(options, (dialog, which) -> {
             switch (which) {
@@ -168,6 +168,9 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
                     SystemUtils.reboot("edl");
                     break;
                 case 6:
+                    SystemUtils.RestartLauncher();
+                    break;
+                case 7:
                     SystemUtils.RestartSystemUI();
                     break;
             }
