@@ -353,7 +353,7 @@ public class AllAppsListener extends XposedModPack {
             tryHookAllMethods(SystemVibratorManager, "vibrate", new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    if (enableHapticTextHandle2 && param.args[2].toString().contains("effect=TEXTURE_TICK")) {
+                    if (enableHapticTextHandle2 && (param.args[2].toString().contains("effect=TEXTURE_TICK") || param.args[2].toString().equals("Mono{mEffect=Composed{segments=[Primitive{primitive=LOW_TICK, scale=0.6, delay=0, delayType=PAUSE}], repeat=-1}}"))) {
                         param.args[2] = CombinedVibration.createParallel(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK));
                     }
                     if (chirpScreenUnlockVibration && param.args[1].toString().contains("com.android.systemui") && param.args[2].toString().contains("Composed{segments=[Step{amplitude=0.39215687, frequencyHz=0.0, duration=5}, Step{amplitude=0.0, frequencyHz=0.0, duration=52}, Step{amplitude=0.039215688, frequencyHz=0.0, duration=10}, Step{amplitude=1.0, frequencyHz=0.0, duration=10}, Step{amplitude=0.078431375, frequencyHz=0.0, duration=10}], repeat=-1}")) {
