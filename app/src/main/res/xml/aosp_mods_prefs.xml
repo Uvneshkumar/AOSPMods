@@ -311,6 +311,11 @@
         android:defaultValue="false"
         android:key="showSecondsInQQS"
         android:title="Show Seconds in QQS Clock" />
+    <sh.siava.AOSPMods.ui.MaterialEditTextPreference
+        android:defaultValue="-1"
+        android:key="QQSClockMinWidth"
+        android:summary="Ex: 100 or -1"
+        android:title="QQS Clock Min Width\nWorks with above" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
         android:key="boldClockAndDateInStatusBar"

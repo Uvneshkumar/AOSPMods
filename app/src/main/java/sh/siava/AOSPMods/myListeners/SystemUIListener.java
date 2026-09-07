@@ -2044,7 +2044,12 @@ public class SystemUIListener extends XposedModPack {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         new Handler(Looper.getMainLooper()).postDelayed(() -> {
                             TextView clock = (TextView) getObjectField(param.thisObject, "clock");
-                            clock.setMinWidth((int) (clock.getMeasuredWidth() * 1.9));
+                            int QQSClockMinWidth = (int) Float.parseFloat(Xprefs.getString("QQSClockMinWidth", "-1"));
+                            if (QQSClockMinWidth == -1) {
+                                clock.setMinWidth((int) (clock.getMeasuredWidth() * 1.9));
+                            } else {
+                                clock.setMinWidth(QQSClockMinWidth);
+                            }
                             setObjectField(clock, "mShowSeconds", true);
                             callMethod(clock, "updateShowSeconds");
                             clock.setFontFeatureSettings(null);
