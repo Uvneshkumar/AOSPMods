@@ -697,6 +697,8 @@ public class SystemUIListener extends XposedModPack {
             int largeClockTopMarginDynamic = Helper.INSTANCE.getPx((int) Float.parseFloat(Xprefs.getString("largeClockTopMarginDynamic", "80")));
             customDateAlarmLayoutBigInitialY = customDateAlarmLayoutBigInitialY - largeClockTopMarginDynamic;
         }
+        int keyguardSliceViewCustomA16BigMargin = (int) Float.parseFloat(Xprefs.getString("keyguardSliceViewCustomA16BigMargin", "0"));
+        customDateAlarmLayoutBigInitialY = customDateAlarmLayoutBigInitialY + keyguardSliceViewCustomA16BigMargin;
         boolean largeClockDateSmartSpaceTopMarginA16 = Xprefs.getBoolean("largeClockDateSmartSpaceTopMarginA16", false);
         boolean hideClockDateSmartSpaceA16 = Xprefs.getBoolean("hideClockDateSmartSpaceA16", false);
         boolean fixHiddenLargeDateSmartSpaceA16 = Xprefs.getBoolean("fixHiddenLargeDateSmartSpaceA16", false);
