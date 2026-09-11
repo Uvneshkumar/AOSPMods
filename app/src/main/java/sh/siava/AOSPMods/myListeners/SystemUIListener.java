@@ -1102,7 +1102,7 @@ public class SystemUIListener extends XposedModPack {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if ((boolean) param.getResult() && param.args[0] instanceof MotionEvent event) {
-                            if (fpRect.contains(event.getX(), event.getY()) || (directUnlockOnTouchIn1By3Region && event.getY() > twoThirdScreenHeight)) {
+                            if ((directUnlockOnTouchInFpRegion && fpRect.contains(event.getX(), event.getY())) || (directUnlockOnTouchIn1By3Region && event.getY() > twoThirdScreenHeight)) {
                                 myIcon.setVisibility(View.INVISIBLE);
                                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                                     @Override
