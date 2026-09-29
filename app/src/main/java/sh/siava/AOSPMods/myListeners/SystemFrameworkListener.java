@@ -359,7 +359,7 @@ public class SystemFrameworkListener extends XposedModPack {
                         "com.olx.southasia/com.olxgroup.panamera.app.buyers.home.activities.BottomNavActivity",
                         "com.google.android.play.games/com.google.android.gms.games.ui.v2.MainActivity",
                         "in.redbus.android/.homeV2.HomeV2Activity",
-                        "com.google.android.googlequicksearchbox/.InternalGoogleAppActivityEntrypoint",
+//                        "com.google.android.googlequicksearchbox/.InternalGoogleAppActivityEntrypoint",
                         "org.swiftapps.swiftbackup/.home.HomeActivity",
                         "in.swiggy.android/.HomeIcon",
                         "in.swiggy.android/.activities.HomeActivity",
