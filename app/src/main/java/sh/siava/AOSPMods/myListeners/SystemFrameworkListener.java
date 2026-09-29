@@ -347,6 +347,7 @@ public class SystemFrameworkListener extends XposedModPack {
                 Set<String> stupidActivities = new HashSet<>(Set.of(
                         "com.supercell.clashroyale/com.supercell.titan.GameApp",
                         "com.whatsapp/.home.ui.HomeActivity",
+                        "com.Slack/slack.features.home.VintageHomeActivity",
                         "com.cloudflare.onedotonedotonedotone/com.cloudflare.app.presentation.main.MainActivity",
                         "idm.internet.download.manager.plus/idm.internet.download.manager.MainActivity",
                         "com.miniclip.eightballpool/.EightBallPoolActivity",
