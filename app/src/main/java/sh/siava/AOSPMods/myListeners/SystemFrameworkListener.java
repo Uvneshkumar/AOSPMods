@@ -366,7 +366,7 @@ public class SystemFrameworkListener extends XposedModPack {
                         "org.telegram.messenger/.DefaultIcon",
                         "com.termux/.app.TermuxActivity",
                         "com.matteljv.uno/com.netease.uno.CustomOverrideActivity",
-                        "com.iprototypes.volume/.main",
+//                        "com.iprototypes.volume/.main",
                         "fi.twomenandadog.walkmaster/com.unity3d.player.UnityPlayerActivity",
                         "com.wizconnected.wiz2/.MainActivity",
                         "com.google.android.youtube/.app.honeycomb.Shell$HomeActivity",
