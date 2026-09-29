@@ -1605,7 +1605,7 @@ public class SystemUIListener extends XposedModPack {
                                 customDateAlarmLayoutSmall.setMusicInfo(null, null);
                                 customDateAlarmLayoutSmall.setMusicAllowed(false);
                             }
-                        } else if (newState.equals("DOZE_AOD")) {
+                        } else if (newState.equals("DOZE_AOD") || newState.equals("DOZE_PULSING")) {
                             // Sleep - bindPlayer or bindPlayerContentDescription Triggers
                             customDateAlarmLayoutSmall.setMusicAllowed(true);
                         }
