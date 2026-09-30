@@ -23,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.TextView
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
@@ -220,21 +221,27 @@ object Helper {
         view.animate().alpha(0f).setDuration(100).start()
     }
 
-    private fun logViewDetails(view: View, indent: String) {
-        myLog("$indent- ${view::class.java.simpleName} (id: ${view.id}) ${view.layoutParams}")
+    private fun logViewDetails(view: View, indent: String, shouldLog: Boolean) {
+        if (shouldLog) {
+            myLog("$indent- ${view::class.java.simpleName} (id: ${view.id}) ${view.layoutParams}")
+        }
     }
 
-    private fun getAllViews(view: View, indent: String = ""): List<View> {
+    private fun getAllViews(
+        view: View,
+        indent: String = "",
+        shouldLog: Boolean = true
+    ): List<View> {
         val result = mutableListOf<View>()
         if (view is ViewGroup) {
             result.add(view)
-            logViewDetails(view, indent)
+            logViewDetails(view, indent, shouldLog)
             for (i in 0 until view.childCount) {
                 val child = view.getChildAt(i)
-                result.addAll(getAllViews(child, "$indent "))
+                result.addAll(getAllViews(child, "$indent ", shouldLog))
             }
         } else {
-            logViewDetails(view, indent)
+            logViewDetails(view, indent, shouldLog)
             result.add(view)
         }
         return result
@@ -242,6 +249,17 @@ object Helper {
 
     fun debugView(view: View) {
         getAllViews(view)
+    }
+
+    fun hasTextViewWithText(view: View, vararg searchTexts: String): Boolean {
+        return getAllViews(view, shouldLog = false)
+            .filterIsInstance<TextView>()
+            .any { textView ->
+                val viewText = textView.text.toString()
+                searchTexts.any { searchText ->
+                    viewText.contains(searchText, ignoreCase = true)
+                }
+            }
     }
 
     // https://github.com/SoClear/OneUIX/blob/main/app/src/main/java/io/github/soclear/oneuix/hook/SystemUI.kt#L588
