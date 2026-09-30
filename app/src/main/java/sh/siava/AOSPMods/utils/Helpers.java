@@ -97,21 +97,31 @@ public class Helpers {
             if (EXCLUDED_METHODS.contains(methodName)) {
                 continue;
             }
-            tryHookAllMethods(ourClass, methodName, new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(" \n");
-                    sb.append("Class: ").append(ourClass.getName()).append("\n");
-                    sb.append("Method: ").append(methodName).append("\n");
-                    for (Object arg : param.args) {
-                        sb.append("    arg: ").append(arg).append("\n");
-                    }
-                    sb.append("    result: ").append(param.getResult());
-                    myLog(sb.toString());
-                }
-            });
+            dumpHookThisMethod(ourClass, methodName);
         }
+    }
+
+    public static void hookOnly(Class<?> ourClass, String... methods) {
+        for (String methodName : methods) {
+            dumpHookThisMethod(ourClass, methodName);
+        }
+    }
+
+    private static void dumpHookThisMethod(Class<?> ourClass, String methodName) {
+        tryHookAllMethods(ourClass, methodName, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(" \n");
+                sb.append("Class: ").append(ourClass.getName()).append("\n");
+                sb.append("Method: ").append(methodName).append("\n");
+                for (Object arg : param.args) {
+                    sb.append("    arg: ").append(arg).append("\n");
+                }
+                sb.append("    result: ").append(param.getResult());
+                myLog(sb.toString());
+            }
+        });
     }
 
     private static FileObserver fileObserver;
