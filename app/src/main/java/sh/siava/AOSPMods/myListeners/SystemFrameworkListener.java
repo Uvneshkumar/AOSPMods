@@ -372,6 +372,11 @@ public class SystemFrameworkListener extends XposedModPack {
                         "com.wizconnected.wiz2/.MainActivity",
                         "com.google.android.youtube/.app.honeycomb.Shell$HomeActivity",
                         "ru.zdevs.zarchiver/.ZArchiver",
+                        "moe.haruue.wadb/.ui.activity.LaunchActivity",
+                        "moe.haruue.wadb/.component.HomeActivity",
+                        "com.ticktick.task/.activity.MeTaskActivity",
+                        "com.ticktick.task/.activity.TaskActivity",
+                        "com.ticktick.task/.HomeAlia_default",
                         "com.application.zomato/com.library.zomato.home.tabbed.home.HomeActivity",
                         "com.application.zomato/com.library.zomato.home.tabbed.home.HomeActivityV2",
                         "com.google.android.apps.wallpaper/com.android.wallpaper.picker.customization.ui.CustomizationPickerActivity"
