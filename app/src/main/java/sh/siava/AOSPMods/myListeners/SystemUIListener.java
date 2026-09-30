@@ -994,6 +994,46 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
+        if (XPrefs.Xprefs.getBoolean("fixEmptyShadeViewAnim", false)) {
+            Class<?> StackScrollerDecorView = findClassIfExists("com.android.systemui.statusbar.notification.row.StackScrollerDecorView", lpparam.classLoader);
+            if (StackScrollerDecorView != null) {
+                tryHookAllMethods(StackScrollerDecorView, "onFinishInflate", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        View mContent = (View) getObjectField(param.thisObject, "mContent");
+                        if (mContent.getRootView().toString().endsWith(" app:id/empty_shade_view}")) {
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                                int[] location = new int[2];
+                                mContent.getLocationOnScreen(location);
+                                if (location[0] > 0) {
+                                    mContent.setPadding(mContent.getPaddingLeft(), (int) (mContent.getPaddingTop() * 2.6), mContent.getPaddingRight(), (int) (mContent.getPaddingBottom() * 2.6));
+                                    int topPadding = mContent.getPaddingTop();
+                                    ViewTreeObserver viewTreeObserver = mContent.getViewTreeObserver();
+                                    viewTreeObserver.addOnDrawListener(() -> {
+                                        mContent.getLocationOnScreen(location);
+                                        int orientation = mContent.getResources().getConfiguration().orientation;
+                                        double multiplier = (orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) ? 0.4338 : 0.1624;
+                                        int basePadding = (int) (location[1] * multiplier);
+                                        if (basePadding >= topPadding) {
+                                            int excessPadding = basePadding - topPadding;
+                                            double exponent = (orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) ? 1.1 : 1.3;
+                                            int extraPadding = topPadding + (int) Math.pow(excessPadding, exponent);
+                                            mContent.setPadding(mContent.getPaddingLeft(), extraPadding, mContent.getPaddingRight(), mContent.getPaddingBottom());
+                                        }
+                                    });
+                                }
+                            }, 1000);
+                        }
+                    }
+                });
+                tryHookAllMethods(StackScrollerDecorView, "setVisible", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        param.args[1] = true;
+                    }
+                });
+            }
+        }
         if (Xprefs.getBoolean("enableClipboardSmartActions", false)) {
             Class<?> DeviceConfigClass = findClassIfExists("android.provider.DeviceConfig", lpparam.classLoader);
             if (DeviceConfigClass != null) {
