@@ -339,6 +339,10 @@
         app:summary="Comma separated values" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="fixEmptyShadeViewAnimAlpha"
+        android:title="No notification / You're all caught up - Alpha Anim Fix" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="fixEmptyShadeViewAnim"
         android:title="You're all caught up - Anim Fix" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference

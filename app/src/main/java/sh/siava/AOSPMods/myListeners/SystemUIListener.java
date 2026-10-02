@@ -994,6 +994,39 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
+        if (XPrefs.Xprefs.getBoolean("fixEmptyShadeViewAnimAlpha", false)) {
+            Class<?> EmptyShadeView = findClassIfExists("com.android.systemui.statusbar.notification.emptyshade.ui.view.EmptyShadeView", lpparam.classLoader);
+            Class<?> EmptyShadeIconView = findClassIfExists("com.android.systemui.statusbar.notification.emptyshade.ui.view.EmptyShadeIconView", lpparam.classLoader);
+            XC_MethodHook animAfterHook = new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    ViewGroup view = (ViewGroup) param.thisObject;
+                    View mContent = view.getChildAt(0);
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        int[] location = new int[2];
+                        mContent.getLocationOnScreen(location);
+                        if (location[0] > 0) {
+                            ViewTreeObserver viewTreeObserver = mContent.getViewTreeObserver();
+                            viewTreeObserver.addOnDrawListener(() -> {
+                                mContent.getLocationOnScreen(location);
+                                float startFadeY = heightPixels * 0.6f;
+                                float endFadeY = heightPixels * 0.8f;
+                                float currentY = location[1];
+                                float fadeProgress = (currentY - startFadeY) / (endFadeY - startFadeY);
+                                float targetAlpha = Math.max(0.0f, 1.0f - fadeProgress);
+                                mContent.setAlpha(targetAlpha);
+                            });
+                        }
+                    }, 1000);
+                }
+            };
+            if (EmptyShadeView != null) {
+                tryHookAllMethods(EmptyShadeView, "onFinishInflate", animAfterHook);
+            }
+            if (EmptyShadeIconView != null) {
+                tryHookAllMethods(EmptyShadeIconView, "onFinishInflate", animAfterHook);
+            }
+        }
         if (XPrefs.Xprefs.getBoolean("fixEmptyShadeViewAnim", false)) {
             Class<?> StackScrollerDecorView = findClassIfExists("com.android.systemui.statusbar.notification.row.StackScrollerDecorView", lpparam.classLoader);
             if (StackScrollerDecorView != null) {
