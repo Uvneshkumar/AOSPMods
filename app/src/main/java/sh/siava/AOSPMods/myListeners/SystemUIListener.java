@@ -1570,6 +1570,7 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
+        boolean keyguardSliceViewCustomA15 = Xprefs.getBoolean("keyguardSliceViewCustomA15", false);
         if (Xprefs.getBoolean("keyguardSliceViewCustomA16", false)) {
             Class<?> KeyguardSliceView = findClassIfExists("com.android.keyguard.KeyguardSliceView", lpparam.classLoader);
             if (KeyguardSliceView != null) {
@@ -1582,7 +1583,7 @@ public class SystemUIListener extends XposedModPack {
                         customDateAlarmLayoutBig = new CustomDateAlarmLayout(mContext);
                         customDateAlarmLayoutBig.setId(View.generateViewId());
                         customDateAlarmLayoutBig.setBig();
-                        if (!Xprefs.getBoolean("keyguardSliceViewCustomA15", false)) {
+                        if (!keyguardSliceViewCustomA15) {
                             viewGroup.post(() -> {
                                 customDateAlarmLayoutSmall.showOnlySmall();
                                 ViewGroup keyguardRootView = (ViewGroup) viewGroup.getParent();
@@ -1606,30 +1607,32 @@ public class SystemUIListener extends XposedModPack {
                     }
                 });
             }
-            Class<?> FlexClockViewGroup = findClassIfExists("com.android.systemui.shared.clocks.view.FlexClockViewGroup", lpparam.classLoader);
-            if (FlexClockViewGroup != null) {
-                tryHookAllMethods(FlexClockViewGroup, "onLayout", new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        ViewGroup viewGroup = (ViewGroup) param.thisObject;
-                        float alpha = viewGroup.getAlpha();
-                        if (alpha != 1) {
-                            customDateAlarmLayoutSmall.showOnlySmall();
+            if (!keyguardSliceViewCustomA15) {
+                Class<?> FlexClockViewGroup = findClassIfExists("com.android.systemui.shared.clocks.view.FlexClockViewGroup", lpparam.classLoader);
+                if (FlexClockViewGroup != null) {
+                    tryHookAllMethods(FlexClockViewGroup, "onLayout", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            ViewGroup viewGroup = (ViewGroup) param.thisObject;
+                            float alpha = viewGroup.getAlpha();
+                            if (alpha != 1) {
+                                customDateAlarmLayoutSmall.showOnlySmall();
+                            }
                         }
-                    }
-                });
-                tryHookAllMethods(FlexClockViewGroup, "setAlpha", new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        float alpha = (float) param.args[0];
-                        customDateAlarmLayoutBig.setAlpha(alpha);
-                        if (alpha == 1) {
-                            customDateAlarmLayoutSmall.showOnlySmall();
-                        } else if (alpha == 0) {
-                            customDateAlarmLayoutSmall.showAll();
+                    });
+                    tryHookAllMethods(FlexClockViewGroup, "setAlpha", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            float alpha = (float) param.args[0];
+                            customDateAlarmLayoutBig.setAlpha(alpha);
+                            if (alpha == 1) {
+                                customDateAlarmLayoutSmall.showOnlySmall();
+                            } else if (alpha == 0) {
+                                customDateAlarmLayoutSmall.showAll();
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
             Class<?> MediaControlPanel = findClassIfExists("com.android.systemui.media.controls.ui.controller.MediaControlPanel", lpparam.classLoader);
             if (MediaControlPanel != null) {
