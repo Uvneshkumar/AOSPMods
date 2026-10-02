@@ -1009,8 +1009,10 @@ public class SystemUIListener extends XposedModPack {
                             ViewTreeObserver viewTreeObserver = mContent.getViewTreeObserver();
                             viewTreeObserver.addOnDrawListener(() -> {
                                 mContent.getLocationOnScreen(location);
-                                float startFadeY = heightPixels * 0.6f;
-                                float endFadeY = heightPixels * 0.8f;
+                                int orientation = mContent.getResources().getConfiguration().orientation;
+                                int pixelsToUse = (orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) ? widthPixels : heightPixels;
+                                float startFadeY = pixelsToUse * 0.6f;
+                                float endFadeY = pixelsToUse * 0.8f;
                                 float currentY = location[1];
                                 float fadeProgress = (currentY - startFadeY) / (endFadeY - startFadeY);
                                 float targetAlpha = Math.max(0.0f, 1.0f - fadeProgress);
