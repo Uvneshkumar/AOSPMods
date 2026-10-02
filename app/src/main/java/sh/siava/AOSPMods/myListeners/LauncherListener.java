@@ -695,7 +695,7 @@ public class LauncherListener extends XposedModPack {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         boolean isLightMode = (mContext.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO;
-                        int bgColor = isLightMode ? 0xFFDBDAD9 : 0xFF121414;
+                        int bgColor = isLightMode ? 0xFFEBEBEB : 0xFF121414;
                         int searchColor = isLightMode ? 0xFFFFFFFF : 0xFF393939;
                         setObjectField(param.thisObject, "mBottomSheetBackgroundColorBlurFallback", bgColor);
 //						setObjectField(param.thisObject, "mBottomSheetBackgroundColorLegacy", 0xFFFFFFFF);
