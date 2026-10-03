@@ -4,6 +4,7 @@ import static de.robv.android.xposed.XposedBridge.hookAllConstructors;
 import static de.robv.android.xposed.XposedBridge.hookAllMethods;
 import static de.robv.android.xposed.XposedBridge.log;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
+import static de.robv.android.xposed.XposedHelpers.getObjectField;
 
 import android.graphics.RectF;
 import android.media.AudioManager;
@@ -69,6 +70,14 @@ public class Helpers {
             log("\t\t" + f.getName() + "-" + f.getType().getName());
         }
         log("End dump");
+    }
+
+    public static void getAllFields(Class<?> ourClass, Object thisObject) {
+        Field[] fs = ourClass.getDeclaredFields();
+        for (Field f : fs) {
+            log("\t\t" + f.getName() + "-" + f.getType().getName());
+            myLog(getObjectField(thisObject, f.getName()));
+        }
     }
 
     private static final Set<String> EXCLUDED_METHODS = Set.of(
