@@ -222,6 +222,13 @@ public class LauncherListener extends XposedModPack {
                     View view = (View) param.thisObject;
                     Drawable drawable = ResourcesCompat.getDrawable(XPrefs.modRes, R.drawable.app_drawer_bg, XPrefs.modRes.newTheme());
                     drawable.setAlpha((int) (255f * (oneUiLauncherBgOpacity / 100f)));
+                    @SuppressLint("DiscouragedApi") int resourceId = mContext.getResources().getIdentifier("rounded_corner_radius", "dimen", "android");
+                    if (resourceId > 0) {
+                        int rounded_corner_radius = mContext.getResources().getDimensionPixelSize(resourceId);
+                        if (drawable instanceof GradientDrawable gradientBg) {
+                            gradientBg.setCornerRadius(rounded_corner_radius);
+                        }
+                    }
                     view.setBackground(drawable);
                 }
             };
