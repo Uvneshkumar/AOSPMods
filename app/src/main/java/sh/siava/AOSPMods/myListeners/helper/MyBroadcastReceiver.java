@@ -14,6 +14,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.VibrationAttributes;
+import android.os.VibrationEffect;
 
 import androidx.core.app.NotificationCompat;
 
@@ -32,7 +34,8 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
     public static String SYSTEMUI_RESTART = "uvnesh.aospmods.SYSTEMUI_RESTART";
     public static String SYSTEMUI_RESTART_DISMISS = "uvnesh.aospmods.SYSTEMUI_RESTART_DISMISS";
     public static String GET_TEMPERATURE = "uvnesh.aospmods.GET_TEMPERATURE";
-    public static String[] actions = {SCREENSHOT, GET_TEMPERATURE, ADVANCED_REBOOT};
+    public static String BATTERY_SAVER = "uvnesh.aospmods.BATTERY_SAVER";
+    public static String[] actions = {SCREENSHOT, GET_TEMPERATURE, ADVANCED_REBOOT, BATTERY_SAVER};
 
     public static String SEND_TEMPERATURE = "uvnesh.aospmods.SEND_TEMPERATURE";
     public static String[] SystemUIActions = {SEND_TEMPERATURE, TORCH_ON, TORCH_OFF, TORCH_ACTUAL_OFF, SYSTEMUI_RESTART, SYSTEMUI_RESTART_DISMISS};
@@ -126,6 +129,8 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
             postSystemUiRestartNotification(context, true);
         } else if (GET_TEMPERATURE.equals(action)) {
             sendTemperature(context);
+        } else if (BATTERY_SAVER.equals(action)) {
+            batterySaverToggle();
         } else if (ADVANCED_REBOOT.equals(action)) {
             showAdvancedRebootMenu(context);
         } else if (SEND_TEMPERATURE.equals(action)) {
@@ -194,5 +199,23 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
             intent.putExtra("temperature", temperature);
             context.sendBroadcast(intent);
         }
+    }
+
+    private boolean isBatterySaverEnabled() {
+        Shell.Result result = Shell.cmd("settings get global low_power").exec();
+        if (!result.getOut().isEmpty()) {
+            return "1".equals(result.getOut().get(0).trim());
+        }
+        return false;
+    }
+
+    private void batterySaverToggle() {
+        boolean enabled = isBatterySaverEnabled();
+        if (enabled) {
+            SystemUtils.vibrate(VibrationEffect.EFFECT_CLICK, VibrationAttributes.USAGE_TOUCH);
+        } else {
+            SystemUtils.vibrate(VibrationEffect.EFFECT_DOUBLE_CLICK, VibrationAttributes.USAGE_TOUCH);
+        }
+        Shell.cmd("settings put global low_power " + (enabled ? "0" : "1")).submit();
     }
 }
