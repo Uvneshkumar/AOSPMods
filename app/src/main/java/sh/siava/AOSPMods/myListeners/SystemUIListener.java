@@ -809,6 +809,19 @@ public class SystemUIListener extends XposedModPack {
                             }
                         }
                     });
+                    tryHookAllMethods(BatteryMeterView, "onConfigurationChanged", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            LinearLayout view = (LinearLayout) param.thisObject;
+                            if (view.toString().contains("app:id/batteryRemainingIcon")) {
+                                TextView batteryPercentage = view.findViewWithTag("aospModsBatteryPercent");
+                                if (batteryPercentage != null) {
+                                    view.removeView(batteryPercentage);
+                                    view.addView(batteryPercentage);
+                                }
+                            }
+                        }
+                    });
                 }
             }
         }
