@@ -191,6 +191,8 @@ public class SystemUIListener extends XposedModPack {
     private boolean manualOverride = false;
     private ViewGroup notificationStackScrollLayout = null;
 
+    Object batteryViewModelObject;
+
     private void adjustClockMargin(XC_MethodHook.MethodHookParam param) {
         TextView textView = (TextView) param.thisObject;
         if (!textView.isSingleLine()) {
@@ -417,6 +419,27 @@ public class SystemUIListener extends XposedModPack {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         param.setResult(null);
+                    }
+                });
+            }
+        }
+        if (Xprefs.getBoolean("qsBatteryPercentageForce", false)) {
+            Class<?> BatteryViewModel = findClassIfExists("com.android.systemui.statusbar.pipeline.battery.ui.viewmodel.BatteryViewModel", lpparam.classLoader);
+            if (BatteryViewModel != null) {
+                tryHookAllConstructors(BatteryViewModel, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (batteryViewModelObject == null) {
+                            batteryViewModelObject = param.thisObject;
+                        }
+                    }
+                });
+                tryHookAllMethods(BatteryViewModel, "getGlyphList", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        if (batteryViewModelObject != null && batteryViewModelObject == param.thisObject) {
+                            param.setResult(new ArrayList<>());
+                        }
                     }
                 });
             }
