@@ -1168,6 +1168,7 @@ public class SystemUIListener extends XposedModPack {
         boolean directUnlockOnTouchInFpRegion = Xprefs.getBoolean("directUnlockOnTouchInFpRegion", false);
         boolean directUnlockOnTouchIn1By3Region = Xprefs.getBoolean("directUnlockOnTouchIn1By3Region", false);
         boolean directUnlockOnTouchIn1By3RegionHideFP = Xprefs.getBoolean("directUnlockOnTouchIn1By3RegionHideFP", false);
+        boolean directUnlockOnTouchIn1By3RegionHideFPAlpha = Xprefs.getBoolean("directUnlockOnTouchIn1By3RegionHideFPAlpha", false);
         if (directUnlockOnTouchInFpRegion || directUnlockOnTouchIn1By3Region) {
             Class<?> PulsingGestureListener = findClassIfExists("com.android.systemui.shade.PulsingGestureListener", lpparam.classLoader);
             if (PulsingGestureListener != null) {
@@ -1189,6 +1190,9 @@ public class SystemUIListener extends XposedModPack {
                                         }
                                         if (!directUnlockOnTouchIn1By3RegionHideFP) {
                                             myIcon.setVisibility(View.VISIBLE);
+                                        }
+                                        if (directUnlockOnTouchIn1By3RegionHideFPAlpha) {
+                                            myIcon.setAlpha(0f);
                                         }
                                     }
                                 }, 100);
