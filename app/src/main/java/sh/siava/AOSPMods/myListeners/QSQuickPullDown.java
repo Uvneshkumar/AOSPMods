@@ -1,6 +1,5 @@
 package sh.siava.AOSPMods.myListeners;
 
-import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.findClassIfExists;
 import static de.robv.android.xposed.XposedHelpers.getIntField;
@@ -8,7 +7,7 @@ import static sh.siava.AOSPMods.XPrefs.Xprefs;
 import static sh.siava.AOSPMods.utils.Helpers.tryHookAllMethods;
 
 import android.content.Context;
-import android.content.res.XResources;
+import android.content.res.Resources;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.view.MotionEvent;
@@ -17,7 +16,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sh.siava.AOSPMods.AOSPMods;
 import sh.siava.AOSPMods.XposedModPack;
-import sh.siava.AOSPMods.myListeners.helper.Helper;
 import sh.siava.AOSPMods.utils.SystemUtils;
 
 @SuppressWarnings("RedundantThrows")
@@ -57,15 +55,9 @@ public class QSQuickPullDown extends XposedModPack {
     boolean quickPullApproved = false;
 
     public static boolean isQuickPullApproved(float x) {
-        int w = Helper.INSTANCE.getWidthPixels();
-        int widthToCheck;
-        if (XResources.getSystem().getConfiguration().orientation == ORIENTATION_PORTRAIT) {
-            widthToCheck = w;
-        } else {
-            widthToCheck = Helper.INSTANCE.getHeightPixels();
-        }
-        float region = w * statusbarPortion;
-        return (pullDownSide == PULLDOWN_SIDE_RIGHT) ? widthToCheck - region < x : x < region;
+        int widthPixels = Resources.getSystem().getDisplayMetrics().widthPixels;
+        float region = widthPixels * statusbarPortion;
+        return (pullDownSide == PULLDOWN_SIDE_RIGHT) ? widthPixels - region < x : x < region;
     }
 
     @Override
@@ -106,7 +98,7 @@ public class QSQuickPullDown extends XposedModPack {
                         if (oneFingerPulldownEnabled || enableLauncherQQS) {
                             if (action == MotionEvent.ACTION_DOWN) {
                                 if (enableLauncherQQS) {
-                                    callMethod(param.thisObject, "setStatusBarMinHeight", Helper.INSTANCE.getHeightPixels());
+                                    callMethod(param.thisObject, "setStatusBarMinHeight", Resources.getSystem().getDisplayMetrics().heightPixels);
                                 }
                                 if (oneFingerPulldownEnabled) {
                                     quickPullApproved = isQuickPullApproved(event.getX());
