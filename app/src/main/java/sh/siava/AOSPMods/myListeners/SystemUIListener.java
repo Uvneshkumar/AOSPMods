@@ -2276,6 +2276,34 @@ public class SystemUIListener extends XposedModPack {
                     }
                 });
             }
+            // One UI
+            Class<?> SamsungGlobalActionsGridView = findClassIfExists("com.samsung.android.globalactions.presentation.view.GlobalActionsContentView$SamsungGlobalActionsGridView", lpparam.classLoader);
+            if (SamsungGlobalActionsGridView != null) {
+                tryHookAllConstructors(SamsungGlobalActionsGridView, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Object globalActionsContentView = param.args[0];
+                        View view = (View) param.thisObject;
+                        view.post(new Runnable() {
+                            @SuppressLint("SetTextI18n")
+                            @Override
+                            public void run() {
+                                TextView restart = Helper.INSTANCE.getTextViewWithText(view, "Restart");
+                                if (restart != null) {
+                                    restart.setText("Advanced");
+                                    ImageView icon = (ImageView) ((ViewGroup) restart.getParent()).getChildAt(0);
+                                    icon.setOnClickListener(v -> {
+                                        callMethod(globalActionsContentView, "dismiss");
+                                        Intent intent = new Intent();
+                                        intent.setAction(MyBroadcastReceiver.ADVANCED_REBOOT);
+                                        mContext.sendBroadcast(intent);
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            }
         }
         // https://gemini.google.com/app/291b3b9f362460e8
         if (Xprefs.getBoolean("enableQsSpringOnPull", false)) {

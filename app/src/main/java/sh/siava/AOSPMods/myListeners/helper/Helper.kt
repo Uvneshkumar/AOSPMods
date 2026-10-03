@@ -251,10 +251,10 @@ object Helper {
         getAllViews(view)
     }
 
-    fun hasTextViewWithText(view: View, vararg searchTexts: String): Boolean {
+    fun getTextViewWithText(view: View, vararg searchTexts: String): TextView? {
         return getAllViews(view, shouldLog = false)
             .filterIsInstance<TextView>()
-            .any { textView ->
+            .find { textView ->
                 val viewText = textView.text.toString()
                 searchTexts.any { searchText ->
                     viewText.contains(searchText, ignoreCase = true)
