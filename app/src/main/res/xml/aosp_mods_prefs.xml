@@ -541,6 +541,10 @@
         android:title="OneUI Always Show Date &amp; Time in QQS" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="oneUICenterAlignStatusBar"
+        android:title="One UI Center Align Status Bar" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="forceSmallClock"
         android:title="Force Small Clock (A12)" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference

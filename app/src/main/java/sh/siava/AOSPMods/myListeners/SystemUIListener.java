@@ -812,6 +812,27 @@ public class SystemUIListener extends XposedModPack {
                 }
             }
         }
+        if (Xprefs.getBoolean("oneUICenterAlignStatusBar", false)) {
+            Class<?> PhoneStatusBarView = findClassIfExists("com.android.systemui.statusbar.phone.PhoneStatusBarView", lpparam.classLoader);
+            if (PhoneStatusBarView != null) {
+                tryHookAllMethods(PhoneStatusBarView, "onApplyWindowInsets", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        View phoneStatusBarView = (View) param.thisObject;
+                        int status_bar_contents = mContext
+                                .getResources()
+                                .getIdentifier("status_bar_contents", "id", "com.android.systemui");
+                        View statusBarContents = phoneStatusBarView.findViewById(status_bar_contents);
+                        if (statusBarContents != null) {
+                            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) statusBarContents.getLayoutParams();
+                            int toMargin = (lp.topMargin + lp.bottomMargin) / 2;
+                            lp.topMargin = toMargin;
+                            lp.bottomMargin = toMargin;
+                        }
+                    }
+                });
+            }
+        }
         if (XPrefs.Xprefs.getBoolean("alwaysShowTimeDateOnQsOneUI", false)) {
             Helper.INSTANCE.alwaysShowTimeDateOnQs(lpparam);
         }
