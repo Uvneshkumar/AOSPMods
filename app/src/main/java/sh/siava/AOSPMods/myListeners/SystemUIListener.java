@@ -1015,6 +1015,41 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
+        if (XPrefs.Xprefs.getBoolean("fixEmptyShadeViewAnimAlpha", false)) {
+            Class<?> EmptyShadeView = findClassIfExists("com.android.systemui.statusbar.notification.emptyshade.ui.view.EmptyShadeView", lpparam.classLoader);
+            Class<?> EmptyShadeIconView = findClassIfExists("com.android.systemui.statusbar.notification.emptyshade.ui.view.EmptyShadeIconView", lpparam.classLoader);
+            XC_MethodHook animAfterHook = new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    ViewGroup view = (ViewGroup) param.thisObject;
+                    View mContent = view.getChildAt(0);
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        int[] location = new int[2];
+                        mContent.getLocationOnScreen(location);
+                        if (location[0] > 0) {
+                            ViewTreeObserver viewTreeObserver = mContent.getViewTreeObserver();
+                            viewTreeObserver.addOnDrawListener(() -> {
+                                mContent.getLocationOnScreen(location);
+                                int orientation = mContent.getResources().getConfiguration().orientation;
+                                int pixelsToUse = (orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) ? widthPixels : heightPixels;
+                                float startFadeY = pixelsToUse * 0.6f;
+                                float endFadeY = pixelsToUse * 0.8f;
+                                float currentY = location[1];
+                                float fadeProgress = (currentY - startFadeY) / (endFadeY - startFadeY);
+                                float targetAlpha = Math.max(0.0f, 1.0f - fadeProgress);
+                                mContent.setAlpha(targetAlpha);
+                            });
+                        }
+                    }, 1000);
+                }
+            };
+            if (EmptyShadeView != null) {
+                tryHookAllMethods(EmptyShadeView, "onFinishInflate", animAfterHook);
+            }
+            if (EmptyShadeIconView != null) {
+                tryHookAllMethods(EmptyShadeIconView, "onFinishInflate", animAfterHook);
+            }
+        }
         if (XPrefs.Xprefs.getBoolean("fixEmptyShadeViewAnim", false)) {
             Class<?> StackScrollerDecorView = findClassIfExists("com.android.systemui.statusbar.notification.row.StackScrollerDecorView", lpparam.classLoader);
             if (StackScrollerDecorView != null) {
@@ -1154,6 +1189,7 @@ public class SystemUIListener extends XposedModPack {
         boolean directUnlockOnTouchInFpRegion = Xprefs.getBoolean("directUnlockOnTouchInFpRegion", false);
         boolean directUnlockOnTouchIn1By3Region = Xprefs.getBoolean("directUnlockOnTouchIn1By3Region", false);
         boolean directUnlockOnTouchIn1By3RegionHideFP = Xprefs.getBoolean("directUnlockOnTouchIn1By3RegionHideFP", false);
+        boolean directUnlockOnTouchIn1By3RegionHideFPAlpha = Xprefs.getBoolean("directUnlockOnTouchIn1By3RegionHideFPAlpha", false);
         if (directUnlockOnTouchInFpRegion || directUnlockOnTouchIn1By3Region) {
             Class<?> PulsingGestureListener = findClassIfExists("com.android.systemui.shade.PulsingGestureListener", lpparam.classLoader);
             if (PulsingGestureListener != null) {
@@ -1175,6 +1211,9 @@ public class SystemUIListener extends XposedModPack {
                                         }
                                         if (!directUnlockOnTouchIn1By3RegionHideFP) {
                                             myIcon.setVisibility(View.VISIBLE);
+                                        }
+                                        if (directUnlockOnTouchIn1By3RegionHideFPAlpha) {
+                                            myIcon.setAlpha(0f);
                                         }
                                     }
                                 }, 100);
@@ -1558,6 +1597,7 @@ public class SystemUIListener extends XposedModPack {
                 });
             }
         }
+        boolean keyguardSliceViewCustomA15 = Xprefs.getBoolean("keyguardSliceViewCustomA15", false);
         if (Xprefs.getBoolean("keyguardSliceViewCustomA16", false)) {
             Class<?> KeyguardSliceView = findClassIfExists("com.android.keyguard.KeyguardSliceView", lpparam.classLoader);
             if (KeyguardSliceView != null) {
@@ -1570,7 +1610,7 @@ public class SystemUIListener extends XposedModPack {
                         customDateAlarmLayoutBig = new CustomDateAlarmLayout(mContext);
                         customDateAlarmLayoutBig.setId(View.generateViewId());
                         customDateAlarmLayoutBig.setBig();
-                        if (!Xprefs.getBoolean("keyguardSliceViewCustomA15", false)) {
+                        if (!keyguardSliceViewCustomA15) {
                             viewGroup.post(() -> {
                                 customDateAlarmLayoutSmall.showOnlySmall();
                                 ViewGroup keyguardRootView = (ViewGroup) viewGroup.getParent();
@@ -1594,30 +1634,32 @@ public class SystemUIListener extends XposedModPack {
                     }
                 });
             }
-            Class<?> FlexClockViewGroup = findClassIfExists("com.android.systemui.shared.clocks.view.FlexClockViewGroup", lpparam.classLoader);
-            if (FlexClockViewGroup != null) {
-                tryHookAllMethods(FlexClockViewGroup, "onLayout", new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        ViewGroup viewGroup = (ViewGroup) param.thisObject;
-                        float alpha = viewGroup.getAlpha();
-                        if (alpha != 1) {
-                            customDateAlarmLayoutSmall.showOnlySmall();
+            if (!keyguardSliceViewCustomA15) {
+                Class<?> FlexClockViewGroup = findClassIfExists("com.android.systemui.shared.clocks.view.FlexClockViewGroup", lpparam.classLoader);
+                if (FlexClockViewGroup != null) {
+                    tryHookAllMethods(FlexClockViewGroup, "onLayout", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            ViewGroup viewGroup = (ViewGroup) param.thisObject;
+                            float alpha = viewGroup.getAlpha();
+                            if (alpha != 1) {
+                                customDateAlarmLayoutSmall.showOnlySmall();
+                            }
                         }
-                    }
-                });
-                tryHookAllMethods(FlexClockViewGroup, "setAlpha", new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        float alpha = (float) param.args[0];
-                        customDateAlarmLayoutBig.setAlpha(alpha);
-                        if (alpha == 1) {
-                            customDateAlarmLayoutSmall.showOnlySmall();
-                        } else if (alpha == 0) {
-                            customDateAlarmLayoutSmall.showAll();
+                    });
+                    tryHookAllMethods(FlexClockViewGroup, "setAlpha", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            float alpha = (float) param.args[0];
+                            customDateAlarmLayoutBig.setAlpha(alpha);
+                            if (alpha == 1) {
+                                customDateAlarmLayoutSmall.showOnlySmall();
+                            } else if (alpha == 0) {
+                                customDateAlarmLayoutSmall.showAll();
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
             Class<?> MediaControlPanel = findClassIfExists("com.android.systemui.media.controls.ui.controller.MediaControlPanel", lpparam.classLoader);
             if (MediaControlPanel != null) {

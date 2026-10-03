@@ -216,6 +216,10 @@
         android:title="Always hide FP icon when above is enabled" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="directUnlockOnTouchIn1By3RegionHideFPAlpha"
+        android:title="Only Hide with Alpha" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="disableLockScreenBounceAmbient"
         android:title="Hide AmbientIndicationContainer - Interferes with ST2S on Lock Screen" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
@@ -339,6 +343,10 @@
         app:summary="Comma separated values" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="false"
+        android:key="fixEmptyShadeViewAnimAlpha"
+        android:title="No notification / You're all caught up - Alpha Anim Fix" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
         android:key="fixEmptyShadeViewAnim"
         android:title="You're all caught up - Anim Fix" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
@@ -442,6 +450,10 @@
         android:defaultValue="false"
         android:key="powerVolumeUpPrivateScreenshot"
         android:title="Power + Volume UP for .private Screenshots\nNeeds &quot;Prevent ringing&quot; gesture to be enabled if AOSP" />
+    <sh.siava.AOSPMods.ui.MaterialSwitchPreference
+        android:defaultValue="false"
+        android:key="assistantKeyShortPressToBatterySaver"
+        android:title="Assistant Key Short Press to Toggle Battery Saver" />
     <sh.siava.AOSPMods.ui.MaterialSwitchPreference
         android:defaultValue="true"
         android:key="assistantAnimationColors"

@@ -82,6 +82,8 @@ public class SystemFrameworkListener extends XposedModPack {
     boolean isCaptureStarted = false;
     Object phoneWindowManagerClass = null;
 
+    private boolean canHandleKey = false;
+
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         if (!isFirstTime) {
@@ -302,6 +304,31 @@ public class SystemFrameworkListener extends XposedModPack {
                             isCaptureStarted = false;
                             captureScreen();
                             param.setResult(null);
+                        }
+                    }
+                });
+            }
+        }
+        if (Xprefs.getBoolean("assistantKeyShortPressToBatterySaver", false)) {
+            Class<?> PhoneWindowManager = findClassIfExists("com.android.server.policy.PhoneWindowManager", lpparam.classLoader);
+            if (PhoneWindowManager != null) {
+                tryHookAllMethods(PhoneWindowManager, "handleKeyGesture", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        KeyEvent keyGestureEvent = (KeyEvent) param.args[0];
+                        if (keyGestureEvent.getKeyCode() == KeyEvent.KEYCODE_ASSIST) {
+                            if (keyGestureEvent.getAction() == KeyEvent.ACTION_DOWN) {
+                                canHandleKey = true;
+                                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                                    canHandleKey = false;
+                                }, 400);
+                            }
+                            if ((keyGestureEvent.getAction() == KeyEvent.ACTION_UP) && canHandleKey) {
+                                canHandleKey = false;
+                                Intent intent = new Intent();
+                                intent.setAction(MyBroadcastReceiver.BATTERY_SAVER);
+                                mContext.sendBroadcast(intent);
+                            }
                         }
                     }
                 });
